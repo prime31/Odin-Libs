@@ -1,8 +1,9 @@
-projects/main
-projects/tester
-projects/tester_sokol
+projects/*
+projects/!*.*
+projects/!*/
 *.o
 ctest/libctest.dylib
 flextgl/thirdparty/libflextgl.dylib
 projects/*.dylib
 sokol/thirdparty/libsokol.dylib
+projects/cube
