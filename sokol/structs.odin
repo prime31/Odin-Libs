@@ -1,7 +1,17 @@
 package sokol
 
+import "core:c"
+
 sg_desc :: struct {
-	_start_canary: u32
+	_start_canary: u32,
+    buffer_pool_size: int,
+    image_pool_size: int,
+    shader_pool_size: int,
+    pipeline_pool_size: int,
+    pass_pool_size: int,
+    context_pool_size: int,
+    gl_force_gles2: bool,
+    
 	_end_canary: u32
 }
 

@@ -1,9 +1,12 @@
 package sokol
+
 import "core:os"
+import "core:c"
 
 when os.OS == "windows" do foreign import lib "sokol.dll";
 when os.OS == "linux" do foreign import lib "sokol";
-when os.OS == "darwin" do foreign import lib "libsokol_gfx.dylib";
+when os.OS == "darwin" do foreign import lib "thirdparty/libsokol.dylib";
+
 
 @(default_calling_convention="c")
 @(link_prefix="sg_")
