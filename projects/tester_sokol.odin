@@ -3,7 +3,6 @@ package main
 import "core:fmt"
 import sg "shared:engine/libs/sokol"
 import "shared:engine/libs/flextgl"
-import "shared:engine/ctest"
 import "shared:engine/libs/sdl2"
 
 

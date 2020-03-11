@@ -8,7 +8,7 @@ import sdl_ttf "shared:sdl2/ttf"
 
 Vector2 :: struct {
     x: f32,
-    y: f32,
+    y: f32
 }
 
 
