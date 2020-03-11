@@ -1,10 +1,10 @@
 package main
 
 import "core:fmt"
-import sg "shared:engine/sokol"
-import "shared:engine/flextgl"
+import sg "shared:engine/libs/sokol"
+import "shared:engine/libs/flextgl"
 import "shared:engine/ctest"
-import "shared:sdl2"
+import "shared:engine/libs/sdl2"
 
 
 state: struct {

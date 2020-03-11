@@ -7,3 +7,8 @@ flextgl/thirdparty/libflextgl.dylib
 projects/*.dylib
 sokol/thirdparty/libsokol.dylib
 projects/cube
+libs/flextgl/native/libflextgl.dylib
+libs/flecs/native/libflecs_shared.dylib
+libs/flecs/native/libflecs_static.a
+libs/sokol/native/libsokol.dylib
+libs/stb_image/native/libstbimage.a

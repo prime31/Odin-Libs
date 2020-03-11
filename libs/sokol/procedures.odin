@@ -1,7 +1,6 @@
 package sokol
 
-when ODIN_OS == "windows" do foreign import sgfx_lib "sokol_gfx_d3d11.lib"
-when ODIN_OS == "darwin" do foreign import sgfx_lib "thirdparty/libsokol.dylib";
+when ODIN_OS == "darwin" do foreign import sgfx_lib "native/libsokol.dylib";
 
 import "core:c"
 

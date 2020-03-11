@@ -7,4 +7,4 @@ build:
 
 build_dynamic:
 	cc -framework OpenGL -framework Cocoa -framework QuartzCore -L../../flextgl/thirdparty -lflextgl -dynamiclib -o libsokol.dylib sokol.o
-	cp libsokol.dylib ../../projects/
+	cp libsokol.dylib ../../../projects/
