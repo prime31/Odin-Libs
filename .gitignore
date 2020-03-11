@@ -1,14 +1,18 @@
-projects/*
-projects/!*.*
-projects/!*/
-*.o
-ctest/libctest.dylib
-flextgl/thirdparty/libflextgl.dylib
+# hack to get files without extensions ignored
+# - ignore everything
+# - white-list the parent folders recursively
+# - white-list files with an extension
+*
+!*/
+!*.*
+
 projects/*.dylib
-sokol/thirdparty/libsokol.dylib
-projects/cube
-libs/flextgl/native/libflextgl.dylib
-libs/flecs/native/libflecs_shared.dylib
-libs/flecs/native/libflecs_static.a
-libs/sokol/native/libsokol.dylib
-libs/stb_image/native/libstbimage.a
+*.o
+
+# for now just keep compiled libs out of there. add exceptions for those that cant be easily built
+*.dylib
+*.a
+
+
+# junk
+.DS_Store
