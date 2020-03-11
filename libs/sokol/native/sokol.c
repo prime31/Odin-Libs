@@ -1,4 +1,4 @@
-#include "../../flextgl/thirdparty/flextGL.h"
+#include "../../flextgl/native/flextGL.h"
 
 #define SOKOL_GLCORE33
 #define SOKOL_IMPL

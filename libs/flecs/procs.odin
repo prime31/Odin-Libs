@@ -1,6 +1,7 @@
 package flecs
 
 import "core:strings"
+import "core:mem"
 
 when ODIN_OS == "windows" do foreign import flecs_lib "native/flecs.lib"
 when ODIN_OS == "linux" do foreign import flecs_lib "native/flecs.a"
@@ -24,6 +25,7 @@ foreign flecs_lib {
 	column :: proc(rows: ^Rows, size: u32, column: u32) -> rawptr ---;
 }
 
-col :: proc($T: typeid, rows: ^Rows, col: u32) -> ^T {
-	return cast(^T)column(rows, size_of(T), col);
+col :: proc($T: typeid, rows: ^Rows, col: u32) -> []T {
+	ptr := cast(^T)column(rows, size_of(T), col);
+	return mem.slice_ptr(ptr, cast(int)rows.count);
 }
