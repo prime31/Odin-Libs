@@ -1,7 +1,5 @@
 package imgui
 
-// TODO: fix the color_edit methods
-
 // when ODIN_OS == "windows" do foreign import cimgui "";
 // when ODIN_OS == "linux" do foreign import cimgui "";
 // when ODIN_OS == "darwin" do foreign import cimgui "native/cimgui.a";
@@ -416,13 +414,25 @@ foreign cimgui {
     @(link_name = "igVSliderInt")   im_vslider_int   :: proc(label : cstring, size : Vec2, v : ^i32, v_min : i32, v_max : i32, display_format : cstring) -> bool               ---;
 }
 
-// color_edit    :: proc{color_edit3, color_edit4};
-// color_edit3   :: proc(label : string, col : [3]f32, flags := Color_Edit_Flags(0)) -> bool { return im_color_edit3(_make_label_string(label), &col[0], flags) }
-// color_edit4   :: proc(label : string, col : [4]f32, flags := Color_Edit_Flags(0)) -> bool { return im_color_edit4(_make_label_string(label), &col[0], flags) }
+color_edit    :: proc{color_edit3, color_edit4};
+color_edit3   :: proc(label : string, col : [3]f32, flags := Color_Edit_Flags(0)) -> bool {
+    colors := col;
+    return im_color_edit3(_make_label_string(label), &colors[0], flags);
+}
+color_edit4   :: proc(label : string, col : [4]f32, flags := Color_Edit_Flags(0)) -> bool {
+    colors := col;
+    return im_color_edit4(_make_label_string(label), &colors[0], flags);
+}
 
-// color_picker  :: proc{color_picker3, color_picker4};
-// color_picker3 :: proc(label : string, col : [3]f32, flags := Color_Edit_Flags(0)) -> bool { return im_color_picker3(_make_label_string(label), &col[0], flags) }
-// color_picker4 :: proc(label : string, col : [4]f32, flags := Color_Edit_Flags(0)) -> bool { return im_color_picker4(_make_label_string(label), &col[0], flags) }
+color_picker  :: proc{color_picker3, color_picker4};
+color_picker3 :: proc(label : string, col : [3]f32, flags := Color_Edit_Flags(0)) -> bool {
+    colors := col;
+    return im_color_picker3(_make_label_string(label), &colors[0], flags);
+}
+color_picker4 :: proc(label : string, col : [4]f32, flags := Color_Edit_Flags(0)) -> bool {
+    colors := col;
+    return im_color_picker4(_make_label_string(label), &colors[0], flags);
+}
 color_button  :: proc(desc_id : string, col : Vec4, flags := Color_Edit_Flags(0), size : Vec2 = Vec2{0, 0}) -> bool { return im_color_button(_make_label_string(desc_id), col, flags, size) }
 
 @(default_calling_convention="c")
