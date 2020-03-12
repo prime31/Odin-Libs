@@ -15,20 +15,20 @@ foreign fs {
     set_error_callback :: proc(s : ^Context, unamed0 : #type proc(), uptr : rawptr) ---;
 
     @(link_name = "fonsGetAtlasSize")
-    get_atlas_size :: proc(s : ^Context, width : ^_c.int, height : ^_c.int) ---;
+    get_atlas_size :: proc(s : ^Context, width : ^i32, height : ^i32) ---;
 
     @(link_name = "fonsExpandAtlas")
-    expand_atlas :: proc(s : ^Context, width : _c.int, height : _c.int) -> _c.int ---;
+    expand_atlas :: proc(s : ^Context, width : i32, height : i32) -> i32 ---;
 
     @(link_name = "fonsResetAtlas")
-    reset_atlas :: proc(stash : ^Context, width : _c.int, height : _c.int) -> _c.int ---;
+    reset_atlas :: proc(stash : ^Context, width : i32, height : i32) -> i32 ---;
 
     // Add/manage fonts
     @(link_name = "fonsGetFontByName")
-    get_font_by_name :: proc(s : ^Context, name : cstring) -> _c.int ---;
+    get_font_by_name :: proc(s : ^Context, name : cstring) -> i32 ---;
 
     @(link_name = "fonsAddFallbackFont")
-    add_fallback_font :: proc(stash : ^Context, base : _c.int, fallback : _c.int) -> _c.int ---;
+    add_fallback_font :: proc(stash : ^Context, base : i32, fallback : i32) -> i32 ---;
 
     // State handling
     @(link_name = "fonsPushState")
@@ -54,10 +54,10 @@ foreign fs {
     set_blur :: proc(s : ^Context, blur : _c.float) ---;
 
     @(link_name = "fonsSetAlign")
-    set_align :: proc(s : ^Context, align : _c.int) ---;
+    set_align :: proc(s : ^Context, align : i32) ---;
 
     @(link_name = "fonsSetFont")
-    set_font :: proc(s : ^Context, font : _c.int) ---;
+    set_font :: proc(s : ^Context, font : i32) ---;
 
     // Draw text
     @(link_name = "fonsDrawText")
@@ -75,17 +75,17 @@ foreign fs {
 
     // Text iterator
     @(link_name = "fonsTextIterInit")
-    text_iter_init :: proc(stash : ^Context, iter : ^TextIter, x : _c.float, y : _c.float, str : cstring, end : cstring) -> _c.int ---;
+    text_iter_init :: proc(stash : ^Context, iter : ^TextIter, x : _c.float, y : _c.float, str : cstring, end : cstring) -> i32 ---;
 
     @(link_name = "fonsTextIterNext")
-    text_iter_next :: proc(stash : ^Context, iter : ^TextIter, quad : ^Quad) -> _c.int ---;
+    text_iter_next :: proc(stash : ^Context, iter : ^TextIter, quad : ^Quad) -> i32 ---;
 
     // Pull texture changes
     @(link_name = "fonsGetTextureData")
-    get_texture_data :: proc(stash : ^Context, width : ^_c.int, height : ^_c.int) -> ^_c.uchar ---;
+    get_texture_data :: proc(stash : ^Context, width : ^i32, height : ^i32) -> ^_c.uchar ---;
 
     @(link_name = "fonsValidateTexture")
-    validate_texture :: proc(s : ^Context, dirty : ^_c.int) -> _c.int ---;
+    validate_texture :: proc(s : ^Context, dirty : ^i32) -> i32 ---;
 
     // Draws the stash texture for debugging
     @(link_name = "fonsDrawDebug")
