@@ -1,6 +1,10 @@
 package sokol
 
-when ODIN_OS == "darwin" do foreign import sgfx_lib "native/libsokol_gl.dylib";
+when #defined(METAL) {
+	when ODIN_OS == "darwin" do foreign import sgfx_lib "native/libsokol_metal.dylib";
+} else {
+	when ODIN_OS == "darwin" do foreign import sgfx_lib "native/libsokol_gl.dylib";
+}
 
 import "core:c"
 
