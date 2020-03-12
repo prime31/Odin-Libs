@@ -1,5 +1,7 @@
 package sokol
 
+when #defined(METAL) {
+
 when ODIN_OS == "darwin" do foreign import metal_lib "native/libsokol_metal.dylib";
 
 @(default_calling_convention="c")
@@ -15,4 +17,6 @@ foreign metal_lib {
 	set_framebuffer_only :: proc(framebuffer_only: bool) ---;
 	set_drawable_size :: proc(width: int, height: int) ---;
 	set_display_sync_enabled :: proc(enabled: bool) ---;
+}
+
 }
