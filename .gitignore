@@ -16,3 +16,5 @@ projects/*.dylib
 
 # junk
 .DS_Store
+libs/imgui/native/cimgui_git
+projects/imgui.ini
