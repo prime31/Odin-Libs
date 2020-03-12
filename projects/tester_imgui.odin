@@ -11,11 +11,12 @@ main :: proc() {
 
 	flextgl.init();
 
-	imgui.impl_init_for_gl("#version 150", window, gl_context);
+	imgui.create_context();
+	io := imgui.get_io();
+	io.config_flags |= .DockingEnable;
+	io.config_flags |= .ViewportsEnable;
 
-	// shader params
-	w, h: i32;
-	sdl2.gl_get_drawable_size(window, &w, &h);
+	imgui.impl_init_for_gl("#version 150", window, gl_context);
 
 	running := true;
 	for running {
@@ -30,6 +31,11 @@ main :: proc() {
 		imgui.im_text("whatever");
 		imgui.render();
 		imgui.impl_render();
+
+		if int(io.config_flags & .ViewportsEnable) != 0 {
+			imgui.update_platform_windows();
+			imgui.render_platform_windows_default();
+		}
 
 		sdl2.gl_swap_window(window);
 	}

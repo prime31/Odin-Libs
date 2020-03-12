@@ -671,6 +671,10 @@ set_clipboard_text :: proc(text : string) { im_set_clipboard_text(_make_text_str
 
 @(default_calling_convention="c")
 foreign cimgui {
+    // Viewports
+    @(link_name = "igUpdatePlatformWindows") update_platform_windows :: proc() ---;
+    @(link_name = "igRenderPlatformWindowsDefault") render_platform_windows_default :: proc(platform_arg: rawptr = nil, renderer_arg: rawptr = nil) ---;
+
 // Helpers functions to access functions pointers in ImGui::GetIO()
     @(link_name = "igMemAlloc")          mem_alloc             :: proc(sz : uint) -> rawptr ---;
     @(link_name = "igMemFree")           mem_free              :: proc(ptr : rawptr) ---;
