@@ -243,7 +243,7 @@ foreign cimgui {
     @(link_name = "igGetIDPtr")        get_id_ptr         :: proc (ptr_id : rawptr) -> ID  ---;
 }
 
-push_id_uint :: proc(uint_id : uint)  { push_id_i32(cast(i32) uint_id); }  
+push_id_uint :: proc(uint_id : uint)  { push_id_i32(cast(i32) uint_id); }
 push_id_int  :: proc(int_id : int)    { push_id_i32(cast(i32) int_id); }
 push_id_str  :: proc(str_id : string) { push_id_cstr(_make_label_string(str_id)); }
 
@@ -415,23 +415,19 @@ foreign cimgui {
 }
 
 color_edit    :: proc{color_edit3, color_edit4};
-color_edit3   :: proc(label : string, col : [3]f32, flags := Color_Edit_Flags(0)) -> bool {
-    colors := col;
+color_edit3   :: proc(label : string, col : ^[3]f32, flags := Color_Edit_Flags(0)) -> bool {
     return im_color_edit3(_make_label_string(label), &colors[0], flags);
 }
-color_edit4   :: proc(label : string, col : [4]f32, flags := Color_Edit_Flags(0)) -> bool {
-    colors := col;
+color_edit4   :: proc(label : string, col : ^[4]f32, flags := Color_Edit_Flags(0)) -> bool {
     return im_color_edit4(_make_label_string(label), &colors[0], flags);
 }
 
 color_picker  :: proc{color_picker3, color_picker4};
-color_picker3 :: proc(label : string, col : [3]f32, flags := Color_Edit_Flags(0)) -> bool {
-    colors := col;
-    return im_color_picker3(_make_label_string(label), &colors[0], flags);
+color_picker3 :: proc(label : string, col : ^[3]f32, flags := Color_Edit_Flags(0)) -> bool {
+    return im_color_picker3(_make_label_string(label), col, flags);
 }
-color_picker4 :: proc(label : string, col : [4]f32, flags := Color_Edit_Flags(0)) -> bool {
-    colors := col;
-    return im_color_picker4(_make_label_string(label), &colors[0], flags);
+color_picker4 :: proc(label : string, col : ^[4]f32, flags := Color_Edit_Flags(0)) -> bool {
+    return im_color_picker4(_make_label_string(label), col, flags);
 }
 color_button  :: proc(desc_id : string, col : Vec4, flags := Color_Edit_Flags(0), size : Vec2 = Vec2{0, 0}) -> bool { return im_color_button(_make_label_string(desc_id), col, flags, size) }
 
