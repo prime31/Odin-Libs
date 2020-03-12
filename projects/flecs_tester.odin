@@ -14,7 +14,7 @@ main :: proc() {
     world := flecs.init();
 
     v2_entity := flecs.new_component(world, "V2", size_of(V2));
-    flecs.new_system(world, "some system", .on_update, "V2", move);
+    flecs.new_system(world, "some system", .On_Update, "V2", move);
 
     e1 := flecs.new_entity(world, "e1", "V2");
 
