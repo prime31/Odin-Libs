@@ -4,7 +4,7 @@ import "core:fmt"
 import sg "shared:engine/libs/sokol"
 import "shared:engine/libs/flextgl"
 import "shared:engine/libs/sdl2"
-
+import "shared:engine/libs/stb_image"
 
 state: struct {
 	pass_action: sg.Pass_Action,
@@ -225,9 +225,11 @@ create_checkerboard_tex :: proc() -> sg.Image {
 		0x00000000, 0xFFFFFFFF, 0x00000000, 0xFFFFFFFF,
 		0xFFFFFFFF, 0x00000000, 0xFFFFFFFF, 0x00000000,
 		0x00000000, 0xFFFFFFFF, 0x00000000, 0xFFFFFFFF};
+
 	return sg.make_image({
 		width = 4,
 		height = 4,
+		pixel_format = .RGBA8,
 		min_filter = .Nearest,
 		mag_filter = .Nearest,
 		content = {
@@ -236,6 +238,30 @@ create_checkerboard_tex :: proc() -> sg.Image {
 					0 = {
 						ptr = &pixels,
 						size = len(pixels) * size_of(u32)
+					}
+				}
+			}
+		}
+	});
+}
+
+load_tex :: proc() -> sg.Image {
+	w, h, channels: i32;
+	img := stb_image.load("assets/angular.png", &w, &h, &channels, 4);
+	defer { stb_image.image_free(img); }
+
+	return sg.make_image({
+		width = w,
+		height = h,
+		pixel_format = .RGBA8,
+		min_filter = .Nearest,
+		mag_filter = .Nearest,
+		content = {
+			subimage = {
+				0 = {
+					0 = {
+						ptr = img,
+						size = w * h * channels
 					}
 				}
 			}
