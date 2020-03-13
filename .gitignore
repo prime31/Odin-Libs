@@ -3,8 +3,8 @@
 # - white-list the parent folders recursively
 # - white-list files with an extension
 projects/*
-projects/!*/
-projects/!*.*
+!projects/*/
+!projects/*.*
 
 projects/*.dylib
 *.o
