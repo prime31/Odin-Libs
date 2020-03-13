@@ -9,7 +9,7 @@ build_gl:
 
 build_gl_dynamic:
 	cc -framework OpenGL -framework Cocoa -framework QuartzCore -L../../flextgl/native -lflextgl -dynamiclib -o libsokol_gl.dylib sokol_gl.o
-	cp libsokol_gl.dylib ../../../projects/
+# 	cp libsokol_gl.dylib ../../../projects/
 
 
 build_metal:
@@ -17,7 +17,7 @@ build_metal:
 
 build_metal_dynamic:
 	cc -fobjc-arc `sdl2-config --libs` -framework Metal -framework MetalKit -framework Cocoa -framework Foundation -framework QuartzCore -dynamiclib -o libsokol_metal.dylib sokol_metal.o
-	cp libsokol_metal.dylib ../../../projects/
+# 	cp libsokol_metal.dylib ../../../projects/
 
 
 cleanup:

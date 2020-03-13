@@ -90,7 +90,7 @@ cimgui.dylib: cimgui_git/build/cimgui.dylib
 	$(CP) cimgui_git/build/cimgui.dylib ./
 	# change from @rpath/cimgui.dylib to just cimgui.dylib for now...
 	install_name_tool -id cimgui.dylib cimgui.dylib
-	cp cimgui.dylib ../../../projects/
+# 	cp cimgui.dylib ../../../projects/
 
 cimgui.so: cimgui_git/build/cimgui.so
 	$(CP) cimgui_git/build/cimgui.so ./
@@ -127,7 +127,7 @@ imgui_impl_opengl3.o: $(IMGUI)/examples/imgui_impl_opengl3.cpp
 
 mac_build_static_imgui_impl:
 	$(CXX) `sdl2-config --libs` -L. cimgui.dylib -framework OpenGL -framework Cocoa -framework QuartzCore -L../../flextgl/native -lflextgl -dynamiclib -o libimgui_impl.dylib imgui_impl_opengl3.o imgui_impl_sdl.o
-	cp libimgui_impl.dylib ../../../projects/
+# 	cp libimgui_impl.dylib ../../../projects/
 	libtool -static -o libimgui_impl.a imgui_impl_opengl3.o imgui_impl_sdl.o
 	rm *.o
 

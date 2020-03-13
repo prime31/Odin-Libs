@@ -416,18 +416,18 @@ foreign cimgui {
 
 color_edit    :: proc{color_edit3, color_edit4};
 color_edit3   :: proc(label : string, col : ^[3]f32, flags := Color_Edit_Flags(0)) -> bool {
-    return im_color_edit3(_make_label_string(label), &colors[0], flags);
+    return im_color_edit3(_make_label_string(label), &col[0], flags);
 }
 color_edit4   :: proc(label : string, col : ^[4]f32, flags := Color_Edit_Flags(0)) -> bool {
-    return im_color_edit4(_make_label_string(label), &colors[0], flags);
+    return im_color_edit4(_make_label_string(label), &col[0], flags);
 }
 
 color_picker  :: proc{color_picker3, color_picker4};
 color_picker3 :: proc(label : string, col : ^[3]f32, flags := Color_Edit_Flags(0)) -> bool {
-    return im_color_picker3(_make_label_string(label), col, flags);
+    return im_color_picker3(_make_label_string(label), &col[0], flags);
 }
 color_picker4 :: proc(label : string, col : ^[4]f32, flags := Color_Edit_Flags(0)) -> bool {
-    return im_color_picker4(_make_label_string(label), col, flags);
+    return im_color_picker4(_make_label_string(label), &col[0], flags);
 }
 color_button  :: proc(desc_id : string, col : Vec4, flags := Color_Edit_Flags(0), size : Vec2 = Vec2{0, 0}) -> bool { return im_color_button(_make_label_string(desc_id), col, flags, size) }
 

@@ -1,5 +1,6 @@
 TARGET = build
 TARGET += copy_static
+TARGET += copy_mac_shared
 
 ##---------------------------------------------------------------------
 ## BUILD FLAGS PER PLATFORM
