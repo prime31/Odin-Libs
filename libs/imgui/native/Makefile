@@ -78,7 +78,7 @@ endif
 ## BUILD RULES
 ##---------------------------------------------------------------------
 
-all: $(TARGET)
+all: $(TARGET) clean
 	$(info $(MESSAGE))
 	@echo build complete
 
@@ -137,7 +137,4 @@ build_wasm:
 	cp cimgui_git/build/cimgui.a webgl
 
 clean:
-	$(RM) *.o *.so *.h $(TARGET)
-
-clobber: clean
 	$(RM) -Rf cimgui_git
