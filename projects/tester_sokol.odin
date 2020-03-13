@@ -108,30 +108,30 @@ prep_gfx_state :: proc() {
 			shader = sg.make_shader({
 				vs = {
 					source = `
-			            #include <metal_stdlib>
-			            using namespace metal;
-			            struct vs_in {
-			              float4 position [[attribute(0)]];
-			              float4 color [[attribute(1)]];
-			            };
-			            struct vs_out {
-			              float4 position [[position]];
-			              float4 color;
-			            };
-			            vertex vs_out _main(vs_in inp [[stage_in]]) {
-			              vs_out outp;
-			              outp.position = inp.position;
-			              outp.color = inp.color;
-			              return outp;
-			            }`,
+						#include <metal_stdlib>
+						using namespace metal;
+						struct vs_in {
+							float4 position [[attribute(0)]];
+							float4 color [[attribute(1)]];
+						};
+						struct vs_out {
+							float4 position [[position]];
+							float4 color;
+						};
+						vertex vs_out _main(vs_in inp [[stage_in]]) {
+							vs_out outp;
+							outp.position = inp.position;
+							outp.color = inp.color;
+							return outp;
+						}`,
 				},
 				fs = {
 					source = `
-		            #include <metal_stdlib>
-		            using namespace metal;
-		            fragment float4 _main(float4 color [[stage_in]]) {
-		              return color;
-		            };`,
+						#include <metal_stdlib>
+						using namespace metal;
+						fragment float4 _main(float4 color [[stage_in]]) {
+							return color;
+						};`,
 				},
 
 				attrs = {
@@ -139,11 +139,11 @@ prep_gfx_state :: proc() {
 					1 = {sem_name = "COLOR", name = "color0"}
 				},
 			}),
-			primitive_type = .TRIANGLES,
+			primitive_type = .Triangles,
 			layout = {
 				attrs = {
-					0 = {format = .FLOAT3},
-					1 = {format = .FLOAT4},
+					0 = {format = .Float3},
+					1 = {format = .Float4},
 				},
 			},
 		});
@@ -176,19 +176,19 @@ prep_gfx_state :: proc() {
 					1 = {sem_name = "COLOR", name = "color0"}
 				},
 			}),
-			primitive_type = .TRIANGLES,
+			primitive_type = .Triangles,
 			layout = {
 				attrs = {
-					0 = {format = .FLOAT3},
-					1 = {format = .FLOAT4},
+					0 = {format = .Float3},
+					1 = {format = .Float4},
 				},
 			},
 		});
 	}
 
-	state.pass_action.colors[0] = {action = .CLEAR, val = {0.5, 0.7, 1.0, 1}};
+	state.pass_action.colors[0] = {action = .Clear, val = {0.5, 0.7, 1.0, 1}};
 
 	when #defined(METAL) {
-		state.pass_action.colors[0] = {action = .CLEAR, val = {0.4, 0.3, 0.5, 1}};
+		state.pass_action.colors[0] = {action = .Clear, val = {0.4, 0.3, 0.5, 1}};
 	}
 }
