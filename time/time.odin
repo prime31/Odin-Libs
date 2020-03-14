@@ -2,7 +2,7 @@ package time
 
 import "shared:engine/libs/sdl2"
 
-
+@(private)
 Time :: struct {
 	fps_frames: u32,
 	prev_time: u32,
