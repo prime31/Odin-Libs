@@ -5,12 +5,14 @@ import "core:fmt"
 import "shared:engine/utils/jsmn"
 
 main :: proc() {
-	data, success := os.read_entire_file("/Users/mikedesaro/odin/shared/engine/projects/assets/platformer.json");
+	data, success := os.read_entire_file("assets/platformer.json");
 	defer if success { delete(data); }
+
 
 	parser := jsmn.parser();
 	defer { jsmn.free(parser); }
 	err := jsmn.parse(&parser, data);
+	jsmn.parse(&parser, data);
 	fmt.println("done. Result: ", err);
 
 	mem := jsmn.object_get_member(data, &parser.tokens[0], "width");
