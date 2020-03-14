@@ -2,12 +2,10 @@
 # - ignore everything
 # - white-list the parent folders recursively
 # - white-list files with an extension
-projects/*
-!projects/*/
-!projects/*.*
-
-projects/*.dylib
-*.o
+_projects/*
+!_projects/*/
+!_projects/*.*
+_projects/imgui.ini
 
 # for now just keep compiled libs out of there. add exceptions for those that cant be easily built
 *.dylib
@@ -16,5 +14,5 @@ projects/*.dylib
 
 # junk
 .DS_Store
+*.o
 libs/imgui/native/cimgui_git
-projects/imgui.ini
