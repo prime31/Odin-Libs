@@ -5,6 +5,12 @@ import "shared:engine/libs/flextgl"
 import "shared:engine/libs/imgui"
 import "shared:engine/libs/sdl2"
 
+Thing :: struct {
+	inty: int,
+	floaty: f32,
+	stringy: string
+}
+
 main :: proc() {
 	window := create_window();
 	gl_context := sdl2.gl_create_context(window);
@@ -18,10 +24,13 @@ main :: proc() {
 
 	imgui.impl_init_for_gl("#version 150", window, gl_context);
 
+	t := Thing{};
+
 	running := true;
 	for running {
 		e: sdl2.Event;
 		for sdl2.poll_event(&e) != 0 {
+			if imgui.impl_handle_event(&e) do continue;
 			if e.type == sdl2.Event_Type.Quit {
 				running = false;
 			}
@@ -29,6 +38,7 @@ main :: proc() {
 
 		imgui.impl_new_frame(window);
 		imgui.im_text("whatever");
+		imgui.struct_editor(t, false);
 		imgui.render();
 		imgui.impl_render();
 

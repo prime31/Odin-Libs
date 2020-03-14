@@ -49,3 +49,16 @@ impl_shutdown :: proc() {
 	ImGui_ImplSDL2_Shutdown();
 	destroy_context();
 }
+
+// returns true if the event is handled by imgui and should be ignored
+impl_handle_event :: proc(evt: ^sdl2.Event) -> bool {
+	if ImGui_ImplSDL2_ProcessEvent(evt) {
+		#partial switch evt.type {
+			case .Mouse_Wheel, .Mouse_Button_Down: { return get_io().want_capture_mouse; }
+			case .Text_Input, .Key_Down, .Key_Up: { return get_io().want_capture_keyboard; }
+			case .Window_Event: { return true }
+			case: { return false }
+		}
+	}
+	return false;
+}

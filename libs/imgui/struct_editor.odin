@@ -23,7 +23,7 @@ _print_tooltip :: proc(data : any) {
     end_tooltip();
 }
 
-edit_value :: proc(data : any) {
+edit_value :: proc(data: any) {
     push_id(data.data); defer pop_id();
     ti := runtime.type_info_base(type_info_of(data.id));
 
@@ -33,19 +33,19 @@ edit_value :: proc(data : any) {
             checkbox("##checkbox", ptr);
         }
 
-        //TODO(Hoej): Actually be able to live change array members, maybe even delete and add.
-        case runtime.Type_Info_Array : {
+        //TODO: Actually be able to live change array members, maybe even delete and add.
+        case runtime.Type_Info_Array: {
             str := fmt.aprintf("Count = %d of %v", t.count, t.elem); defer delete(str);
             if collapsing_header(str) {
                 begin_child("##child", Vec2{0, 200}); defer end_child();
-                for i in 0..t.count-1 {
-                    ptr := uintptr(data.data) + uintptr(i*t.elem_size);
+                for i in 0..t.count - 1 {
+                    ptr := uintptr(data.data) + uintptr(i * t.elem_size);
                     text("%#v", any{rawptr(ptr), t.elem.id});
                 }
             }
         }
 
-        case runtime.Type_Info_Slice : {
+        case runtime.Type_Info_Slice: {
             slice := cast(^mem.Raw_Slice)data.data;
             str := fmt.aprintf("Count = %d of %v", slice.len, t.elem); defer delete(str);
             if collapsing_header(str) {
@@ -57,7 +57,7 @@ edit_value :: proc(data : any) {
             }
         }
 
-        case runtime.Type_Info_Integer : {
+        case runtime.Type_Info_Integer: {
             size := ti.size;
             signed := t.signed;
             v : i32;
@@ -71,17 +71,17 @@ edit_value :: proc(data : any) {
                     d := data.(i8);
                     v = i32(d);
                 }
-                
+
                 case 2 : {
                     d := data.(i16);
                     v = i32(d);
                 }
-                
+
                 case 4 : {
                     d := data.(i32);
                     v = i32(d);
                 }
-                
+
                 case 8 :
                     d := cast(^i64)data.data;
                     v = i32(d^);
@@ -89,7 +89,7 @@ edit_value :: proc(data : any) {
                     disable = true;
                 }
             }
-                
+
             if disable do text("Unsupported; %v", ti);
             else {
                 if input_int("##int", &v) {
@@ -116,12 +116,13 @@ edit_value :: proc(data : any) {
                 }
             }
         }
-        
-        case runtime.Type_Info_Float : {
+
+        case runtime.Type_Info_Float: {
             switch ti.size {
                 case 4 : {
                     ptr := cast(^f32)data.data;
-                    input_float("##float", ptr);
+                    drag_float("float", ptr);
+                    // input_float("##float", ptr);
                 }
 
                 case 8 : {
@@ -131,17 +132,17 @@ edit_value :: proc(data : any) {
                         v_ptr^ = f64(v);
                     }
                 }
-                
+
                 case : {
                     text("Unsupported; %v", ti);
                 }
             }
         }
-        
+
         case runtime.Type_Info_String : {
             buf := _internal_string_buffer;
             defer mem.zero(&buf[0], len(buf));
-            
+
             fmt.bprint(buf[:], data.(string));
 
             if input_text("##text", buf[:]) {
@@ -175,12 +176,12 @@ print_struct :: proc(data : any) {
     columns(2);
 
     for name, idx in ti.names {
-        a := any{rawptr(uintptr(data.data) +ti.offsets[idx]), 
-                 ti.types[idx].id};
+        a := any{rawptr(uintptr(data.data) +ti.offsets[idx]), ti.types[idx].id};
         text("%v", name);
-            if is_item_hovered() {
+        if is_item_hovered() {
             _print_tooltip(a);
         }
+
         next_column();
         edit_value(a);
         next_column();
@@ -191,16 +192,20 @@ struct_editor :: proc(data : any, read_only : bool) {
     _ti := runtime.type_info_base(type_info_of(data.id));
     ti, is_struct := _ti.variant.(runtime.Type_Info_Struct);
     str := fmt.aprintf("Struct Editor: %s", _get_name(data));
+
     begin(str);
     if !is_struct {
         text("You did not pass a struct to the editor...");
     } else {
         print_struct(data);
     }
+
     columns(1);
+
     if collapsing_header("Fmt print") {
         text("%#v", data);
     }
+
     separator();
     end();
 }
