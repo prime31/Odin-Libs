@@ -52,7 +52,7 @@ main :: proc() {
 		sg.begin_default_pass(state.pass_action, int(w), int(h));
 		sg.apply_pipeline(state.pip);
 		sg.apply_bindings(state.bind);
-		sg.apply_uniforms(.VS, 0, &mvp, size_of(linalg.Matrix4));
+		sg.apply_uniforms(.Vs, 0, &mvp, size_of(linalg.Matrix4));
 		sg.draw(0, 36, 1);
 		sg.end_pass();
 		sg.commit();
@@ -126,7 +126,7 @@ prep_gfx_state :: proc() {
 			        16, 17, 18,  16, 18, 19,
 			        22, 21, 20,  23, 22, 20};
 	state.bind.index_buffer = sg.make_buffer({
-		type = .INDEXBUFFER,
+		type = .Indexbuffer,
 		size = len(indices) * size_of(u16),
 		content = &indices[0]
 	});
@@ -138,7 +138,7 @@ prep_gfx_state :: proc() {
 					0 = {
 						size = size_of(linalg.Matrix4),
 						uniforms = {
-							0 = {name = "mvp", type = .MAT4}
+							0 = {name = "mvp", type = .Mat4}
 						}
 					}
 				},
@@ -168,19 +168,19 @@ prep_gfx_state :: proc() {
 				0 = {stride = 28}
 			},
 			attrs = {
-				0 = {format = .FLOAT3},
-				1 = {format = .FLOAT4}
+				0 = {format = .Float3},
+				1 = {format = .Float4}
 			},
 		},
-		index_type = .UINT16,
+		index_type = .Uint16,
 		depth_stencil = {
-			depth_compare_func = .LESS_EQUAL,
+			depth_compare_func = .Less_Equal,
 			depth_write_enabled = true
 		},
 		rasterizer = {
-			cull_mode = .BACK
+			cull_mode = .Back
 		}
 	});
 
-	state.pass_action.colors[0] = {action = .CLEAR, val = {0.5, 0.7, 1.0, 1}};
+	state.pass_action.colors[0] = {action = .Clear, val = {0.5, 0.7, 1.0, 1}};
 }
