@@ -34,6 +34,17 @@ Wav_Stream :: struct { using src: Audio_Source }
 File :: struct {}
 
 
+// enums
+Sfxr_Preset :: enum i32 {
+	Coin = 0,
+	Laser = 1,
+	Explosion = 2,
+	Powerup = 3,
+	Hurt = 4,
+	Jump = 5,
+	Blip = 6
+}
+
 
 // Constants
 Soloud_Auto :: 0;
@@ -101,13 +112,6 @@ Noise_Blueish :: 3;
 Robotizefilter_Wet :: 0;
 Robotizefilter_Freq :: 1;
 Robotizefilter_Wave :: 2;
-Sfxr_Coin :: 0;
-Sfxr_Laser :: 1;
-Sfxr_Explosion :: 2;
-Sfxr_Powerup :: 3;
-Sfxr_Hurt :: 4;
-Sfxr_Jump :: 5;
-Sfxr_Blip :: 6;
 Speech_Kw_Saw :: 0;
 Speech_Kw_Triangle :: 1;
 Speech_Kw_Sin :: 2;

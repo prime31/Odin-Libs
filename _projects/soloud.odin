@@ -16,13 +16,13 @@ main :: proc() {
 	fmt.println("wav play", soloud.play(so, wav));
 
 	sfx := soloud.sfxr_create();
-	soloud.sfxr_loadpreset(sfx, soloud.Sfxr_Explosion, 5);
+	soloud.sfxr_loadpreset(sfx, .Explosion, 5);
 	soloud.play(so, sfx);
 
-	soloud.sfxr_loadpreset(sfx, soloud.Sfxr_Laser, 5);
+	soloud.sfxr_loadpreset(sfx, .Laser, 5);
 	soloud.play(so, sfx);
 
-	soloud.sfxr_loadpreset(sfx, soloud.Sfxr_Coin, 5);
+	soloud.sfxr_loadpreset(sfx, .Coin, 5);
 	soloud.play(so, sfx);
 
 	sdl2.delay(2000);
