@@ -4,6 +4,7 @@ import "core:os"
 import "core:fmt"
 import "shared:engine/time"
 import "shared:engine/utils/jsmn"
+import "shared:engine/utils/tilemap"
 
 main :: proc() {
 	data, success := os.read_entire_file("assets/platformer.json");
@@ -13,14 +14,19 @@ main :: proc() {
 	timer: u64 = 0;
 	time.laptime(&timer);
 
+	tmap := tilemap.load(data);
+
+	elapsed := time.laptime(&timer);
+	fmt.println("Elapsed parse time: ", elapsed);
+
+
+
+
 	parser := jsmn.parser();
 	defer { jsmn.free(parser); }
 	err := jsmn.parse(&parser, data);
 	jsmn.parse(&parser, data);
 	fmt.println("done. Result: ", err);
-
-	elapsed := time.laptime(&timer);
-	fmt.println("Elapsed parse time: ", elapsed);
 
 
 	mem := jsmn.object_get_member(data, &parser.tokens[0], "width");
