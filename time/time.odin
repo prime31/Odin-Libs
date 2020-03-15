@@ -47,12 +47,12 @@ fps :: proc() -> u32 { return time.fps; }
 now :: proc() -> u64 { return sdl2.get_performance_counter(); }
 
 // returns the time in milliseconds since the last call
-laptime :: proc(last_time: ^u64) -> u64 {
+laptime :: proc(last_time: ^u64) -> f64 {
 	tmp := last_time;
-	dt: u64 = 0;
+	dt: f64 = 0;
 	now := now();
 	if tmp^ != 0 {
-		dt = ((now - tmp^) * 1000) / sdl2.get_performance_frequency();
+		dt = cast(f64)((now - tmp^) * 1000.0) / cast(f64)sdl2.get_performance_frequency();
 	}
 	tmp^ = now;
 	return dt;

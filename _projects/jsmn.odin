@@ -2,6 +2,7 @@ package main
 
 import "core:os"
 import "core:fmt"
+import "shared:engine/time"
 import "shared:engine/utils/jsmn"
 
 main :: proc() {
@@ -9,11 +10,18 @@ main :: proc() {
 	defer if success { delete(data); }
 
 
+	timer: u64 = 0;
+	time.laptime(&timer);
+
 	parser := jsmn.parser();
 	defer { jsmn.free(parser); }
 	err := jsmn.parse(&parser, data);
 	jsmn.parse(&parser, data);
 	fmt.println("done. Result: ", err);
+
+	elapsed := time.laptime(&timer);
+	fmt.println("Elapsed parse time: ", elapsed);
+
 
 	mem := jsmn.object_get_member(data, &parser.tokens[0], "width");
 	fmt.println("token[0].width", jsmn.token_as_string(mem, data));
