@@ -189,7 +189,7 @@ parse :: proc(parser: ^Parser, js: []byte) -> Error {
 
 // Fills next token with JSON string
 @(private)
-parse_string :: proc(parser: ^Parser, js: []byte) -> Error {
+parse_string :: inline proc(parser: ^Parser, js: []byte) -> Error {
 	start := cast(i32)parser.pos;
 	parser.pos += 1;
 
@@ -246,7 +246,7 @@ parse_string :: proc(parser: ^Parser, js: []byte) -> Error {
 }
 
 @(private)
-parse_primitive :: proc(parser: ^Parser, js: []byte) -> Error {
+parse_primitive :: inline proc(parser: ^Parser, js: []byte) -> Error {
 	start := cast(i32)parser.pos;
 	non_strict_key := false;
 	broke_loop := false;

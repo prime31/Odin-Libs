@@ -5,41 +5,33 @@ import "core:strings"
 import "core:strconv"
 
 
-token_as_string :: proc(token: ^Token, js: []byte) -> string {
-	return strings.string_from_ptr(&js[token.start], int(token.end - token.start));
+token_as_string :: proc(token: ^Token, data: []byte) -> string {
+	return strings.string_from_ptr(&data[token.start], int(token.end - token.start));
 }
 
-token_as_int :: proc(token: ^Token, js: []byte) -> int {
-	len := token.end - token.start;
-
-	// optimization for single digit ints
-	if len == 1 {
-		return cast(int)js[token.start] - '0';
-	}
-	return strconv.parse_int(token_as_string(token, js));
+token_as_int :: proc(token: ^Token, data: []byte) -> int {
+	return strconv.parse_int(token_as_string(token, data));
 }
 
-token_as_i32 :: proc(token: ^Token, js: []byte) -> i32 {
-	len := token.end - token.start;
-
-	// optimization for single digit ints
-	if len == 1 {
-		return cast(i32)js[token.start] - '0';
-	}
-	return cast(i32)strconv.parse_int(token_as_string(token, js));
+token_as_i32 :: proc(token: ^Token, data: []byte) -> i32 {
+	// TODO: why so slow!
+	// return token.end - token.start;
+	// raw := mem.Raw_String{&data[token.start], int(token.end - token.start)};
+	// return 1;
+	return cast(i32)strconv.parse_i64(token_as_string(token, data));
 }
 
-token_as_f32 :: proc(token: ^Token, js: []byte) -> f32 {
-	return strconv.parse_f32(token_as_string(token, js));
+token_as_f32 :: proc(token: ^Token, data: []byte) -> f32 {
+	return strconv.parse_f32(token_as_string(token, data));
 }
 
 // checks to see if a .string token is equal to str
-token_eq_string :: proc(token: ^Token, js: []byte, str: string) -> bool {
+token_eq_string :: proc(token: ^Token, data: []byte, str: string) -> bool {
 	if token.kind != .String || len(str) != int(token.end - token.start) {
 		return false;
 	}
 
-	return mem.compare_byte_ptrs(&js[token.start], &js[token.start], int(token.end - token.start)) == 0;
+	return mem.compare_byte_ptrs(&data[token.start], &data[token.start], int(token.end - token.start)) == 0;
 }
 
 // return next token, ignoring descendants
@@ -55,14 +47,14 @@ skip_token :: proc(token: ^Token) -> ^Token {
 }
 
 // find the first member with the given name
-object_get_member :: proc(js: []byte, object: ^Token, name: string) -> ^Token {
+object_get_member :: proc(data: []byte, object: ^Token, name: string) -> ^Token {
 	if object == nil || object.kind != .Object {
 		return nil;
 	}
 
 	members := object.size;
 	token := mem.ptr_offset(object, 1);
-	for members > 0 && !token_eq_string(token, js, name) {
+	for members > 0 && !token_eq_string(token, data, name) {
 		members -= 1;
 		token = skip_token(mem.ptr_offset(token, 1));
 	}
