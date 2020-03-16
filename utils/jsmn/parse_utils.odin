@@ -14,11 +14,13 @@ token_as_int :: proc(token: ^Token, data: []byte) -> int {
 }
 
 token_as_i32 :: proc(token: ^Token, data: []byte) -> i32 {
+	str := transmute(string)mem.Raw_String{&data[token.start], int(token.end - token.start)};
+	return cast(i32)strconv.parse_i64(str);
 	// TODO: why so slow!
 	// return token.end - token.start;
 	// raw := mem.Raw_String{&data[token.start], int(token.end - token.start)};
 	// return 1;
-	return cast(i32)strconv.parse_i64(token_as_string(token, data));
+	// return cast(i32)strconv.parse_i64(token_as_string(token, data));
 }
 
 token_as_f32 :: proc(token: ^Token, data: []byte) -> f32 {
