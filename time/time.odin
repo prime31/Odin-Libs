@@ -58,16 +58,3 @@ laptime :: proc(last_time: ^u64) -> f64 {
 	return dt;
 }
 
-
-// pub fn laptime(last_time &u64) u64 {
-// 	mut tmp := last_time
-// 	mut dt := u64(0)
-// 	now := now()
-// 	if *tmp != 0 {
-// 		dt = ((now - *tmp) * 1000) / C.SDL_GetPerformanceFrequency()
-// 	}
-// 	*tmp = now
-// 	return dt
-// }
-
-
