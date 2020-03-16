@@ -6,9 +6,9 @@ import "shared:engine/libs/sdl2"
 @(private)
 Input :: struct {
 	keys: [243]byte,
-	dirty_keys: []sdl2.Scancode,
+	dirty_keys: [dynamic]sdl2.Scancode,
 	mouse_buttons: [3]byte,
-	dirty_mouse_buttons: []byte,
+	dirty_mouse_buttons: [dynamic]byte,
 	mouse_wheel_y: int,
 	mouse_rel_x: int,
 	mouse_rel_y: int,
@@ -28,6 +28,14 @@ DOWN :: 2; // true the entire time the key is down
 PRESSED :: 3; // only true if down this frame and not down the previous frame
 
 
+@(private)
+input := Input{};
+
+// TODO: move to proper home
+init :: proc() {
+	input.dirty_keys = make([dynamic]sdl2.Scancode, 5);
+	input.dirty_mouse_buttons = make([dynamic]byte, 3);
+}
 
 main :: proc() {
 	mouse_down: Mouse_Button_Bits;
