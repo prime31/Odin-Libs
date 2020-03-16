@@ -14,7 +14,8 @@ token_as_int :: proc(token: ^Token, data: []byte) -> int {
 }
 
 token_as_i32 :: proc(token: ^Token, data: []byte) -> i32 {
-	str := transmute(string)mem.Raw_String{&data[token.start], int(token.end - token.start)};
+	//str := transmute(string)mem.Raw_String{&data[token.start], int(token.end - token.start)};
+	str := string(data[token.start:token.end]);
 	return cast(i32)strconv.parse_i64(str);
 	// TODO: why so slow!
 	// return token.end - token.start;
