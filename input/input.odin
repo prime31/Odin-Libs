@@ -1,5 +1,6 @@
 package input
 
+import "core:fmt"
 import "shared:engine/libs/sdl2"
 
 @(private)
@@ -15,11 +16,12 @@ Input :: struct {
 	// res_scaler &graphics.ResolutionScaler
 }
 
-MouseButton :: enum {
+Mouse_Button :: enum {
 	Left = 1,
 	Middle = 2,
 	Right = 3
 }
+Mouse_Button_Bits :: bit_set[Mouse_Button];
 
 RELEASED :: 1; // true only the frame the key is released
 DOWN :: 2; // true the entire time the key is down
@@ -28,5 +30,12 @@ PRESSED :: 3; // only true if down this frame and not down the previous frame
 
 
 main :: proc() {
+	mouse_down: Mouse_Button_Bits;
 
+	incl(&mouse_down, Mouse_Button.Left);
+	fmt.println("incl down:", mouse_down, .Left in mouse_down);
+
+	excl(&mouse_down, Mouse_Button.Left);
+	fmt.println("excl down:", mouse_down, .Left in mouse_down);
 }
+
