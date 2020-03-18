@@ -3,7 +3,7 @@ package main
 import "core:fmt"
 import "shared:engine/libs/flextgl"
 import "shared:engine/libs/imgui"
-import "shared:engine/libs/sdl2"
+import "shared:engine/libs/sdl"
 
 Thing :: struct {
 	inty: int,
@@ -13,7 +13,7 @@ Thing :: struct {
 
 main :: proc() {
 	window := create_window();
-	gl_context := sdl2.gl_create_context(window);
+	gl_context := sdl.gl_create_context(window);
 
 	flextgl.init();
 
@@ -28,10 +28,10 @@ main :: proc() {
 
 	running := true;
 	for running {
-		e: sdl2.Event;
-		for sdl2.poll_event(&e) != 0 {
+		e: sdl.Event;
+		for sdl.poll_event(&e) != 0 {
 			if imgui.impl_handle_event(&e) do continue;
-			if e.type == sdl2.Event_Type.Quit {
+			if e.type == sdl.Event_Type.Quit {
 				running = false;
 			}
 		}
@@ -47,22 +47,22 @@ main :: proc() {
 			imgui.render_platform_windows_default();
 		}
 
-		sdl2.gl_swap_window(window);
+		sdl.gl_swap_window(window);
 	}
 }
 
-create_window :: proc() -> ^sdl2.Window {
-	sdl2.init(sdl2.Init_Flags.Everything);
-	window := sdl2.create_window("Odin + Sokol + SDL", i32(sdl2.Window_Pos.Undefined), i32(sdl2.Window_Pos.Undefined), 640, 480, sdl2.Window_Flags(sdl2.Window_Flags.Allow_High_DPI));
+create_window :: proc() -> ^sdl.Window {
+	sdl.init(sdl.Init_Flags.Everything);
+	window := sdl.create_window("Odin + Sokol + SDL", i32(sdl.Window_Pos.Undefined), i32(sdl.Window_Pos.Undefined), 640, 480, sdl.Window_Flags(sdl.Window_Flags.Allow_High_DPI));
 
-	sdl2.gl_set_attribute(sdl2.GL_Attr.Context_Flags, i32(sdl2.GL_Context_Flag.Forward_Compatible));
-	sdl2.gl_set_attribute(sdl2.GL_Attr.Context_Profile_Mask, i32(sdl2.GL_Context_Profile.Core));
-	sdl2.gl_set_attribute(sdl2.GL_Attr.Context_Major_Version, 3);
-	sdl2.gl_set_attribute(sdl2.GL_Attr.Context_Minor_Version, 3);
+	sdl.gl_set_attribute(sdl.GL_Attr.Context_Flags, i32(sdl.GL_Context_Flag.Forward_Compatible));
+	sdl.gl_set_attribute(sdl.GL_Attr.Context_Profile_Mask, i32(sdl.GL_Context_Profile.Core));
+	sdl.gl_set_attribute(sdl.GL_Attr.Context_Major_Version, 3);
+	sdl.gl_set_attribute(sdl.GL_Attr.Context_Minor_Version, 3);
 
-	sdl2.gl_set_attribute(sdl2.GL_Attr.Doublebuffer, 1);
-	sdl2.gl_set_attribute(sdl2.GL_Attr.Depth_Size, 24);
-	sdl2.gl_set_attribute(sdl2.GL_Attr.Stencil_Size, 8);
+	sdl.gl_set_attribute(sdl.GL_Attr.Doublebuffer, 1);
+	sdl.gl_set_attribute(sdl.GL_Attr.Depth_Size, 24);
+	sdl.gl_set_attribute(sdl.GL_Attr.Stencil_Size, 8);
 
 	return window;
 }

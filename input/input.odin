@@ -1,12 +1,12 @@
 package input
 
 import "core:fmt"
-import "shared:engine/libs/sdl2"
+import "shared:engine/libs/sdl"
 
 @(private)
 Input :: struct {
 	keys: [243]byte,
-	dirty_keys: [dynamic]sdl2.Scancode,
+	dirty_keys: [dynamic]sdl.Scancode,
 	mouse_buttons: [3]byte,
 	dirty_mouse_buttons: [dynamic]byte,
 	mouse_wheel_y: int,
@@ -33,7 +33,7 @@ input := Input{};
 
 // TODO: move to proper home
 init :: proc() {
-	input.dirty_keys = make([dynamic]sdl2.Scancode, 5);
+	input.dirty_keys = make([dynamic]sdl.Scancode, 5);
 	input.dirty_mouse_buttons = make([dynamic]byte, 3);
 }
 

@@ -1,11 +1,11 @@
 package main
 
 import "core:fmt"
-import "shared:engine/libs/sdl2"
+import "shared:engine/libs/sdl"
 import "shared:engine/libs/soloud"
 
 main :: proc() {
-	sdl2.init(.Audio);
+	sdl.init(.Audio);
 
 	so := soloud.create();
 	fmt.println("so", soloud.init(so));
@@ -25,5 +25,5 @@ main :: proc() {
 	soloud.sfxr_loadpreset(sfx, .Coin, 5);
 	soloud.play(so, sfx);
 
-	sdl2.delay(2000);
+	sdl.delay(2000);
 }

@@ -1,4 +1,4 @@
-package sdl2
+package sdl
 
 
 Init_Flags :: enum u32 {

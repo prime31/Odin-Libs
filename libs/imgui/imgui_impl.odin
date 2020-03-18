@@ -1,6 +1,6 @@
 package imgui
 
-import "shared:engine/libs/sdl2"
+import "shared:engine/libs/sdl"
 
 // when ODIN_OS == "windows" do foreign import imgui_impl "";
 // when ODIN_OS == "linux" do foreign import imgui_impl "";
@@ -11,9 +11,9 @@ when ODIN_OS == "darwin" do foreign import imgui_impl "native/libimgui_impl.dyli
 @(default_calling_convention="c")
 foreign imgui_impl {
 	// SDL2
-    ImGui_ImplSDL2_InitForOpenGL :: proc(window: ^sdl2.Window, gl_context: rawptr) -> bool ---;
-    ImGui_ImplSDL2_ProcessEvent :: proc(event: ^sdl2.Event) -> bool ---;
-    ImGui_ImplSDL2_NewFrame :: proc(window: ^sdl2.Window) ---;
+    ImGui_ImplSDL2_InitForOpenGL :: proc(window: ^sdl.Window, gl_context: rawptr) -> bool ---;
+    ImGui_ImplSDL2_ProcessEvent :: proc(event: ^sdl.Event) -> bool ---;
+    ImGui_ImplSDL2_NewFrame :: proc(window: ^sdl.Window) ---;
     ImGui_ImplSDL2_Shutdown :: proc() ---;
 
     // OpenGL
@@ -28,13 +28,13 @@ foreign imgui_impl {
 // ImGui lifecycle helpers, wrapping ImGui, SDL2 Impl and GL Impl methods
 // BEFORE calling init_for_gl a gl loader lib must be called! You must use the same one
 // used in the makefile when imgui was compiled!
-impl_init_for_gl :: proc(glsl_version: cstring, window: ^sdl2.Window, gl_context: rawptr) {
+impl_init_for_gl :: proc(glsl_version: cstring, window: ^sdl.Window, gl_context: rawptr) {
 	create_context();
 	ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
 	ImGui_ImplOpenGL3_Init(glsl_version);
 }
 
-impl_new_frame :: proc(window: ^sdl2.Window) {
+impl_new_frame :: proc(window: ^sdl.Window) {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplSDL2_NewFrame(window);
 	new_frame();
@@ -51,7 +51,7 @@ impl_shutdown :: proc() {
 }
 
 // returns true if the event is handled by imgui and should be ignored
-impl_handle_event :: proc(evt: ^sdl2.Event) -> bool {
+impl_handle_event :: proc(evt: ^sdl.Event) -> bool {
 	if ImGui_ImplSDL2_ProcessEvent(evt) {
 		#partial switch evt.type {
 			case .Mouse_Wheel, .Mouse_Button_Down: { return get_io().want_capture_mouse; }

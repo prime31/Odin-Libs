@@ -1,6 +1,6 @@
 package time
 
-import "shared:engine/libs/sdl2"
+import "shared:engine/libs/sdl"
 
 @(private)
 Time :: struct {
@@ -32,19 +32,19 @@ tick :: proc() {
 	}
 }
 
-sleep :: proc(milliseconds: u32) { sdl2.delay(milliseconds); }
+sleep :: proc(milliseconds: u32) { sdl.delay(milliseconds); }
 
 dt :: proc() -> f32 { return time.dt; }
 
 frames :: proc() -> u32 { return time.frame_count; }
 
-ticks :: proc() -> u32 { return sdl2.get_ticks(); }
+ticks :: proc() -> u32 { return sdl.get_ticks(); }
 
-seconds :: proc() -> f32 { return f32(sdl2.get_ticks()) / 1000.0; }
+seconds :: proc() -> f32 { return f32(sdl.get_ticks()) / 1000.0; }
 
 fps :: proc() -> u32 { return time.fps; }
 
-now :: proc() -> u64 { return sdl2.get_performance_counter(); }
+now :: proc() -> u64 { return sdl.get_performance_counter(); }
 
 // returns the time in milliseconds since the last call
 laptime :: proc(last_time: ^u64) -> f64 {
@@ -52,7 +52,7 @@ laptime :: proc(last_time: ^u64) -> f64 {
 	dt: f64 = 0;
 	now := now();
 	if tmp^ != 0 {
-		dt = cast(f64)((now - tmp^) * 1000.0) / cast(f64)sdl2.get_performance_frequency();
+		dt = cast(f64)((now - tmp^) * 1000.0) / cast(f64)sdl.get_performance_frequency();
 	}
 	tmp^ = now;
 	return dt;

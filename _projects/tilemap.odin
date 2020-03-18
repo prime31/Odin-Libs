@@ -3,12 +3,12 @@ package main
 import "core:os"
 import "core:fmt"
 import "shared:engine/time"
-import "shared:engine/libs/sdl2"
+import "shared:engine/libs/sdl"
 import "shared:engine/utils/jsmn"
 import "shared:engine/utils/tilemap"
 
 main :: proc() {
-	sdl2.init(cast(sdl2.Init_Flags)0);
+	sdl.init(cast(sdl.Init_Flags)0);
 
 	timer: u64 = 0;
 	time.laptime(&timer);
