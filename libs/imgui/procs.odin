@@ -110,7 +110,7 @@ set_window_focus      :: proc(name : string)                                    
 set_window_pos        :: proc(name : string, pos : Vec2, cond : Set_Cond)          { im_set_window_pos(_make_label_string(name), pos, cond); }
 get_cursor_pos        :: proc() -> Vec2                                           { res : Vec2 = ---; im_get_cursor_pos(&res); return res; }
 get_cursor_start_pos  :: proc() -> Vec2                                           { res : Vec2 = ---; im_get_cursor_start_pos(&res); return res; }
-get_cursor_screen_pos :: proc () -> Vec2                                           { res : Vec2 = ---; im_get_cursor_screen_pos(&res); return res;}
+get_cursor_screen_pos :: proc() -> Vec2                                           { res : Vec2 = ---; im_get_cursor_screen_pos(&res); return res;}
 
 
 
