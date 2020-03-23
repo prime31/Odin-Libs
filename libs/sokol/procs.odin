@@ -2,7 +2,10 @@ package sokol
 
 when #defined(METAL) {
 	when ODIN_OS == "darwin" do foreign import sgfx_lib "native/libsokol_metal.dylib";
+} else when #defined(D3D11) {
+	when ODIN_OS == "windows" do foreign import sgfx_lib "native/sokol_d3d11.lib"
 } else {
+	when ODIN_OS == "windows" do foreign import sgfx_lib "native/sokol_gl.lib"
 	when ODIN_OS == "darwin" do foreign import sgfx_lib "native/libsokol_gl.dylib";
 }
 
