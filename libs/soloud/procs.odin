@@ -1,5 +1,6 @@
 package soloud
 
+when ODIN_OS == "windows" do foreign import lib "native/soloud_x64.dll";
 when ODIN_OS == "darwin" do foreign import lib "native/libsoloud.dylib";
 
 foreign lib {

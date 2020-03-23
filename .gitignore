@@ -16,3 +16,4 @@ _projects/imgui.ini
 .DS_Store
 *.o
 libs/imgui/native/cimgui_git
+_projects/*.exe
