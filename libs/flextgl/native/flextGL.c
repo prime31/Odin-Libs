@@ -39,7 +39,7 @@ static void add_extension(const char* extension);
 
 int flextInit(void)
 {
-    GLint minor, major;
+    GLint minor = 0, major = 0;
     GLint num_extensions;
     int i;
 
@@ -51,6 +51,7 @@ int flextInit(void)
     glGetIntegerv(GL_MINOR_VERSION, &minor);
 
     /* --- Check for minimal version and profile --- */
+    // fprintf(stderr, "OpenGL version is %d.%d.\n", major, minor);
 
     if (major * 10 + minor < 33) {
 #if !defined(FLEXT_NO_LOGGING)

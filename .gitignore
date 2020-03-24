@@ -17,3 +17,6 @@ _projects/imgui.ini
 *.o
 libs/imgui/native/cimgui_git
 _projects/*.exe
+_projects/*.lib
+_projects/*.obj
+_projects/*.dll
