@@ -9,6 +9,8 @@ main :: proc() {
 	window := create_window();
 	gl_context := sdl.gl_create_context(window);
 
+	lib := flextgl.load_lib(`opengl32.dll`);
+	fmt.println("lib: ", lib);
 	flextgl.init();
 }
 
