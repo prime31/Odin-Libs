@@ -1,6 +1,7 @@
 package main
 
 import "core:fmt"
+import "core:math/linalg"
 import "shared:engine/libs/sdl"
 import "shared:engine/libs/fna"
 
@@ -20,6 +21,7 @@ main :: proc() {
 		render_target_usage = fna.Render_Target_Usage.Discard_Contents
 	});
 
+	color := linalg.Vector4 {1, 0, 0, 1};
 	running := true;
 	for running {
 		e: sdl.Event;
@@ -29,9 +31,10 @@ main :: proc() {
 			}
 		}
 
-		w, h: i32;
-		sdl.gl_get_drawable_size(window, &w, &h);
+		g := color.y + 0.01;
+		color.y = g > 1.0 ? 0.0 : g;
 
+		fna.clear(device, fna.Clear_Options.Target, &color);
 		sdl.gl_swap_window(window);
 	}
 }

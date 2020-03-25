@@ -66,3 +66,9 @@ Render_Target_Usage :: enum i32 {
 	Preserve_Contents,
 	Platform_Contents
 }
+
+Clear_Options :: enum i32 {
+	Target	= 1,
+	Depthbuffer	= 2,
+	Stencil	= 4
+}
