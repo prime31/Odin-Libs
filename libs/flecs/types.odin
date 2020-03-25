@@ -1,5 +1,7 @@
 package flecs
 
+// TODO: should the `int`s be `i32`s?
+
 World :: struct {}
 
 Rows :: struct {
