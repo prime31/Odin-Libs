@@ -2,7 +2,7 @@ package imgui
 
 import "shared:engine/libs/sdl"
 
-// when ODIN_OS == "windows" do foreign import imgui_impl "";
+when ODIN_OS == "windows" do foreign import imgui_impl "native/imgui_impl.lib";
 // when ODIN_OS == "linux" do foreign import imgui_impl "";
 // when ODIN_OS == "darwin" do foreign import imgui_impl "native/libimgui_impl.a";
 when ODIN_OS == "darwin" do foreign import imgui_impl "native/libimgui_impl.dylib";

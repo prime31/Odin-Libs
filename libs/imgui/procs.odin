@@ -1,6 +1,6 @@
 package imgui
 
-// when ODIN_OS == "windows" do foreign import cimgui "";
+when ODIN_OS == "windows" do foreign import cimgui "native/cimgui.lib";
 // when ODIN_OS == "linux" do foreign import cimgui "";
 // when ODIN_OS == "darwin" do foreign import cimgui "native/cimgui.a";
 when ODIN_OS == "darwin" do foreign import cimgui "native/cimgui.dylib";
