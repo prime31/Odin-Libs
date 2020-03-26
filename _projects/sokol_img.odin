@@ -104,7 +104,7 @@ prep_gfx_state :: proc() {
 	};
 	state.bind.vertex_buffers[0] = sg.make_buffer({
 		size = len(vertices) * size_of(Vertex),
-		content = &vertices[0]
+		content = &vertices
 	});
 
 	when #defined(METAL) {
