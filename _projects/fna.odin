@@ -8,20 +8,21 @@ import "shared:engine/libs/fna"
 main :: proc() {
 	window := create_window();
 
-	device := fna.create_device({
+	params := fna.Presentation_Parameters{
 		back_buffer_width = 640,
 		back_buffer_height = 480,
 		back_buffer_format = fna.Surface_Format.Color,
 		multi_sample_count = 0,
 		device_window_handle = window,
 		is_full_screen = 0,
-		depth_stencil_format = fna.Depth_Format.D24s8,
+		depth_stencil_format = fna.Depth_Format.D24_S8,
 		presentation_interval = fna.Present_Interval.Default,
 		display_orientation = fna.Display_Orientation.Default,
 		render_target_usage = fna.Render_Target_Usage.Discard_Contents
-	});
+	};
+	device := fna.create_device(&params);
 
-	color := linalg.Vector4 {1, 0, 0, 1};
+	color := fna.Vec4 {1, 0, 0, 1};
 	running := true;
 	for running {
 		e: sdl.Event;
@@ -34,8 +35,8 @@ main :: proc() {
 		g := color.y + 0.01;
 		color.y = g > 1.0 ? 0.0 : g;
 
-		fna.clear(device, fna.Clear_Options.Target, &color);
-		sdl.gl_swap_window(window);
+		fna.clear(device, fna.Clear_Options.Target, &color, 0, 0);
+		fna.swap_buffers(device, nil, nil, params.device_window_handle);
 	}
 }
 
@@ -53,7 +54,6 @@ create_window :: proc() -> ^sdl.Window {
 	sdl.gl_set_attribute(sdl.GL_Attr.Stencil_Size, 8);
 
 	window_attrs := fna.prepare_window_attributes(1);
-	fmt.println("attrs: ", window_attrs);
 
 	window := sdl.create_window("Odin + FNA + SDL + OpenGL", i32(sdl.Window_Pos.Undefined), i32(sdl.Window_Pos.Undefined), 640, 480, cast(sdl.Window_Flags)window_attrs);
 
