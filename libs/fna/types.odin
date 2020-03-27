@@ -215,7 +215,10 @@ Buffer :: struct {}
 
 Renderbuffer :: struct {}
 
-Effect :: struct {}
+Effect :: struct {
+	mojo_effect: ^Mojo_Effect,
+	gl_effect: rawptr
+}
 
 Query :: struct {}
 

@@ -178,7 +178,7 @@ foreign fna_lib {
 	get_index_buffer_data :: proc(device: ^Device, buffer: ^Buffer, offset_in_bytes: i32, data: rawptr, start_index: i32, element_count: i32, element_size_in_bytes: i32) ---;
 
 	@(link_name = "FNA3D_CreateEffect")
-	create_effect :: proc(device: ^Device, effect_code: ^u8) -> ^Effect ---;
+	create_effect :: proc(device: ^Device, effect_code: ^u8, effectCodeLength: u32) -> ^Effect ---;
 
 	@(link_name = "FNA3D_CloneEffect")
 	clone_effect :: proc(device: ^Device, effect: ^Effect) -> ^Effect ---;
@@ -187,7 +187,7 @@ foreign fna_lib {
 	add_dispose_effect :: proc(device: ^Device, effect: ^Effect) ---;
 
 	@(link_name = "FNA3D_ApplyEffect")
-	apply_effect :: proc(device: ^Device, effect: ^Effect, technique: ^Mojoshader_Effect_Technique, pass: u32, state_changes: ^Mojoshader_Effect_State_Changes) ---;
+	apply_effect :: proc(device: ^Device, effect: ^Effect, technique: ^Effect_Technique, pass: u32, state_changes: ^Effect_State_Changes) ---;
 
 	@(link_name = "FNA3D_BeginPassRestore")
 	begin_pass_restore :: proc(device: ^Device, effect: ^Effect, state_changes: ^Mojoshader_Effect_State_Changes) ---;
