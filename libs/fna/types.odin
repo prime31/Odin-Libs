@@ -253,46 +253,46 @@ Viewport :: struct {
 }
 
 Blend_State :: struct {
-	blend_color: Color,
-	multisample_mask: i32,
-	blend_func: Blend_Function,
-	blend_func_alpha: Blend_Function,
-	src_blend: Blend,
-	dst_blend: Blend,
-	src_blend_alpha: Blend,
-	dst_blend_alpha: Blend,
+	color_source_blend: Blend,
+	color_destination_blend: Blend,
+	color_blend_function: Blend_Function,
+	alpha_source_blend: Blend,
+	alpha_destination_blend: Blend,
+	alpha_blend_function: Blend_Function,
 	color_write_enable: Color_Write_Channels,
 	color_write_enable1: Color_Write_Channels,
 	color_write_enable2: Color_Write_Channels,
-	color_write_enable3: Color_Write_Channels
+	color_write_enable3: Color_Write_Channels,
+	blend_factor: Color,
+	multi_sample_mask: i32
 }
 
 Depth_Stencil_State :: struct {
-	z_enable: u8,
-	z_write_enable: u8,
-	depth_func: Compare_Function,
+	depth_buffer_enable: u8,
+	depth_buffer_write_enable: u8,
+	depth_buffer_function: Compare_Function,
 	stencil_enable: u8,
-	stencil_write_mask: i32,
-	separate_stencil_enable: u8,
-	stencil_ref: i32,
 	stencil_mask: i32,
-	stencil_func: Compare_Function,
+	stencil_write_mask: i32,
+	two_sided_stencil_mode: u8,
 	stencil_fail: Stencil_Operation,
-	stencil_z_fail: Stencil_Operation,
+	stencil_depth_buffer_fail: Stencil_Operation,
 	stencil_pass: Stencil_Operation,
-	ccw_stencil_func: Compare_Function,
+	stencil_function: Compare_Function,
 	ccw_stencil_fail: Stencil_Operation,
-	ccw_stencil_z_fail: Stencil_Operation,
-	ccw_stencil_pass: Stencil_Operation
+	ccw_stencil_depth_buffer_fail: Stencil_Operation,
+	ccw_stencil_pass: Stencil_Operation,
+	ccw_stencil_function: Compare_Function,
+	reference_stencil: i32
 }
 
 Rasterizer_State :: struct {
-	scissor_test_enable: u8,
-	cull_mode: Cull_Mode,
 	fill_mode: Fill_Mode,
+	cull_mode: Cull_Mode,
 	depth_bias: f32,
 	slope_scale_depth_bias: f32,
-	multi_sample_enable: u8
+	scissor_test_enable: u8,
+	multi_sample_anti_alias: u8
 }
 
 Sampler_State :: struct {
@@ -318,6 +318,13 @@ Vertex_Declaration :: struct {
 	elements: ^Vertex_Element
 }
 
+Vertex_Buffer_Binding :: struct {
+	vertex_buffer: ^Buffer,
+	vertex_declaration: Vertex_Declaration,
+	vertex_offset: i32,
+	instance_frequency: i32
+}
+
 Presentation_Parameters :: struct {
 	back_buffer_width: i32,
 	back_buffer_height: i32,
@@ -329,6 +336,20 @@ Presentation_Parameters :: struct {
 	presentation_interval: Present_Interval,
 	display_orientation: Display_Orientation,
 	render_target_usage: Render_Target_Usage
+}
+
+Render_Target_Binding :: struct {
+	type: u8,
+	format: Surface_Format,
+	level_count: i32,
+	texture: ^Texture,
+	width: i32,
+	height: i32,
+	render_target_usage: Render_Target_Usage,
+	color_buffer: ^Renderbuffer,
+	depth_stencil_format: Depth_Format,
+	multi_sample_count: i32,
+	cube_map_face: Cube_Map_Face
 }
 
 Mojoshader_Effect :: struct {}
