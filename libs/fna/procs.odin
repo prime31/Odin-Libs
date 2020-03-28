@@ -82,16 +82,16 @@ foreign fna_lib {
 	verify_sampler :: proc(device: ^Device, index: i32, texture: ^Texture, sampler: ^Sampler_State) ---;
 
 	@(link_name = "FNA3D_ApplyVertexBufferBindings")
-	apply_vertex_buffer_bindings :: proc(device: ^Device, num_bindings: i32, bindings_updated: u8, base_vertex: i32) ---;
+	apply_vertex_buffer_bindings :: proc(device: ^Device, bindings: ^Vertex_Buffer_Binding, num_bindings: i32, bindings_updated: u8, base_vertex: i32) ---;
 
 	@(link_name = "FNA3D_ApplyVertexDeclaration")
 	apply_vertex_declaration :: proc(device: ^Device, vertex_declaration: ^Vertex_Declaration, ptr: rawptr, vertex_offset: i32) ---;
 
 	@(link_name = "FNA3D_SetRenderTargets")
-	set_render_targets :: proc(device: ^Device, renderbuffer: ^Renderbuffer, depth_format: Depth_Format) ---;
+	set_render_targets :: proc(device: ^Device, render_targets: ^Render_Target_Binding, num_render_targets: i32, renderbuffer: ^Renderbuffer, depth_format: Depth_Format) ---;
 
 	@(link_name = "FNA3D_ResolveTarget")
-	resolve_target :: proc(device: ^Device) ---;
+	resolve_target :: proc(device: ^Device, target: ^Render_Target_Binding) ---;
 
 	@(link_name = "FNA3D_ResetBackbuffer")
 	reset_backbuffer :: proc(device: ^Device, presentation_parameters: ^Presentation_Parameters) ---;
@@ -178,7 +178,7 @@ foreign fna_lib {
 	get_index_buffer_data :: proc(device: ^Device, buffer: ^Buffer, offset_in_bytes: i32, data: rawptr, start_index: i32, element_count: i32, element_size_in_bytes: i32) ---;
 
 	@(link_name = "FNA3D_CreateEffect")
-	create_effect :: proc(device: ^Device, effect_code: ^u8, effectCodeLength: u32) -> ^Effect ---;
+	create_effect :: proc(device: ^Device, effect_code: ^u8, effect_code_length: u32) -> ^Effect ---;
 
 	@(link_name = "FNA3D_CloneEffect")
 	clone_effect :: proc(device: ^Device, effect: ^Effect) -> ^Effect ---;
@@ -187,7 +187,7 @@ foreign fna_lib {
 	add_dispose_effect :: proc(device: ^Device, effect: ^Effect) ---;
 
 	@(link_name = "FNA3D_ApplyEffect")
-	apply_effect :: proc(device: ^Device, effect: ^Effect, technique: ^Effect_Technique, pass: u32, state_changes: ^Effect_State_Changes) ---;
+	apply_effect :: proc(device: ^Device, effect: ^Effect, technique: ^Mojoshader_Effect_Technique, pass: u32, state_changes: ^Mojoshader_Effect_State_Changes) ---;
 
 	@(link_name = "FNA3D_BeginPassRestore")
 	begin_pass_restore :: proc(device: ^Device, effect: ^Effect, state_changes: ^Mojoshader_Effect_State_Changes) ---;

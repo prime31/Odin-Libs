@@ -216,7 +216,7 @@ Buffer :: struct {}
 Renderbuffer :: struct {}
 
 Effect :: struct {
-	mojo_effect: ^Mojo_Effect,
+	mojo_effect: ^Mojoshader_Effect,
 	gl_effect: rawptr
 }
 
@@ -352,9 +352,9 @@ Render_Target_Binding :: struct {
 	cube_map_face: Cube_Map_Face
 }
 
-Mojoshader_Effect :: struct {}
+// Mojoshader_Effect :: struct {}
 
-Mojoshader_Effect_Technique :: struct {}
+// Mojoshader_Effect_Technique :: struct {}
 
 Mojoshader_Effect_State_Changes :: struct {}
 

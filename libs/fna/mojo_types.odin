@@ -2,15 +2,15 @@ package fna
 
 // MojoShader/mojoshader
 
-Mojo_Effect :: struct {
+Mojoshader_Effect :: struct {
     error_count: i32,
     errors: ^Error,
     profile: cstring,
     param_count: i32,
     params: ^Effect_Param,
     technique_count: i32,
-    techniques: ^Effect_Technique,
-    current_technique: ^Effect_Technique,
+    techniques: ^Mojoshader_Effect_Technique,
+    current_technique: ^Mojoshader_Effect_Technique,
     current_pass: i32,
     object_count: i32,
     objects: ^Effect_Object,
@@ -21,7 +21,7 @@ Mojo_Effect :: struct {
     malloc_data: rawptr
 }
 
-Effect_Technique :: struct {
+Mojoshader_Effect_Technique :: struct {
     name: cstring,
     pass_count: u32,
     passes: ^Effect_Pass,
@@ -29,13 +29,9 @@ Effect_Technique :: struct {
     annotations: ^Effect_Annotation
 }
 
-Effect_Pass :: struct {
+Effect_Pass :: struct {}
 
-}
-
-Effect_Annotation :: struct {
-
-}
+Effect_Annotation :: struct {}
 
 Effect_Param :: struct {
     value: Effect_Value,

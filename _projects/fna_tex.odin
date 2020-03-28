@@ -58,7 +58,7 @@ main :: proc() {
 		fna.clear(device, fna.Clear_Options.Target, &color, 0, 0);
 
 		// fmt.println("using technique: ", effect.mojo_effect.current_technique.name);
-		state_changes := fna.Effect_State_Changes{};
+		state_changes := fna.Mojoshader_Effect_State_Changes{};
 		fna.apply_effect(device, effect, effect.mojo_effect.current_technique, 0, &state_changes);
 
 		vertices := [?]Vertex{
