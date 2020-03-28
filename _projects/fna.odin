@@ -7,10 +7,16 @@ import "core:math/linalg"
 import "shared:engine/libs/sdl"
 import "shared:engine/libs/fna"
 
+Vertex :: struct {
+	pos: [3]f32,
+	col: u32
+};
+
 device: ^fna.Device;
 vbuff: ^fna.Buffer;
 ibuff: ^fna.Buffer;
 effect: ^fna.Effect;
+vert_decl: fna.Vertex_Declaration;
 
 main :: proc() {
 	window := create_window();
@@ -52,16 +58,16 @@ main :: proc() {
 		state_changes := fna.Effect_State_Changes{};
 		fna.apply_effect(device, effect, effect.mojo_effect.current_technique, 0, &state_changes);
 
-		vert_elements := make([]fna.Vertex_Element, 3);
-		defer { delete(vert_elements); }
-
-		vert_decl := fna.Vertex_Declaration{
-			vertex_stride = 10 * 4,
-			element_count = 3,
-			elements = &vert_elements[0]
+		vertices := [?]Vertex{
+			{{+0.5, +0.5, +0.5}, 0xFFFF0000}, // ABGR
+			{{+0.5, -0.5, +0.5}, 0xFF0099FF},
+			{{-0.5, -0.5, +0.5}, 0xFF00FFFF},
+			{{-0.5, -0.5, +0.5}, 0xFF00FFFF},
+			{{-0.5, +0.5, +0.5}, 0xFFFFFF00},
+			{{+0.5, +0.5, +0.5}, 0xFFFF0000},
 		};
-		fna.apply_vertex_declaration(device, &vert_decl, vbuff, 0);
-		// fna.apply_vertex_buffer_bindings(device, 1, 1, 0);
+
+		fna.apply_vertex_declaration(device, &vert_decl, &vertices, 0);
 		fna.draw_primitives(device, .Triangle_List, 0, 2);
 
 		fna.swap_buffers(device, nil, nil, params.device_window_handle);
@@ -69,30 +75,46 @@ main :: proc() {
 }
 
 prepper :: proc() {
-	Vertex :: struct {
-		pos: [3]f32,
-		col: [4]f32,
-		uv: [2]f32
-	};
-
 	vertices := [?]Vertex{
-		{{+0.5, +0.5, +0.5}, {1.0, 0.0, 0.0, 1.0}, {1.0, 1.0}},
-		{{+0.5, -0.5, +0.5}, {0.0, 1.0, 0.0, 1.0}, {1.0, 0.0}},
-		{{-0.5, -0.5, +0.5}, {0.0, 0.0, 1.0, 1.0}, {0.0, 0.0}},
-		{{-0.5, -0.5, +0.5}, {0.0, 0.0, 1.0, 1.0}, {0.0, 0.0}},
-		{{-0.5, +0.5, +0.5}, {0.0, 0.0, 1.0, 1.0}, {0.0, 1.0}},
-		{{+0.5, +0.5, +0.5}, {1.0, 0.0, 0.0, 1.0}, {1.0, 1.0}},
+		{{+0.5, +0.5, +0.5}, 0xFFFFFFFF},
+		{{+0.5, -0.5, +0.5}, 0xFFFFFFFF},
+		{{-0.5, -0.5, +0.5}, 0xFFFFFFFF},
+		{{-0.5, -0.5, +0.5}, 0xFFFFFFFF},
+		{{-0.5, +0.5, +0.5}, 0xFFFFFFFF},
+		{{+0.5, +0.5, +0.5}, 0xFFFFFFFF},
 	};
 
 	indices := [?]i16{0, 1, 2, 2, 3, 0};
 
-	vbuff = fna.gen_vertex_buffer(device, 0, .Write_Only, len(vertices), 10 * 4);
+
+	vert_elements := make([]fna.Vertex_Element, 2);
+	vert_elements[0] = fna.Vertex_Element{
+		offset = 0,
+		vertex_element_format = .Vector3,
+		vertex_element_usage = .Position,
+		usage_index = 0
+	};
+
+	vert_elements[1] = fna.Vertex_Element{
+		offset = 12,
+		vertex_element_format = .Color,
+		vertex_element_usage = .Color,
+		usage_index = 0
+	};
+
+	vert_decl = fna.Vertex_Declaration{
+		vertex_stride = get_vertex_stride(vert_elements),
+		element_count = 2,
+		elements = &vert_elements[0]
+	};
+
+	vbuff = fna.gen_vertex_buffer(device, 0, .Write_Only, len(vertices), 0);
 	fna.set_vertex_buffer_data(device, vbuff, 0, &vertices, len(vertices), .None);
 	ibuff = fna.gen_index_buffer(device, 0, .Write_Only, 6, ._16_Bit);
 	fna.set_index_buffer_data(device, ibuff, 0, &indices, 6, .None);
 
 	// load an effect
-	data, success := os.read_entire_file("assets/SpriteEffect.fxb");
+	data, success := os.read_entire_file("assets/VertexColor.fxb");
 	defer if success { delete(data); }
 
 	effect = fna.create_effect(device, &data[0], cast(u32)len(data));
@@ -104,6 +126,23 @@ prepper :: proc() {
 	// }
 }
 
+get_vertex_stride :: proc(elements: []fna.Vertex_Element) -> i32 {
+	max:i32 = 0;
+	for ele in elements {
+		start := ele.offset + get_type_size(ele.vertex_element_format);
+		if max < start do max = start;
+	}
+	return max;
+}
+
+get_type_size :: proc(type: fna.Vertex_Element_Format) -> i32 {
+	#partial switch type {
+		case fna.Vertex_Element_Format.Color: return 4;
+		case fna.Vertex_Element_Format.Vector3: return 12;
+		case fna.Vertex_Element_Format.Vector4: return 16;
+	}
+	return -1;
+}
 
 create_window :: proc() -> ^sdl.Window {
 	sdl.init(sdl.Init_Flags.Everything);
