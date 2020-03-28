@@ -10,14 +10,15 @@ import "shared:engine/libs/fna"
 Vertex :: struct {
 	pos: [3]f32,
 	col: u32,
-	tex_coords: [2]f32
+	uv: [2]f32
 };
 
 device: ^fna.Device;
 vbuff: ^fna.Buffer;
-ibuff: ^fna.Buffer;
 effect: ^fna.Effect;
 vert_decl: fna.Vertex_Declaration;
+texture: ^fna.Texture;
+
 
 main :: proc() {
 	window := create_window();
@@ -38,6 +39,7 @@ main :: proc() {
 	fna.set_presentation_interval(device, .One);
 
 	prepper();
+	create_texture();
 
 	color := fna.Vec4 {1, 0, 0, 1};
 	running := true;
@@ -60,12 +62,12 @@ main :: proc() {
 		fna.apply_effect(device, effect, effect.mojo_effect.current_technique, 0, &state_changes);
 
 		vertices := [?]Vertex{
-			{{+0.5, +0.5, +0.5}, 0xFFFF0000}, // ABGR
-			{{+0.5, -0.5, +0.5}, 0xFF0099FF},
-			{{-0.5, -0.5, +0.5}, 0xFF00FFFF},
-			{{-0.5, -0.5, +0.5}, 0xFF00FFFF},
-			{{-0.5, +0.5, +0.5}, 0xFFFFFF00},
-			{{+0.5, +0.5, +0.5}, 0xFFFF0000},
+			{{+0.5, +0.5, +0.5}, 0xFFFFFFFF, {1.0, 1.0}}, // ABGR
+			{{+0.5, -0.5, +0.5}, 0xFFFFFFFF, {1.0, 0.0}},
+			{{-0.5, -0.5, +0.5}, 0xFFFFFFFF, {0.0, 0.0}},
+			{{-0.5, -0.5, +0.5}, 0xFFFFFFFF, {0.0, 0.0}},
+			{{-0.5, +0.5, +0.5}, 0xFFFFFFFF, {0.0, 1.0}},
+			{{+0.5, +0.5, +0.5}, 0xFFFFFFFF, {1.0, 1.0}},
 		};
 
 		fna.apply_vertex_declaration(device, &vert_decl, &vertices, 0);
@@ -77,18 +79,15 @@ main :: proc() {
 
 prepper :: proc() {
 	vertices := [?]Vertex{
-		{{+0.5, +0.5, +0.5}, 0xFFFFFFFF},
-		{{+0.5, -0.5, +0.5}, 0xFFFFFFFF},
-		{{-0.5, -0.5, +0.5}, 0xFFFFFFFF},
-		{{-0.5, -0.5, +0.5}, 0xFFFFFFFF},
-		{{-0.5, +0.5, +0.5}, 0xFFFFFFFF},
-		{{+0.5, +0.5, +0.5}, 0xFFFFFFFF},
+		{{+0.5, +0.5, +0.5}, 0xFFFFFFFF, {1.0, 1.0}},
+		{{+0.5, -0.5, +0.5}, 0xFFFFFFFF, {1.0, 0.0}},
+		{{-0.5, -0.5, +0.5}, 0xFFFFFFFF, {0.0, 0.0}},
+		{{-0.5, -0.5, +0.5}, 0xFFFFFFFF, {0.0, 0.0}},
+		{{-0.5, +0.5, +0.5}, 0xFFFFFFFF, {0.0, 1.0}},
+		{{+0.5, +0.5, +0.5}, 0xFFFFFFFF, {1.0, 1.0}},
 	};
 
-	indices := [?]i16{0, 1, 2, 2, 3, 0};
-
-
-	vert_elements := make([]fna.Vertex_Element, 2);
+	vert_elements := make([]fna.Vertex_Element, 3);
 	vert_elements[0] = fna.Vertex_Element{
 		offset = 0,
 		vertex_element_format = .Vector3,
@@ -103,19 +102,24 @@ prepper :: proc() {
 		usage_index = 0
 	};
 
+	vert_elements[2] = fna.Vertex_Element{
+		offset = 16,
+		vertex_element_format = .Vector2,
+		vertex_element_usage = .Texture_Coordinate,
+		usage_index = 0
+	};
+
 	vert_decl = fna.Vertex_Declaration{
 		vertex_stride = get_vertex_stride(vert_elements),
-		element_count = 2,
+		element_count = 3,
 		elements = &vert_elements[0]
 	};
 
 	vbuff = fna.gen_vertex_buffer(device, 0, .Write_Only, len(vertices), 0);
 	fna.set_vertex_buffer_data(device, vbuff, 0, &vertices, len(vertices), .None);
-	ibuff = fna.gen_index_buffer(device, 0, .Write_Only, 6, ._16_Bit);
-	fna.set_index_buffer_data(device, ibuff, 0, &indices, 6, .None);
 
 	// load an effect
-	data, success := os.read_entire_file("assets/VertexColor.fxb");
+	data, success := os.read_entire_file("assets/VertexColorTexture.fxb");
 	defer if success { delete(data); }
 
 	effect = fna.create_effect(device, &data[0], cast(u32)len(data));
@@ -125,6 +129,28 @@ prepper :: proc() {
 	// for param in params {
 	// 	fmt.println("param", param);
 	// }
+}
+
+create_texture :: proc() {
+	pixels := [?]u32 {0xFFFFFFFF, 0x00000000, 0xFFFFFFFF, 0x00000000,
+		0x00000000, 0xFFFFFFFF, 0x00000000, 0xFFFFFFFF,
+		0xFFFFFFFF, 0x00000000, 0xFFFFFFFF, 0x00000000,
+		0x00000000, 0xFFFFFFFF, 0x00000000, 0xFFFFFFFF};
+
+	texture = fna.create_texture2_d(device, .Color, 4, 4, 1, 0);
+	fna.set_texture_data2_d(device, texture, .Color, 0, 0, 4, 4, 0, &pixels, size_of(pixels));
+
+	sampler_state := fna.Sampler_State{
+		address_u = .Wrap,
+		address_v = .Wrap,
+		address_w = .Wrap,
+		filter = .Point,
+		max_anisotropy = 4,
+		max_mip_level = 0,
+		mip_map_level_of_detail_bias = 0
+	};
+
+	fna.verify_sampler(device, 0, texture, &sampler_state);
 }
 
 get_vertex_stride :: proc(elements: []fna.Vertex_Element) -> i32 {
@@ -139,6 +165,7 @@ get_vertex_stride :: proc(elements: []fna.Vertex_Element) -> i32 {
 get_type_size :: proc(type: fna.Vertex_Element_Format) -> i32 {
 	#partial switch type {
 		case fna.Vertex_Element_Format.Color: return 4;
+		case fna.Vertex_Element_Format.Vector2: return 8;
 		case fna.Vertex_Element_Format.Vector3: return 12;
 		case fna.Vertex_Element_Format.Vector4: return 16;
 	}
