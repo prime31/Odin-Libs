@@ -296,13 +296,13 @@ Rasterizer_State :: struct {
 }
 
 Sampler_State :: struct {
+	filter: Texture_Filter,
 	address_u: Texture_Address_Mode,
 	address_v: Texture_Address_Mode,
 	address_w: Texture_Address_Mode,
-	filter: Texture_Filter,
+	mip_map_level_of_detail_bias: f32,
 	max_anisotropy: i32,
-	max_mip_level: i32,
-	mip_map_level_of_detail_bias: f32
+	max_mip_level: i32
 }
 
 Vertex_Element :: struct {

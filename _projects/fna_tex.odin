@@ -62,12 +62,12 @@ main :: proc() {
 		fna.apply_effect(device, effect, effect.mojo_effect.current_technique, 0, &state_changes);
 
 		vertices := [?]Vertex{
-			{{+0.5, +0.5, +0.5}, 0xFFFFFFFF, {1.0, 1.0}}, // ABGR
+			{{+0.5, +0.5, +0.5}, 0xFF0099FF, {1.0, 1.0}}, // ABGR
 			{{+0.5, -0.5, +0.5}, 0xFFFFFFFF, {1.0, 0.0}},
 			{{-0.5, -0.5, +0.5}, 0xFFFFFFFF, {0.0, 0.0}},
 			{{-0.5, -0.5, +0.5}, 0xFFFFFFFF, {0.0, 0.0}},
 			{{-0.5, +0.5, +0.5}, 0xFFFFFFFF, {0.0, 1.0}},
-			{{+0.5, +0.5, +0.5}, 0xFFFFFFFF, {1.0, 1.0}},
+			{{+0.5, +0.5, +0.5}, 0xFF0099FF, {1.0, 1.0}},
 		};
 
 		fna.apply_vertex_declaration(device, &vert_decl, &vertices, 0);
