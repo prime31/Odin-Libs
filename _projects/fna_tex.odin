@@ -60,6 +60,9 @@ main :: proc() {
 		// fmt.println("using technique: ", effect.mojo_effect.current_technique.name);
 		state_changes := fna.Mojoshader_Effect_State_Changes{};
 		fna.apply_effect(device, effect, effect.mojo_effect.current_technique, 0, &state_changes);
+		// fmt.println("state_changes:", state_changes);
+
+		// here is where Effect.cs
 
 		vertices := [?]Vertex{
 			{{+0.5, +0.5, +0.5}, 0xFF0099FF, {1.0, 1.0}}, // ABGR
@@ -119,15 +122,23 @@ prepper :: proc() {
 	fna.set_vertex_buffer_data(device, vbuff, 0, &vertices, len(vertices), .None);
 
 	// load an effect
-	data, success := os.read_entire_file("assets/VertexColorTexture.fxb");
+	data, success := os.read_entire_file("assets/Noise.fxb");
 	defer if success { delete(data); }
 
 	effect = fna.create_effect(device, &data[0], cast(u32)len(data));
 	// fmt.println("effect:", effect, "mojo_effect:", effect.mojo_effect);
 
-	// params := mem.slice_ptr(effect.mojo_effect.params, cast(int)effect.mojo_effect.param_count);
-	// for param in params {
-	// 	fmt.println("param", param);
+	params := mem.slice_ptr(effect.mojo_effect.params, cast(int)effect.mojo_effect.param_count);
+	for param in params {
+		fmt.println("param", param);
+	}
+
+	params[1].effect_value.value.float^ = 1;
+	// params[2].effect_value.value.float^ = 0.5;
+
+	// objects := mem.slice_ptr(effect.mojo_effect.objects, cast(int)effect.mojo_effect.object_count);
+	// for object in objects {
+	// 	fmt.println("object", object);
 	// }
 }
 

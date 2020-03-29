@@ -15,7 +15,7 @@ Mojoshader_Effect :: struct {
     object_count: i32,
     objects: ^Effect_Object,
     restore_shader_state: i32,
-    state_changes: ^Effect_State_Changes,
+    state_changes: ^Mojoshader_Effect_State_Changes,
     malloc: proc(), // MOJOSHADER_malloc,
     free: proc(), // MOJOSHADER_free,
     malloc_data: rawptr
@@ -34,7 +34,7 @@ Effect_Pass :: struct {}
 Effect_Annotation :: struct {}
 
 Effect_Param :: struct {
-    value: Effect_Value,
+    effect_value: Effect_Value,
     annotation_count: u32,
     annotations: ^Effect_Annotation
 }
@@ -42,9 +42,13 @@ Effect_Param :: struct {
 Effect_Value :: struct {
     name: cstring,
     semantic: cstring,
-    //MOJOSHADER_symbolTypeInfo type,
+    type: Symbol_Type_Info,
     value_count: u32,
-    busted_union: rawptr,
+    value: struct #raw_union {
+    	void: rawptr,
+    	int: ^int,
+    	float: ^f32
+    }
     // union {
     //     void                           *values,
     //     int                            *valuesI,
@@ -70,6 +74,10 @@ Effect_Value :: struct {
 }
 
 Effect_Object :: struct {
+	type: Symbol_Type
+	object: struct #raw_union {
+		mapping: Sampler_Map
+	}
     // MOJOSHADER_symbolType type,
     // union
     // {
@@ -85,7 +93,7 @@ Effect_State :: struct {
     // MOJOSHADER_effectValue value,
 }
 
-Effect_State_Changes :: struct {
+Mojoshader_Effect_State_Changes :: struct {
     render_state_change_count: u32,
     render_state_changes: ^Effect_State,
 

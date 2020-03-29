@@ -356,5 +356,5 @@ Render_Target_Binding :: struct {
 
 // Mojoshader_Effect_Technique :: struct {}
 
-Mojoshader_Effect_State_Changes :: struct {}
+// Mojoshader_Effect_State_Changes :: struct {}
 

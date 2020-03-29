@@ -6,7 +6,6 @@ import "core:mem"
 import "core:math/linalg"
 import "shared:engine/libs/sdl"
 import "shared:engine/libs/fna"
-import "shared:engine/libs/flextgl"
 import "shared:engine/libs/imgui"
 
 Vertex :: struct {
@@ -35,18 +34,15 @@ main :: proc() {
 		display_orientation = fna.Display_Orientation.Default,
 		render_target_usage = fna.Render_Target_Usage.Discard_Contents
 	};
-	device = fna.create_device(&params);
+	device = fna.create_device(&params, 0);
 	fna.set_presentation_interval(device, .One);
 
-	flextgl.init();
 	prepper();
 
 	imgui.create_context();
 	io := imgui.get_io();
 	io.config_flags |= .DockingEnable;
 	io.config_flags |= .ViewportsEnable;
-
-	imgui.impl_init_for_gl("#version 120", window, sdl.gl_get_current_context());
 
 	color := fna.Vec4 {1, 0, 0, 1};
 	running := true;
@@ -66,7 +62,7 @@ main :: proc() {
 		fna.clear(device, fna.Clear_Options.Target, &color, 0, 0);
 
 		// fmt.println("using technique: ", effect.mojo_effect.current_technique.name);
-		state_changes := fna.Effect_State_Changes{};
+		state_changes := fna.Mojoshader_Effect_State_Changes{};
 		fna.apply_effect(device, effect, effect.mojo_effect.current_technique, 0, &state_changes);
 
 		vertices := [?]Vertex{
@@ -81,15 +77,15 @@ main :: proc() {
 		fna.apply_vertex_declaration(device, &vert_decl, &vertices, 0);
 		fna.draw_primitives(device, .Triangle_List, 0, 2);
 
-		imgui.impl_new_frame(window);
-		imgui.im_text("whatever");
-		imgui.render();
-		imgui.impl_render();
+		// imgui.impl_new_frame(window);
+		// imgui.im_text("whatever");
+		// imgui.render();
+		// imgui.impl_render();
 
-		if int(io.config_flags & .ViewportsEnable) != 0 {
-			imgui.update_platform_windows();
-			imgui.render_platform_windows_default();
-		}
+		// if int(io.config_flags & .ViewportsEnable) != 0 {
+		// 	imgui.update_platform_windows();
+		// 	imgui.render_platform_windows_default();
+		// }
 
 		fna.swap_buffers(device, nil, nil, params.device_window_handle);
 	}
@@ -168,7 +164,9 @@ get_type_size :: proc(type: fna.Vertex_Element_Format) -> i32 {
 create_window :: proc() -> ^sdl.Window {
 	sdl.init(sdl.Init_Flags.Everything);
 
-	window_attrs := fna.prepare_window_attributes(1);
+	window_attrs := fna.prepare_window_attributes();
+	// sdl.gl_set_attribute(sdl.GL_Attr.Context_Major_Version, 3);
+	// sdl.gl_set_attribute(sdl.GL_Attr.Context_Minor_Version, 0);
 	window := sdl.create_window("Odin + FNA + SDL + OpenGL", i32(sdl.Window_Pos.Undefined), i32(sdl.Window_Pos.Undefined), 640, 480, cast(sdl.Window_Flags)window_attrs);
 
 	return window;

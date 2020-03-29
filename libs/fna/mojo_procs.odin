@@ -36,7 +36,6 @@ foreign fna_lib {
 	@(link_name = "MOJOSHADER_assemble")
 	assemble :: proc(filename: cstring, source: cstring, sourcelen: u32, comments: ^rawptr /* const char** */, comment_count: u32, symbols: ^Symbol, symbol_count: u32, defines: ^Preprocessor_Define, define_count: u32, include_open: rawptr /* proc(Include_Type, cstring, cstring, &rawptr /* const char** */, ^u32, proc(i32, rawptr) -> rawptr, proc(rawptr, rawptr), rawptr) -> i32 */, include_close: rawptr /* proc(cstring, proc(i32, rawptr) -> rawptr, proc(rawptr, rawptr), rawptr) */, m: proc(i32, rawptr) -> rawptr, f: proc(rawptr, rawptr), d: rawptr) -> ^Parse_Data ---;
 
-
 	@(link_name = "MOJOSHADER_compile")
 	compile :: proc(srcprofile: cstring, filename: cstring, source: cstring, sourcelen: u32, defs: ^Preprocessor_Define, define_count: u32, include_open: rawptr /* proc(Include_Type, cstring, cstring, &rawptr /* const char** */, ^u32, proc(i32, rawptr) -> rawptr, proc(rawptr, rawptr), rawptr) -> i32 */, include_close: rawptr /* proc(cstring, proc(i32, rawptr) -> rawptr, proc(rawptr, rawptr), rawptr) */, m: proc(i32, rawptr) -> rawptr, f: proc(rawptr, rawptr), d: rawptr) -> ^Compile_Data ---;
 
