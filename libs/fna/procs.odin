@@ -7,13 +7,13 @@ when ODIN_OS == "darwin" do foreign import fna_lib "native/libFNA3D.dylib";
 foreign fna_lib {
 	// include/FNA3D
 	@(link_name = "FNA3D_PrepareWindowAttributes")
-	prepare_window_attributes :: proc(debug_mode: u8) -> u32 ---;
+	prepare_window_attributes :: proc() -> u32 ---;
 
 	@(link_name = "FNA3D_GetDrawableSize")
 	get_drawable_size :: proc(window: rawptr, x: ^i32, y: ^i32) ---;
 
 	@(link_name = "FNA3D_CreateDevice")
-	create_device :: proc(presentation_parameters: ^Presentation_Parameters) -> ^Device ---;
+	create_device :: proc(presentation_parameters: ^Presentation_Parameters, debug_mode: u8) -> ^Device ---;
 
 	@(link_name = "FNA3D_DestroyDevice")
 	destroy_device :: proc(device: ^Device) ---;
@@ -112,10 +112,10 @@ foreign fna_lib {
 	get_backbuffer_multi_sample_count :: proc(device: ^Device) -> i32 ---;
 
 	@(link_name = "FNA3D_CreateTexture2D")
-	create_texture2_d :: proc(device: ^Device, format: Surface_Format, width: i32, height: i32, level_count: i32, is_render_target: u8) -> ^Texture ---;
+	create_texture_2d :: proc(device: ^Device, format: Surface_Format, width: i32, height: i32, level_count: i32, is_render_target: u8) -> ^Texture ---;
 
 	@(link_name = "FNA3D_CreateTexture3D")
-	create_texture3_d :: proc(device: ^Device, format: Surface_Format, width: i32, height: i32, depth: i32, level_count: i32) -> ^Texture ---;
+	create_texture_3d :: proc(device: ^Device, format: Surface_Format, width: i32, height: i32, depth: i32, level_count: i32) -> ^Texture ---;
 
 	@(link_name = "FNA3D_CreateTextureCube")
 	create_texture_cube :: proc(device: ^Device, format: Surface_Format, size: i32, level_count: i32, is_render_target: u8) -> ^Texture ---;
@@ -124,22 +124,22 @@ foreign fna_lib {
 	add_dispose_texture :: proc(device: ^Device, texture: ^Texture) ---;
 
 	@(link_name = "FNA3D_SetTextureData2D")
-	set_texture_data2_d :: proc(device: ^Device, texture: ^Texture, format: Surface_Format, x: i32, y: i32, w: i32, h: i32, level: i32, data: rawptr, data_length: i32) ---;
+	set_texture_data_2d :: proc(device: ^Device, texture: ^Texture, format: Surface_Format, x: i32, y: i32, w: i32, h: i32, level: i32, data: rawptr, data_length: i32) ---;
 
 	@(link_name = "FNA3D_SetTextureData3D")
-	set_texture_data3_d :: proc(device: ^Device, texture: ^Texture, format: Surface_Format, level: i32, left: i32, top: i32, right: i32, bottom: i32, front: i32, back: i32, data: rawptr, data_length: i32) ---;
+	set_texture_data_3d :: proc(device: ^Device, texture: ^Texture, format: Surface_Format, level: i32, left: i32, top: i32, right: i32, bottom: i32, front: i32, back: i32, data: rawptr, data_length: i32) ---;
 
 	@(link_name = "FNA3D_SetTextureDataCube")
 	set_texture_data_cube :: proc(device: ^Device, texture: ^Texture, format: Surface_Format, x: i32, y: i32, w: i32, h: i32, cube_map_face: Cube_Map_Face, level: i32, data: rawptr, data_length: i32) ---;
 
 	@(link_name = "FNA3D_SetTextureDataYUV")
-	set_texture_data_y_u_v :: proc(device: ^Device, y: ^Texture, u: ^Texture, v: ^Texture, w: i32, h: i32, ptr: rawptr) ---;
+	set_texture_data_yuv :: proc(device: ^Device, y: ^Texture, u: ^Texture, v: ^Texture, w: i32, h: i32, ptr: rawptr) ---;
 
 	@(link_name = "FNA3D_GetTextureData2D")
-	get_texture_data2_d :: proc(device: ^Device, texture: ^Texture, format: Surface_Format, texture_width: i32, texture_height: i32, level: i32, x: i32, y: i32, w: i32, h: i32, data: rawptr, start_index: i32, element_count: i32, element_size_in_bytes: i32) ---;
+	get_texture_data_2d :: proc(device: ^Device, texture: ^Texture, format: Surface_Format, texture_width: i32, texture_height: i32, level: i32, x: i32, y: i32, w: i32, h: i32, data: rawptr, start_index: i32, element_count: i32, element_size_in_bytes: i32) ---;
 
 	@(link_name = "FNA3D_GetTextureData3D")
-	get_texture_data3_d :: proc(device: ^Device, texture: ^Texture, format: Surface_Format, left: i32, top: i32, front: i32, right: i32, bottom: i32, back: i32, level: i32, data: rawptr, start_index: i32, element_count: i32, element_size_in_bytes: i32) ---;
+	get_texture_data_3d :: proc(device: ^Device, texture: ^Texture, format: Surface_Format, left: i32, top: i32, front: i32, right: i32, bottom: i32, back: i32, level: i32, data: rawptr, start_index: i32, element_count: i32, element_size_in_bytes: i32) ---;
 
 	@(link_name = "FNA3D_GetTextureDataCube")
 	get_texture_data_cube :: proc(device: ^Device, texture: ^Texture, format: Surface_Format, texture_size: i32, cube_map_face: Cube_Map_Face, level: i32, x: i32, y: i32, w: i32, h: i32, data: rawptr, start_index: i32, element_count: i32, element_size_in_bytes: i32) ---;
@@ -214,10 +214,10 @@ foreign fna_lib {
 	query_pixel_count :: proc(device: ^Device, query: ^Query) -> i32 ---;
 
 	@(link_name = "FNA3D_SupportsDXT1")
-	supports_d_x_t1 :: proc(device: ^Device) -> u8 ---;
+	supports_dxt1 :: proc(device: ^Device) -> u8 ---;
 
 	@(link_name = "FNA3D_SupportsS3TC")
-	supports_s3_t_c :: proc(device: ^Device) -> u8 ---;
+	supports_s3tc :: proc(device: ^Device) -> u8 ---;
 
 	@(link_name = "FNA3D_SupportsHardwareInstancing")
 	supports_hardware_instancing :: proc(device: ^Device) -> u8 ---;

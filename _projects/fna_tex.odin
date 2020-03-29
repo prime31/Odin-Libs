@@ -35,7 +35,7 @@ main :: proc() {
 		display_orientation = fna.Display_Orientation.Default,
 		render_target_usage = fna.Render_Target_Usage.Discard_Contents
 	};
-	device = fna.create_device(&params);
+	device = fna.create_device(&params, 0);
 	fna.set_presentation_interval(device, .One);
 
 	prepper();
@@ -137,8 +137,8 @@ create_texture :: proc() {
 		0xFFFFFFFF, 0x00000000, 0xFFFFFFFF, 0x00000000,
 		0x00000000, 0xFFFFFFFF, 0x00000000, 0xFFFFFFFF};
 
-	texture = fna.create_texture2_d(device, .Color, 4, 4, 1, 0);
-	fna.set_texture_data2_d(device, texture, .Color, 0, 0, 4, 4, 0, &pixels, size_of(pixels));
+	texture = fna.create_texture_2d(device, .Color, 4, 4, 1, 0);
+	fna.set_texture_data_2d(device, texture, .Color, 0, 0, 4, 4, 0, &pixels, size_of(pixels));
 
 	sampler_state := fna.Sampler_State{
 		address_u = .Wrap,
@@ -175,7 +175,7 @@ get_type_size :: proc(type: fna.Vertex_Element_Format) -> i32 {
 create_window :: proc() -> ^sdl.Window {
 	sdl.init(sdl.Init_Flags.Everything);
 
-	window_attrs := fna.prepare_window_attributes(1);
+	window_attrs := fna.prepare_window_attributes();
 	window := sdl.create_window("Odin + FNA + SDL + OpenGL", i32(sdl.Window_Pos.Undefined), i32(sdl.Window_Pos.Undefined), 640, 480, cast(sdl.Window_Flags)window_attrs);
 
 	return window;
