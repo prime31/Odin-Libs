@@ -755,6 +755,7 @@ foreign cimgui {
 ///// FontAtlas
 font_atlas_add_font_from_file_ttf :: proc(atlas : ^FontAtlas, filename : string, size_pixels : f32, font_cfg : ^FontConfig = nil, glyph_ranges : []Wchar = nil) -> ^Font { return im_font_atlas_add_font_from_file_ttf(atlas, _make_misc_string(filename), size_pixels, font_cfg, glyph_ranges == nil ? nil : &glyph_ranges[0]); }
 foreign cimgui {
+    @(link_name = "ImFontAtlas_ImFontAtlas")                          font_atlas_new                                        :: proc() -> ^FontAtlas ---;
     @(link_name = "ImFontAtlas_GetTexDataAsRGBA32")                   font_atlas_get_text_data_as_rgba32                    :: proc(atlas : ^FontAtlas, out_pixels : ^^u8, out_width : ^i32, out_height : ^i32, out_bytes_per_pixel : ^i32 = nil) ---;
     @(link_name = "ImFontAtlas_GetTexDataAsAlpha8")                   font_atlas_get_text_data_as_alpha8                    :: proc(atlas : ^FontAtlas, out_pixels : ^^u8, out_width : ^i32, out_height : ^i32, out_bytes_per_pixel : ^i32 = nil) ---;
     @(link_name = "ImFontAtlas_SetTexID")                             font_atlas_set_text_id                                :: proc(atlas : ^FontAtlas, tex : rawptr) ---;

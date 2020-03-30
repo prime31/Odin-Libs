@@ -15,7 +15,6 @@ Vertex :: struct {
 
 device: ^fna.Device;
 vbuff: ^fna.Buffer;
-ibuff: ^fna.Buffer;
 effect: ^fna.Effect;
 vert_decl: fna.Vertex_Declaration;
 
@@ -38,11 +37,7 @@ main :: proc() {
 	fna.set_presentation_interval(device, .One);
 
 	prepper();
-
-	imgui.create_context();
-	io := imgui.get_io();
-	io.config_flags |= .DockingEnable;
-	io.config_flags |= .ViewportsEnable;
+	prepare_imgui();
 
 	color := fna.Vec4 {1, 0, 0, 1};
 	running := true;
@@ -77,10 +72,15 @@ main :: proc() {
 		fna.apply_vertex_declaration(device, &vert_decl, &vertices, 0);
 		fna.draw_primitives(device, .Triangle_List, 0, 2);
 
-		// imgui.impl_new_frame(window);
-		// imgui.im_text("whatever");
-		// imgui.render();
-		// imgui.impl_render();
+		width, height : i32;
+		fna.get_drawable_size(params.device_window_handle, &width, &height);
+		io := imgui.get_io();
+		io.display_size = imgui.Vec2{cast(f32)width, cast(f32)height};
+
+		imgui.new_frame();
+		imgui.im_text("whatever");
+		imgui.render();
+
 
 		// if int(io.config_flags & .ViewportsEnable) != 0 {
 		// 	imgui.update_platform_windows();
@@ -92,17 +92,7 @@ main :: proc() {
 }
 
 prepper :: proc() {
-	vertices := [?]Vertex{
-		{{+0.5, +0.5, +0.5}, 0xFFFFFFFF},
-		{{+0.5, -0.5, +0.5}, 0xFFFFFFFF},
-		{{-0.5, -0.5, +0.5}, 0xFFFFFFFF},
-		{{-0.5, -0.5, +0.5}, 0xFFFFFFFF},
-		{{-0.5, +0.5, +0.5}, 0xFFFFFFFF},
-		{{+0.5, +0.5, +0.5}, 0xFFFFFFFF},
-	};
-
-	indices := [?]i16{0, 1, 2, 2, 3, 0};
-
+	vertices := [?]Vertex{};
 
 	vert_elements := make([]fna.Vertex_Element, 2);
 	vert_elements[0] = fna.Vertex_Element{
@@ -127,8 +117,6 @@ prepper :: proc() {
 
 	vbuff = fna.gen_vertex_buffer(device, 0, .Write_Only, len(vertices), 0);
 	fna.set_vertex_buffer_data(device, vbuff, 0, &vertices, len(vertices), .None);
-	ibuff = fna.gen_index_buffer(device, 0, .Write_Only, 6, ._16_Bit);
-	fna.set_index_buffer_data(device, ibuff, 0, &indices, 6, .None);
 
 	// load an effect
 	data, success := os.read_entire_file("assets/VertexColor.fxb");
@@ -170,4 +158,71 @@ create_window :: proc() -> ^sdl.Window {
 	window := sdl.create_window("Odin + FNA + SDL + OpenGL", i32(sdl.Window_Pos.Undefined), i32(sdl.Window_Pos.Undefined), 640, 480, cast(sdl.Window_Flags)window_attrs);
 
 	return window;
+}
+
+
+
+imgui_vert_decl: fna.Vertex_Declaration;
+imgui_rasterizer_state: fna.Rasterizer_State;
+
+prepare_imgui :: proc() {
+	imgui_setup_vertex_declaration();
+
+	imgui.create_context();
+	io := imgui.get_io();
+	// io.config_flags |= .DockingEnable;
+	// io.config_flags |= .ViewportsEnable;
+
+	fmt.println("fonts:", io.fonts);
+
+	imgui.style_colors_dark(imgui.get_style());
+	io.fonts = imgui.font_atlas_new();
+
+	imgui.font_atlas_add_font_default(io.fonts, nil);
+	width, height : i32;
+	pixels : ^u8;
+	imgui.font_atlas_get_text_data_as_rgba32(io.fonts, &pixels, &width, &height);
+
+	texture := fna.create_texture_2d(device, .Color, width, height, 1, 0);
+	fna.set_texture_data_2d(device, texture, .Color, 0, 0, width, height, 0, pixels, width * height * size_of(pixels));
+
+	imgui.font_atlas_set_text_id(io.fonts, texture);
+	imgui.font_atlas_clear_tex_data(io.fonts);
+}
+
+imgui_setup_vertex_declaration :: proc() {
+	imgui_rasterizer_state = fna.Rasterizer_State{
+		fill_mode = .Solid,
+		cull_mode = .None,
+		scissor_test_enable = 1
+	};
+
+	vert_elements := make([]fna.Vertex_Element, 3);
+	vert_elements[0] = fna.Vertex_Element{
+		offset = 0,
+		vertex_element_format = .Vector3,
+		vertex_element_usage = .Position,
+		usage_index = 0
+	};
+
+	vert_elements[1] = fna.Vertex_Element{
+		offset = 8,
+		vertex_element_format = .Vector2,
+		vertex_element_usage = .Texture_Coordinate,
+		usage_index = 0
+	};
+
+	vert_elements[2] = fna.Vertex_Element{
+		offset = 16,
+		vertex_element_format = .Color,
+		vertex_element_usage = .Color,
+		usage_index = 0
+	};
+
+
+	imgui_vert_decl = fna.Vertex_Declaration{
+		vertex_stride = get_vertex_stride(vert_elements),
+		element_count = 3,
+		elements = &vert_elements[0]
+	};
 }
