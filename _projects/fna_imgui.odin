@@ -170,13 +170,10 @@ prepare_imgui :: proc() {
 
 	imgui.create_context();
 	io := imgui.get_io();
-	// io.config_flags |= .DockingEnable;
-	// io.config_flags |= .ViewportsEnable;
-
-	fmt.println("fonts:", io.fonts);
+	io.config_flags |= .DockingEnable;
+	io.config_flags |= .ViewportsEnable;
 
 	imgui.style_colors_dark(imgui.get_style());
-	io.fonts = imgui.font_atlas_new();
 
 	imgui.font_atlas_add_font_default(io.fonts, nil);
 	width, height : i32;

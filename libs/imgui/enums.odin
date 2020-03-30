@@ -141,7 +141,7 @@ Dir :: enum i32 {
     Right = 1,
     Up    = 2,
     Down  = 3,
-    COUNT,
+    COUNT
 }
 
 Key :: enum i32 {
@@ -160,13 +160,14 @@ Key :: enum i32 {
     Space,
     Enter,
     Escape,
+    KeyPadEscape,
     A,
     C,
     V,
     X,
     Y,
     Z,
-    COUNT,
+    COUNT
 }
 
 Nav_Input :: enum i32 {

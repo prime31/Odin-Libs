@@ -5,9 +5,9 @@ import "core:mem";
 ////////////////////////////
 // Types
 ID        :: distinct u32;
-DrawIdx   :: distinct u16; 
-Wchar     :: distinct u16; 
-TextureID :: distinct rawptr; 
+DrawIdx   :: distinct u16;
+Wchar     :: distinct u16;
+TextureID :: distinct rawptr;
 
 ///////////////////////////
 // DUMMY STRUCTS
@@ -58,7 +58,7 @@ Style :: struct {
     aa_lines                  : bool,
     aa_fill                   : bool,
     curve_tessellation_tol    : f32,
-    colors                    : [Style_Color.COUNT]Vec4, 
+    colors                    : [Style_Color.COUNT]Vec4,
 }
 
 IO :: struct {
@@ -83,12 +83,12 @@ IO :: struct {
     display_framebuffer_scale        : Vec2,
     display_visible_min              : Vec2,
     display_visible_max              : Vec2,
-    config_mac_o_s_x_behaviors       : bool,
+    config_mac_osx_behaviors         : bool,
     config_cursor_blink              : bool,
     config_resize_windows_from_edges : bool,
     get_clipboard_text_fn            : proc "c"(user_data : rawptr) -> cstring,
     set_clipboard_text_fn            : proc "c"(user_data : rawptr, text : cstring),
-    ClipboardUserData                : rawptr,
+    clipboard_user_data              : rawptr,
     ime_set_input_screen_pos_fn      : proc "c"(x, y : i32),
     ime_window_handle                : rawptr,
     render_draw_lists_fn_unused      : rawptr,
@@ -202,9 +202,9 @@ Color :: struct {
 ListClipper :: struct {
     start_pos_y   : f32,
     items_height  : f32,
-    items_count   : i32, 
-    step_no       : i32, 
-    display_start : i32, 
+    items_count   : i32,
+    step_no       : i32,
+    display_start : i32,
     display_end   : i32,
 }
 
@@ -296,7 +296,7 @@ FontAtlas :: struct {
     tex_uv_scale       : Vec2,
     tex_uv_white_pixel : Vec2,
     fonts              : ImVector(^Font),
-    custom_rects       : ImVector(CustomRect), 
+    custom_rects       : ImVector(CustomRect),
     config_data        : ImVector(FontConfig),
     custom_rect_ids    : [1]i32,
 }
@@ -307,7 +307,7 @@ Font :: struct {
     display_offset        : Vec2,
     glyphs                : ImVector(FontGlyph),
     index_advance_x       : ImVector(f32),
-    index_lookup          : ImVector(u32), 
+    index_lookup          : ImVector(u32),
     fallback_glyph        : ^FontGlyph,
     fallback_advance_x    : f32,
     fallback_char         : Wchar,
@@ -339,10 +339,10 @@ TextRange :: struct {
 
 Pair :: struct {
     key : ID,
-    using _: struct #raw_union { 
-        val_i : i32, 
-        val_f : f32, 
-        val_p : rawptr, 
+    using _: struct #raw_union {
+        val_i : i32,
+        val_f : f32,
+        val_p : rawptr,
     }
 }
 
