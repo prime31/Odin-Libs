@@ -118,7 +118,7 @@ get_cursor_screen_pos :: proc() -> Vec2                                         
 foreign cimgui {
     @(link_name = "igSetNextWindowPos")              set_next_window_pos                :: proc(pos : Vec2, cond := Set_Cond(0), pivot : Vec2 = Vec2{0, 0}) ---;
     @(link_name = "igSetNextWindowSize")             set_next_window_size               :: proc(size : Vec2, cond := Set_Cond(0)) ---;
-    @(link_name = "igSetNextWindowSizeConstraints")  set_next_window_size_constraints   :: proc(size_min : Vec2, size_max : Vec2, custom_callback : size_constraint_callback =  nil, custom_callback_data : rawptr = nil) ---;
+    @(link_name = "igSetNextWindowSizeConstraints")  set_next_window_size_constraints   :: proc(size_min : Vec2, size_max : Vec2, custom_callback : Size_Constraint_Callback =  nil, custom_callback_data : rawptr = nil) ---;
     @(link_name = "igSetNextWindowContentSize")      set_next_window_content_size       :: proc(size : Vec2) ---;
     @(link_name = "igSetNextWindowContentWidth")     set_next_window_content_width      :: proc(width : f32) ---;
     @(link_name = "igSetNextWindowCollapsed")        set_next_window_collapsed          :: proc(collapsed : bool, cond := Set_Cond(0)) ---;
@@ -354,8 +354,8 @@ foreign cimgui {
 }
 
 // Widgets: Input with Keyboard
-input_text           :: proc(label : string, buf : []u8, flags := Input_Text_Flags(0), callback : text_edit_callback = nil, user_data : rawptr = nil) -> bool              { return im_input_text(_make_label_string(label), cstring(&buf[0]), uint(len(buf)), flags, callback, user_data); }
-input_text_multiline :: proc(label : string, buf : []u8, size : Vec2, flags := Input_Text_Flags(0), callback : text_edit_callback = nil, user_data : rawptr = nil) -> bool { return im_input_text_multiline(_make_label_string(label), cstring(&buf[0]), uint(len(buf)), size, flags, callback, user_data); }
+input_text           :: proc(label : string, buf : []u8, flags := Input_Text_Flags(0), callback : Text_Edit_Callback = nil, user_data : rawptr = nil) -> bool              { return im_input_text(_make_label_string(label), cstring(&buf[0]), uint(len(buf)), flags, callback, user_data); }
+input_text_multiline :: proc(label : string, buf : []u8, size : Vec2, flags := Input_Text_Flags(0), callback : Text_Edit_Callback = nil, user_data : rawptr = nil) -> bool { return im_input_text_multiline(_make_label_string(label), cstring(&buf[0]), uint(len(buf)), size, flags, callback, user_data); }
 
 input_float          :: proc{input_float1, input_float2, input_float3, input_float4};
 input_float1         :: proc(label: string, v: ^f32, step: f32 = 0, step_fast: f32 = 0, decimal_precision: i32 = -1, extra_flags := Input_Text_Flags(0)) -> bool          { return im_input_float(_make_label_string(label), v, step, step_fast, decimal_precision, extra_flags); }
@@ -371,8 +371,8 @@ input_int4           :: proc(label : string, v : ^[4]i32, extra_flags := Input_T
 
 @(default_calling_convention="c")
 foreign cimgui {
-    @(link_name = "igInputText")          im_input_text           :: proc(label : cstring, buf : cstring, buf_size : uint /*size_t*/, flags : Input_Text_Flags, callback : text_edit_callback, user_data : rawptr) -> bool ---;
-    @(link_name = "igInputTextMultiline") im_input_text_multiline :: proc(label : cstring, buf : cstring, buf_size : uint /*size_t*/, size : Vec2, flags : Input_Text_Flags, callback : text_edit_callback, user_data : rawptr) -> bool ---;
+    @(link_name = "igInputText")          im_input_text           :: proc(label : cstring, buf : cstring, buf_size : uint /*size_t*/, flags : Input_Text_Flags, callback : Text_Edit_Callback, user_data : rawptr) -> bool ---;
+    @(link_name = "igInputTextMultiline") im_input_text_multiline :: proc(label : cstring, buf : cstring, buf_size : uint /*size_t*/, size : Vec2, flags : Input_Text_Flags, callback : Text_Edit_Callback, user_data : rawptr) -> bool ---;
     @(link_name = "igInputFloat")         im_input_float          :: proc(label : cstring, v : ^f32, step : f32, step_fast : f32, decimal_precision : i32, extra_flags : Input_Text_Flags) -> bool ---;
     @(link_name = "igInputFloat2")        im_input_float2         :: proc(label : cstring, v : ^f32, decimal_precision : i32, extra_flags : Input_Text_Flags) -> bool ---;
     @(link_name = "igInputFloat3")        im_input_float3         :: proc(label : cstring, v : ^f32, decimal_precision : i32, extra_flags : Input_Text_Flags) -> bool ---;
@@ -822,7 +822,7 @@ foreign cimgui {
 
 ///// Advanced
     // Your rendering function must check for 'UserCallback' in ImDrawCmd and call the function instead of rendering triangles.
-    @(link_name = "ImDrawList_AddCallback")              draw_list_add_callback                 :: proc(list : ^DrawList, callback : draw_callback, callback_data : rawptr) ---;
+    @(link_name = "ImDrawList_AddCallback")              draw_list_add_callback                 :: proc(list : ^DrawList, callback : Draw_Callback, callback_data : rawptr) ---;
     // This is useful if you need to forcefully create a new draw call(to allow for dependent rendering / blending). Otherwise primitives are merged into the same draw-call as much as possible
     @(link_name = "ImDrawList_AddDrawCmd")               draw_list_add_draw_cmd                 :: proc(list : ^DrawList) ---;
     // Internal helpers

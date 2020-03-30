@@ -6,19 +6,17 @@ import "core:mem"
 import "core:math/linalg"
 import "shared:engine/libs/sdl"
 import "shared:engine/libs/fna"
+import "shared:engine/libs/imgui"
 
 Vertex :: struct {
 	pos: [3]f32,
-	col: u32,
-	uv: [2]f32
+	col: u32
 };
 
 device: ^fna.Device;
 vbuff: ^fna.Buffer;
 effect: ^fna.Effect;
 vert_decl: fna.Vertex_Declaration;
-texture: ^fna.Texture;
-
 
 main :: proc() {
 	window := create_window();
@@ -37,15 +35,20 @@ main :: proc() {
 	};
 	device = fna.create_device(&params, 0);
 	fna.set_presentation_interval(device, .One);
+	fna_gl_txt := sdl.gl_get_current_context();
 
 	prepper();
-	create_texture();
+
+	im_win, im_ctx := create_gl_window();
+	imgui.impl_init_for_gl("#version 150", im_win, im_ctx);
+	sdl.gl_make_current(window, fna_gl_txt);
 
 	color := fna.Vec4 {1, 0, 0, 1};
 	running := true;
 	for running {
 		e: sdl.Event;
 		for sdl.poll_event(&e) != 0 {
+			if imgui.impl_handle_event(&e) do continue;
 			if e.type == sdl.Event_Type.Quit {
 				running = false;
 			}
@@ -59,31 +62,42 @@ main :: proc() {
 
 		// fmt.println("using technique: ", effect.mojo_effect.current_technique.name);
 		state_changes := fna.Mojoshader_Effect_State_Changes{};
-		fna.apply_effect(device, effect, effect.mojo_effect.current_technique, 0, &state_changes);
-		// fmt.println("state_changes:", state_changes);
-
-		// here is where Effect.cs
+		// fna.apply_effect(device, effect, effect.mojo_effect.current_technique, 0, &state_changes);
 
 		vertices := [?]Vertex{
-			{{+0.5, +0.5, +0.5}, 0xFF0099FF, {1.0, 1.0}}, // ABGR
-			{{+0.5, -0.5, +0.5}, 0xFFFFFFFF, {1.0, 0.0}},
-			{{-0.5, -0.5, +0.5}, 0xFFFFFFFF, {0.0, 0.0}},
-			{{-0.5, -0.5, +0.5}, 0xFFFFFFFF, {0.0, 0.0}},
-			{{-0.5, +0.5, +0.5}, 0xFFFFFFFF, {0.0, 1.0}},
-			{{+0.5, +0.5, +0.5}, 0xFF0099FF, {1.0, 1.0}},
+			{{+0.5, +0.5, +0.5}, 0xFFFF0000}, // ABGR
+			{{+0.5, -0.5, +0.5}, 0xFF0099FF},
+			{{-0.5, -0.5, +0.5}, 0xFF00FFFF},
+			{{-0.5, -0.5, +0.5}, 0xFF00FFFF},
+			{{-0.5, +0.5, +0.5}, 0xFFFFFF00},
+			{{+0.5, +0.5, +0.5}, 0xFFFF0000},
 		};
 
-		fna.apply_vertex_declaration(device, &vert_decl, &vertices, 0);
-		fna.draw_primitives(device, .Triangle_List, 0, 2);
-
+		// fna.apply_vertex_declaration(device, &vert_decl, &vertices, 0);
+		// fna.draw_primitives(device, .Triangle_List, 0, 2);
 		fna.swap_buffers(device, nil, nil, params.device_window_handle);
+
+		sdl.gl_make_current(im_win, im_ctx);
+		imgui.impl_new_frame(im_win);
+		imgui.im_text("whatever");
+		imgui.render();
+		imgui.impl_render();
+
+		io := imgui.get_io();
+		if int(io.config_flags & .ViewportsEnable) != 0 {
+			imgui.update_platform_windows();
+			imgui.render_platform_windows_default();
+		}
+
+		sdl.gl_swap_window(im_win);
+		sdl.gl_make_current(window, fna_gl_txt);
 	}
 }
 
 prepper :: proc() {
 	vertices := [?]Vertex{};
 
-	vert_elements := make([]fna.Vertex_Element, 3);
+	vert_elements := make([]fna.Vertex_Element, 2);
 	vert_elements[0] = fna.Vertex_Element{
 		offset = 0,
 		vertex_element_format = .Vector3,
@@ -98,16 +112,9 @@ prepper :: proc() {
 		usage_index = 0
 	};
 
-	vert_elements[2] = fna.Vertex_Element{
-		offset = 16,
-		vertex_element_format = .Vector2,
-		vertex_element_usage = .Texture_Coordinate,
-		usage_index = 0
-	};
-
 	vert_decl = fna.Vertex_Declaration{
 		vertex_stride = get_vertex_stride(vert_elements),
-		element_count = 3,
+		element_count = 2,
 		elements = &vert_elements[0]
 	};
 
@@ -115,46 +122,16 @@ prepper :: proc() {
 	fna.set_vertex_buffer_data(device, vbuff, 0, &vertices, len(vertices), .None);
 
 	// load an effect
-	data, success := os.read_entire_file("assets/Noise.fxb");
+	data, success := os.read_entire_file("assets/VertexColor.fxb");
 	defer if success { delete(data); }
 
 	effect = fna.create_effect(device, &data[0], cast(u32)len(data));
 	// fmt.println("effect:", effect, "mojo_effect:", effect.mojo_effect);
 
-	params := mem.slice_ptr(effect.mojo_effect.params, cast(int)effect.mojo_effect.param_count);
-	for param in params {
-		fmt.println("param", param);
-	}
-
-	params[1].effect_value.value.float^ = 1;
-	// params[2].effect_value.value.float^ = 0.5;
-
-	// objects := mem.slice_ptr(effect.mojo_effect.objects, cast(int)effect.mojo_effect.object_count);
-	// for object in objects {
-	// 	fmt.println("object", object);
+	// params := mem.slice_ptr(effect.mojo_effect.params, cast(int)effect.mojo_effect.param_count);
+	// for param in params {
+	// 	fmt.println("param", param);
 	// }
-}
-
-create_texture :: proc() {
-	pixels := [?]u32 {0xFFFFFFFF, 0x00000000, 0xFFFFFFFF, 0x00000000,
-		0x00000000, 0xFFFFFFFF, 0x00000000, 0xFFFFFFFF,
-		0xFFFFFFFF, 0x00000000, 0xFFFFFFFF, 0x00000000,
-		0x00000000, 0xFFFFFFFF, 0x00000000, 0xFFFFFFFF};
-
-	texture = fna.create_texture_2d(device, .Color, 4, 4, 1, 0);
-	fna.set_texture_data_2d(device, texture, .Color, 0, 0, 4, 4, 0, &pixels, size_of(pixels));
-
-	sampler_state := fna.Sampler_State{
-		address_u = .Wrap,
-		address_v = .Wrap,
-		address_w = .Wrap,
-		filter = .Point,
-		max_anisotropy = 4,
-		max_mip_level = 0,
-		mip_map_level_of_detail_bias = 0
-	};
-
-	fna.verify_sampler(device, 0, texture, &sampler_state);
 }
 
 get_vertex_stride :: proc(elements: []fna.Vertex_Element) -> i32 {
@@ -169,7 +146,6 @@ get_vertex_stride :: proc(elements: []fna.Vertex_Element) -> i32 {
 get_type_size :: proc(type: fna.Vertex_Element_Format) -> i32 {
 	#partial switch type {
 		case fna.Vertex_Element_Format.Color: return 4;
-		case fna.Vertex_Element_Format.Vector2: return 8;
 		case fna.Vertex_Element_Format.Vector3: return 12;
 		case fna.Vertex_Element_Format.Vector4: return 16;
 	}
@@ -184,3 +160,21 @@ create_window :: proc() -> ^sdl.Window {
 
 	return window;
 }
+
+create_gl_window :: proc() -> (^sdl.Window, sdl.GL_Context) {
+	sdl.gl_set_attribute(sdl.GL_Attr.Context_Flags, i32(sdl.GL_Context_Flag.Forward_Compatible));
+	sdl.gl_set_attribute(sdl.GL_Attr.Context_Profile_Mask, i32(sdl.GL_Context_Profile.Core));
+	sdl.gl_set_attribute(sdl.GL_Attr.Context_Major_Version, 3);
+	sdl.gl_set_attribute(sdl.GL_Attr.Context_Minor_Version, 3);
+
+	sdl.gl_set_attribute(sdl.GL_Attr.Doublebuffer, 1);
+	sdl.gl_set_attribute(sdl.GL_Attr.Depth_Size, 24);
+	sdl.gl_set_attribute(sdl.GL_Attr.Stencil_Size, 8);
+
+	win := sdl.create_window("Odin + Sokol + SDL", i32(sdl.Window_Pos.Undefined), i32(sdl.Window_Pos.Undefined), 500, 500, sdl.Window_Flags(sdl.Window_Flags.Open_GL));
+	gl_context := sdl.gl_create_context(win);
+
+	return win, gl_context;
+}
+
+

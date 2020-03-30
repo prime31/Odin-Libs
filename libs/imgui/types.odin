@@ -212,7 +212,7 @@ DrawCmd :: struct {
     elem_count         : u32,
     clip_rect          : Vec4,
     texture_id         : TextureID,
-    user_callback      : draw_callback,
+    user_callback      : Draw_Callback,
     user_callback_data : rawptr,
 }
 
@@ -346,6 +346,6 @@ Pair :: struct {
     }
 }
 
-text_edit_callback       :: proc "c" (data : ^InputTextCallbackData) -> i32;
-size_constraint_callback :: proc "c" (data : ^SizeCallbackData);
-draw_callback            :: proc "c" (parent_list : ^DrawList, cmd : ^DrawCmd);
+Text_Edit_Callback       :: proc "c" (data : ^InputTextCallbackData) -> i32;
+Size_Constraint_Callback :: proc "c" (data : ^SizeCallbackData);
+Draw_Callback            :: proc "c" (parent_list : ^DrawList, cmd : ^DrawCmd);
