@@ -162,6 +162,7 @@ get_vertex_stride :: proc(elements: []fna.Vertex_Element) -> i32 {
 get_type_size :: proc(type: fna.Vertex_Element_Format) -> i32 {
 	#partial switch type {
 		case fna.Vertex_Element_Format.Color: return 4;
+		case fna.Vertex_Element_Format.Vector2: return 8;
 		case fna.Vertex_Element_Format.Vector3: return 12;
 		case fna.Vertex_Element_Format.Vector4: return 16;
 	}
@@ -314,7 +315,7 @@ prepare_imgui :: proc() {
 	imgui_tex = fna.create_texture_2d(device, .Color, width, height, 1, 0);
 	fna.set_texture_data_2d(device, imgui_tex, .Color, 0, 0, width, height, 0, pixels, width * height * size_of(pixels));
 
-	//stb_image.write_png("/Users/mikedesaro/Desktop/fuck.png", int(width), int(height), 4, mem.slice_ptr(pixels, int(width * height)), 0);
+	// stb_image.write_png("/Users/mikedesaro/Desktop/font_atlas.png", int(width), int(height), 4, mem.slice_ptr(pixels, int(width * height)), 0);
 
 	imgui.font_atlas_set_text_id(io.fonts, imgui_tex);
 	imgui.font_atlas_clear_tex_data(io.fonts);

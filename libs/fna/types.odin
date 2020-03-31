@@ -38,7 +38,7 @@ Primitive_Type :: enum i32 {
 
 Index_Element_Size :: enum i32 {
 	_16_Bit,
-	_32_Bit
+	_32_Bit,
 }
 
 Surface_Format :: enum i32 {
