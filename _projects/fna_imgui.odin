@@ -89,15 +89,15 @@ main :: proc() {
 		fna.draw_primitives(device, .Triangle_List, 0, 2);
 
 
-		// width, height : i32;
-		// fna.get_drawable_size(params.device_window_handle, &width, &height);
-		// io := imgui.get_io();
-		// io.display_size = imgui.Vec2{cast(f32)width, cast(f32)height};
+		width, height : i32;
+		fna.get_drawable_size(params.device_window_handle, &width, &height);
+		io := imgui.get_io();
+		io.display_size = imgui.Vec2{cast(f32)width, cast(f32)height};
 
-		// imgui.new_frame();
-		// imgui.im_text("whatever");
-		// imgui.render();
-		// imgui_render();
+		imgui.new_frame();
+		imgui.im_text("whatever");
+		imgui.render();
+		imgui_render();
 
 		fna.swap_buffers(device, nil, nil, params.device_window_handle);
 	}
@@ -247,6 +247,11 @@ imgui_render :: proc() {
         cmds := mem.slice_ptr(list.cmd_buffer.data, int(list.cmd_buffer.size));
         for cmd, idx in cmds {
             if cmd.user_callback != nil {
+            	// the magic reset call back is cmd.user_callback: ImDrawCallback_ResetRenderState which is -1
+            	if cast(uintptr)cast(rawptr)cmd.user_callback == ~uintptr(0) {
+            		fmt.panicf("imgui panic. reset state detected");
+            	}
+
             	fmt.println("imgui user_callback", cmds[idx]);
                 // cmd.user_callback(list, &cmds[idx]);
             } else {
@@ -262,7 +267,7 @@ imgui_render :: proc() {
                 	fna.set_scissor_rect(device, &clip_rect);
 
                 	sampler_state := fna.Sampler_State{};
-                	fmt.println("cmd.texture_id", cmd.texture_id);
+                	// fmt.println("cmd.texture_id", cmd.texture_id);
                 	fna.verify_sampler(device, 0, cast(^fna.Texture)cmd.texture_id, &sampler_state);
 
                 	fmt.println("--------- draw. vtx_buffer_offset:", vtx_buffer_offset, "idx_buffer_offset:", idx_buffer_offset, "primitives:", cast(i32)cmd.elem_count / 3);
