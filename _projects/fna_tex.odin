@@ -165,9 +165,9 @@ load_texture :: proc() {
 	fmt.println("file handle", file);
 
 	width, height, len: i32;
-	data := fna.load(image_read_fn, image_skip_fn, image_eof_fn, &file, &width, &height, &len, -1, -1, 0);
+	data := fna.image_load(image_read_fn, image_skip_fn, image_eof_fn, &file, &width, &height, &len, -1, -1, 0);
 	fmt.println("load done", width, height, len, data);
-	defer { fna.free(data); }
+	defer { fna.image_free(data); }
 
 	texture = fna.create_texture_2d(device, .Color, width, height, 1, 0);
 	fna.set_texture_data_2d(device, texture, .Color, 0, 0, width, height, 0, data, width * height * size_of(data));
@@ -191,18 +191,9 @@ load_texture :: proc() {
 image_read_fn :: proc "c" (ctx: rawptr, data: ^byte, size: i32) -> i32 {
 	int_ptr := cast(^int)ctx;
 	file := cast(os.Handle)int_ptr^;
-	//fmt.println("--- image_read_fn", size);
 
-	file_len: i64;
-	err: os.Errno;
-	if file_len, err = os.file_size(file); err != 0 do return 0;
-	if file_len <= 0 do return 0;
-
-	data_arr := mem.slice_ptr(data, cast(int)size);
-	bytes_read, read_err := os.read(file, data_arr);
+	bytes_read, read_err := os.read_ptr(file, data, cast(int)size);
 	if read_err != os.ERROR_NONE do fmt.panicf("died reading file");
-
-	//fmt.println("+++ file_len", file_len, "bytes_read", bytes_read, "size", size);
 
 	return cast(i32)bytes_read;
 }
