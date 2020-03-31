@@ -38,7 +38,7 @@ Primitive_Type :: enum i32 {
 
 Index_Element_Size :: enum i32 {
 	_16_Bit,
-	_32_Bit,
+	_32_Bit
 }
 
 Surface_Format :: enum i32 {
@@ -150,7 +150,7 @@ Compare_Function :: enum i32 {
 Cull_Mode :: enum i32 {
 	None,
 	Cull_Clockwise_Face,
-	Cullcounter_Clockwise_Face
+	Cull_Counter_Clockwise_Face
 }
 
 Fill_Mode :: enum i32 {

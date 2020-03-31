@@ -6,6 +6,9 @@ when ODIN_OS == "darwin" do foreign import fna_lib "native/libFNA3D.dylib";
 
 foreign fna_lib {
 	// include/FNA3D
+	@(link_name = "FNA3D_HookLogFunctions")
+	hook_log_functions :: proc(info: proc(cstring), warn: proc(cstring), error: proc(cstring)) ---;
+
 	@(link_name = "FNA3D_PrepareWindowAttributes")
 	prepare_window_attributes :: proc() -> u32 ---;
 
@@ -240,4 +243,16 @@ foreign fna_lib {
 	@(link_name = "FNA3D_GetEffectData")
 	get_effect_data :: proc(device: ^Device, effect: ^Effect) -> ^Mojoshader_Effect ---;
 
+	// include/FNA3D_Image
+	@(link_name = "FNA3D_Image_Load")
+	load :: proc(read_func: proc(rawptr, cstring, i32) -> i32, skip_func: proc(rawptr, i32), eof_func: proc(rawptr) -> i32, context: rawptr, w: ^i32, h: ^i32, len: ^i32, force_w: i32, force_h: i32, zoom: u8) -> ^u8 ---;
+
+	@(link_name = "FNA3D_Image_Free")
+	free :: proc(mem: ^u8) ---;
+
+	@(link_name = "FNA3D_Image_SavePNG")
+	save_png :: proc(write_func: proc(rawptr, rawptr, i32), context: rawptr, src_w: i32, src_h: i32, dst_w: i32, dst_h: i32, data: ^u8) ---;
+
+	@(link_name = "FNA3D_Image_SaveJPG")
+	save_jpg :: proc(write_func: proc(rawptr, rawptr, i32), context: rawptr, src_w: i32, src_h: i32, dst_w: i32, dst_h: i32, data: ^u8, quality: i32) ---;
 }
