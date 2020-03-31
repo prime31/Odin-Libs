@@ -245,14 +245,14 @@ foreign fna_lib {
 
 	// include/FNA3D_Image
 	@(link_name = "FNA3D_Image_Load")
-	load :: proc(read_func: proc(rawptr, cstring, i32) -> i32, skip_func: proc(rawptr, i32), eof_func: proc(rawptr) -> i32, context: rawptr, w: ^i32, h: ^i32, len: ^i32, force_w: i32, force_h: i32, zoom: u8) -> ^u8 ---;
+	load :: proc(read_func: proc "c" (rawptr, ^byte, i32) -> i32, skip_func: proc "c" (rawptr, i32), eof_func: proc "c" (rawptr) -> i32, ctx: rawptr, w: ^i32, h: ^i32, len: ^i32, force_w: i32, force_h: i32, zoom: u8) -> ^u8 ---;
 
 	@(link_name = "FNA3D_Image_Free")
 	free :: proc(mem: ^u8) ---;
 
 	@(link_name = "FNA3D_Image_SavePNG")
-	save_png :: proc(write_func: proc(rawptr, rawptr, i32), context: rawptr, src_w: i32, src_h: i32, dst_w: i32, dst_h: i32, data: ^u8) ---;
+	save_png :: proc(write_func: proc(rawptr, rawptr, i32), ctx: rawptr, src_w: i32, src_h: i32, dst_w: i32, dst_h: i32, data: ^u8) ---;
 
 	@(link_name = "FNA3D_Image_SaveJPG")
-	save_jpg :: proc(write_func: proc(rawptr, rawptr, i32), context: rawptr, src_w: i32, src_h: i32, dst_w: i32, dst_h: i32, data: ^u8, quality: i32) ---;
+	save_jpg :: proc(write_func: proc(rawptr, rawptr, i32), ctx: rawptr, src_w: i32, src_h: i32, dst_w: i32, dst_h: i32, data: ^u8, quality: i32) ---;
 }

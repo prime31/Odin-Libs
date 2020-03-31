@@ -40,6 +40,13 @@ main :: proc() {
 	device = fna.create_device(&params, 0);
 	fna.set_presentation_interval(device, .One);
 
+	rasterizer_state := fna.Rasterizer_State{
+		fill_mode = .Solid,
+		cull_mode = .None,
+		scissor_test_enable = 1
+	};
+	fna.apply_rasterizer_state(device, &rasterizer_state);
+
 	prepper();
 	create_texture();
 
@@ -61,6 +68,7 @@ main :: proc() {
 
 		state_changes := fna.Mojoshader_Effect_State_Changes{};
 		fna.apply_effect(device, effect, effect.mojo_effect.current_technique, 0, &state_changes);
+
 
 		// vertices := [?]Vertex{
 		// 	{{+0.5, +0.5}, {1.0, 1.0}, 0xFF0099FF},

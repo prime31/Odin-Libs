@@ -160,14 +160,17 @@ create_texture :: proc() {
 }
 
 load_texture :: proc() {
-	w, h, channels: i32;
-	stb_image.set_unpremultiply_on_load(1);
-	stb_image.set_flip_vertically_on_load(1);
-	img := stb_image.load("assets/font_atlas.png", &w, &h, &channels, 4);
-	defer { stb_image.image_free(img); }
+	file, err := os.open("assets/font_atlas.png");
+	if err != 0 do fmt.panicf("thanatos");
+	fmt.println("file handle", file);
 
-	texture = fna.create_texture_2d(device, .Color, w, h, 1, 0);
-	fna.set_texture_data_2d(device, texture, .Color, 0, 0, w, h, 0, img, w * h * size_of(img));
+	width, height, len: i32;
+	data := fna.load(image_read_fn, image_skip_fn, image_eof_fn, &file, &width, &height, &len, -1, -1, 0);
+	fmt.println("load done", width, height, len, data);
+	defer { fna.free(data); }
+
+	texture = fna.create_texture_2d(device, .Color, width, height, 1, 0);
+	fna.set_texture_data_2d(device, texture, .Color, 0, 0, width, height, 0, data, width * height * size_of(data));
 
 	sampler_state := fna.Sampler_State{
 		address_u = .Wrap,
@@ -181,6 +184,52 @@ load_texture :: proc() {
 
 	fna.verify_sampler(device, 0, texture, &sampler_state);
 }
+
+
+
+// fill 'data' with 'size' bytes. return number of bytes actually read
+image_read_fn :: proc "c" (ctx: rawptr, data: ^byte, size: i32) -> i32 {
+	int_ptr := cast(^int)ctx;
+	file := cast(os.Handle)int_ptr^;
+	//fmt.println("--- image_read_fn", size);
+
+	file_len: i64;
+	err: os.Errno;
+	if file_len, err = os.file_size(file); err != 0 do return 0;
+	if file_len <= 0 do return 0;
+
+	data_arr := mem.slice_ptr(data, cast(int)size);
+	bytes_read, read_err := os.read(file, data_arr);
+	if read_err != os.ERROR_NONE do fmt.panicf("died reading file");
+
+	//fmt.println("+++ file_len", file_len, "bytes_read", bytes_read, "size", size);
+
+	return cast(i32)bytes_read;
+}
+
+// skip the next 'n' bytes, or 'unget' the last -n bytes if negative
+image_skip_fn :: proc "c" (ctx: rawptr, len: i32) {
+	fmt.println("--- --------- image_skip_fn");
+	int_ptr := cast(^int)ctx;
+	file := cast(os.Handle)int_ptr^;
+
+	if offset, err := os.seek(file, cast(i64)len, os.SEEK_CUR); err != 0 do fmt.panicf("error");
+}
+
+// returns nonzero if we are at end of file/data
+image_eof_fn :: proc "c" (ctx: rawptr) -> i32 {
+	fmt.println("--- --------- image_eof_fn");
+
+	int_ptr := cast(^int)ctx;
+	file := cast(os.Handle)int_ptr^;
+	fmt.println("--- image_eof_fn", file);
+
+	if offset, err := os.seek(file, 0, os.SEEK_CUR); err != 0 do fmt.panicf("error");
+
+	return 0;
+}
+
+
 
 get_vertex_stride :: proc(elements: []fna.Vertex_Element) -> i32 {
 	max:i32 = 0;
