@@ -61,32 +61,32 @@ main :: proc() {
 		fna.begin_frame(device);
 		fna.clear(device, fna.Clear_Options.Target, &color, 0, 0);
 
-		sampler_state := fna.Sampler_State{
-			address_u = .Wrap,
-			address_v = .Wrap,
-			address_w = .Wrap,
-			filter = .Point,
-			max_anisotropy = 4,
-			max_mip_level = 0,
-			mip_map_level_of_detail_bias = 0
-		};
-		fna.verify_sampler(device, 0, imgui_tex, &sampler_state);
+		// sampler_state := fna.Sampler_State{
+		// 	address_u = .Wrap,
+		// 	address_v = .Wrap,
+		// 	address_w = .Wrap,
+		// 	filter = .Point,
+		// 	max_anisotropy = 4,
+		// 	max_mip_level = 0,
+		// 	mip_map_level_of_detail_bias = 0
+		// };
+		// fna.verify_sampler(device, 0, imgui_tex, &sampler_state);
 
 		// fmt.println("using technique: ", effect.mojo_effect.current_technique.name);
 		state_changes := fna.Mojoshader_Effect_State_Changes{};
 		fna.apply_effect(device, effect, effect.mojo_effect.current_technique, 0, &state_changes);
 
-		vertices := [?]Vertex{
-			{{+0.5, +0.5}, {1.0, 1.0}, 0xFF0099FF}, // ABGR
-			{{+0.5, -0.5}, {1.0, 0.0}, 0xFFFFFFFF},
-			{{-0.5, -0.5}, {0.0, 0.0}, 0xFFFFFFFF},
-			{{-0.5, -0.5}, {0.0, 0.0}, 0xFFFFFFFF},
-			{{-0.5, +0.5}, {0.0, 1.0}, 0xFFFFFFFF},
-			{{+0.5, +0.5}, {1.0, 1.0}, 0xFF0099FF},
-		};
+		// vertices := [?]Vertex{
+		// 	{{+0.5, +0.5}, {1.0, 1.0}, 0xFF0099FF}, // ABGR
+		// 	{{+0.5, -0.5}, {1.0, 0.0}, 0xFFFFFFFF},
+		// 	{{-0.5, -0.5}, {0.0, 0.0}, 0xFFFFFFFF},
+		// 	{{-0.5, -0.5}, {0.0, 0.0}, 0xFFFFFFFF},
+		// 	{{-0.5, +0.5}, {0.0, 1.0}, 0xFFFFFFFF},
+		// 	{{+0.5, +0.5}, {1.0, 1.0}, 0xFF0099FF},
+		// };
 
-		fna.apply_vertex_declaration(device, &imgui_vert_decl, &vertices, 0);
-		fna.draw_primitives(device, .Triangle_List, 0, 2);
+		// fna.apply_vertex_declaration(device, &imgui_vert_decl, &vertices, 0);
+		// fna.draw_primitives(device, .Triangle_List, 0, 2);
 
 
 		width, height : i32;
@@ -209,19 +209,20 @@ imgui_vert_buffer_size: i32;
 imgui_vert_buffer: ^fna.Buffer;
 imgui_index_buffer_size: i32;
 imgui_index_buffer: ^fna.Buffer;
+imgui_vert_buffer_binding: fna.Vertex_Buffer_Binding;
 
 imgui_render :: proc() {
 	io := imgui.get_io();
 	draw_data := imgui.get_draw_data();
+	if draw_data.total_vtx_count == 0 do return;
+
 	imgui.draw_data_scale_clip_rects(draw_data, io.display_framebuffer_scale);
 	imgui_update_buffers(draw_data);
 
     width  := i32(draw_data.display_size.x * io.display_framebuffer_scale.x);
     height := i32(draw_data.display_size.y * io.display_framebuffer_scale.y);
 
-    vert_buff_bindings := fna.Vertex_Buffer_Binding{imgui_vert_buffer, imgui_vert_decl, 0, 0};
-	bindings := make([]fna.Vertex_Buffer_Binding, 1);
-	bindings[0] = vert_buff_bindings;
+    imgui_vert_buffer_binding := fna.Vertex_Buffer_Binding{imgui_vert_buffer, imgui_vert_decl, 0, 0};
 	bindings_updated: u8 = 1;
 
 	// L : f32 = draw_data.display_pos.x;
@@ -271,8 +272,8 @@ imgui_render :: proc() {
                 	fna.verify_sampler(device, 0, cast(^fna.Texture)cmd.texture_id, &sampler_state);
 
                 	fmt.println("--------- draw. vtx_buffer_offset:", vtx_buffer_offset, "idx_buffer_offset:", idx_buffer_offset, "primitives:", cast(i32)cmd.elem_count / 3);
-                	fna.apply_vertex_buffer_bindings(device, &bindings[0], 1, bindings_updated, vtx_buffer_offset);
-                	// fna.draw_indexed_primitives(device, .Triangle_List, vtx_buffer_offset, 0, list.vtx_buffer.size, idx_buffer_offset, cast(i32)cmd.elem_count / 3, imgui_index_buffer, ._16_Bit);
+                	fna.apply_vertex_buffer_bindings(device, &imgui_vert_buffer_binding, 1, bindings_updated, vtx_buffer_offset);
+                	fna.draw_indexed_primitives(device, .Triangle_List, vtx_buffer_offset, 0, list.vtx_buffer.size, idx_buffer_offset, cast(i32)cmd.elem_count / 3, imgui_index_buffer, ._16_Bit);
                 	bindings_updated = 0;
                 }
             }
@@ -281,8 +282,6 @@ imgui_render :: proc() {
         }
         vtx_buffer_offset += i32(list.vtx_buffer.size);
 	}
-
-	delete(bindings);
 }
 
 imgui_update_buffers :: proc(draw_data: ^imgui.DrawData) {
@@ -292,7 +291,7 @@ imgui_update_buffers :: proc(draw_data: ^imgui.DrawData) {
 	if draw_data.total_vtx_count > imgui_vert_buffer_size {
 		fmt.println("Regenerating vertex buffer");
 		imgui_vert_buffer_size = cast(i32)(cast(f32)draw_data.total_vtx_count * 1.5);
-		imgui_vert_buffer = fna.gen_vertex_buffer(device, 0, .None, imgui_vert_buffer_size, 0);
+		imgui_vert_buffer = fna.gen_vertex_buffer(device, 0, .None, imgui_vert_buffer_size, imgui_vert_decl.vertex_stride);
 	}
 
 	if draw_data.total_idx_count > imgui_index_buffer_size {

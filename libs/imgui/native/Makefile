@@ -7,7 +7,7 @@ CIMGUI := cimgui_git
 IMGUI := $(CIMGUI)/imgui
 
 # might as well use docking branch since its stable now
-IMGUI_BRANCH := --single-branch --branch docking
+IMGUI_BRANCH := --single-branch --branch docking_last
 
 LIBS :=
 
@@ -47,6 +47,7 @@ endif
 TARGET += cimgui.a
 TARGET += imgui_impl_sdl.o
 TARGET += imgui_impl_opengl3.o
+TARGET += imgui_impl_opengl2.o
 
 ##---------------------------------------------------------------------
 ## BUILD FLAGS PER PLATFORM
@@ -125,10 +126,13 @@ imgui_impl_sdl.o: $(IMGUI)/examples/imgui_impl_sdl.cpp
 imgui_impl_opengl3.o: $(IMGUI)/examples/imgui_impl_opengl3.cpp
 	$(CXX) -fPIC -c -o $@ $^ -I$(IMGUI) $(CFLAGS) $(LIBS) -DIMGUI_IMPL_API=extern\ \"C\" -fno-threadsafe-statics
 
+imgui_impl_opengl2.o: $(IMGUI)/examples/imgui_impl_opengl2.cpp
+	$(CXX) -fPIC -c -o $@ $^ -I$(IMGUI) $(CFLAGS) $(LIBS) -DIMGUI_IMPL_API=extern\ \"C\" -fno-threadsafe-statics
+
 mac_build_static_imgui_impl:
-	$(CXX) `sdl2-config --libs` -L. cimgui.dylib -framework OpenGL -framework Cocoa -framework QuartzCore -L../../flextgl/native -lflextgl -dynamiclib -o libimgui_impl.dylib imgui_impl_opengl3.o imgui_impl_sdl.o
+	$(CXX) `sdl2-config --libs` -L. cimgui.dylib -framework OpenGL -framework Cocoa -framework QuartzCore -L../../flextgl/native -lflextgl -dynamiclib -o libimgui_impl.dylib imgui_impl_opengl3.o imgui_impl_opengl2.o imgui_impl_sdl.o
 # 	cp libimgui_impl.dylib ../../../projects/
-	libtool -static -o libimgui_impl.a imgui_impl_opengl3.o imgui_impl_sdl.o
+	libtool -static -o libimgui_impl.a imgui_impl_opengl3.o imgui_impl_opengl2.o imgui_impl_sdl.o
 	rm *.o
 
 build_wasm:
