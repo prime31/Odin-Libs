@@ -138,10 +138,9 @@ prepper :: proc() {
 
 
 	// bindings
-    binding := fna.Vertex_Buffer_Binding{vbuff, vert_decl, 0, 0};
+    vert_buff_binding := fna.Vertex_Buffer_Binding{vbuff, vert_decl, 0, 0};
 	vert_buff_bindings = make([]fna.Vertex_Buffer_Binding, 1);
-	vert_buff_bindings[0] = binding;
-	vert_buff_binding = binding;
+	vert_buff_bindings[0] = vert_buff_binding;
 
 	// load an effect
 	data, success := os.read_entire_file("assets/VertexColorTexture.fxb");
