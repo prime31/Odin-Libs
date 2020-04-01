@@ -66,23 +66,23 @@ main :: proc() {
 		fna.begin_frame(device);
 		fna.clear(device, fna.Clear_Options.Target, &color, 0, 0);
 
-		state_changes := fna.Mojoshader_Effect_State_Changes{};
-		fna.apply_effect(device, effect, effect.mojo_effect.current_technique, 0, &state_changes);
+		// state_changes := fna.Mojoshader_Effect_State_Changes{};
+		// fna.apply_effect(device, effect, effect.mojo_effect.current_technique, 0, &state_changes);
 
 
 		// vertices := [?]Vertex{
-		// 	{{+0.5, +0.5}, {1.0, 1.0}, 0xFF0099FF},
-		// 	{{+0.5, -0.5}, {1.0, 0.0}, 0xFFFFFFFF},
-		// 	{{-0.5, -0.5}, {0.0, 0.0}, 0xFFFFFFFF},
-		// 	{{-0.5, -0.5}, {0.0, 0.0}, 0xFFFFFFFF},
-		// 	{{-0.5, +0.5}, {0.0, 1.0}, 0xFFFF99FF},
-		// 	{{+0.5, +0.5}, {1.0, 1.0}, 0xFFFF99FF}
+		// 	{{+0.0, +0.0}, {1.0, 1.0}, 0xFF0099FF},
+		// 	{{+0.0, -1.0}, {1.0, 0.0}, 0xFFFFFFFF},
+		// 	{{-1.0, -1.0}, {0.0, 0.0}, 0xFFFFFFFF},
+		// 	{{-1.0, -1.0}, {0.0, 0.0}, 0xFFFFFFFF},
+		// 	{{-1.0, +0.0}, {0.0, 1.0}, 0xFFFF99FF},
+		// 	{{+0.0, +0.0}, {1.0, 1.0}, 0xFFFF99FF}
 		// };
 		// fna.apply_vertex_declaration(device, &vert_decl, &vertices, 0);
 		// fna.draw_primitives(device, .Triangle_List, 0, 2);
 
 
-		fna.apply_vertex_buffer_bindings(device, &vert_buff_bindings[0], 0, 1, 0);
+		fna.apply_vertex_buffer_bindings(device, &vert_buff_bindings[0], 1, 1, 0);
 		fna.draw_indexed_primitives(device, .Triangle_List, 0, 0, 4, 0, 2, ibuff, ._16_Bit);
 		fna.swap_buffers(device, nil, nil, params.device_window_handle);
 	}
@@ -144,6 +144,8 @@ prepper :: proc() {
 	defer if success { delete(data); }
 
 	effect = fna.create_effect(device, &data[0], cast(u32)len(data));
+	state_changes := fna.Mojoshader_Effect_State_Changes{};
+	fna.apply_effect(device, effect, effect.mojo_effect.current_technique, 0, &state_changes);
 }
 
 get_vertex_stride :: proc(elements: []fna.Vertex_Element) -> i32 {

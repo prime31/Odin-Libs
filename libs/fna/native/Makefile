@@ -24,7 +24,7 @@ copy_linux_shared:
 
 build:
 	[ -d fna3d_git ] || git clone --recursive --depth 1 https://github.com/FNA-XNA/FNA3D.git fna3d_git
-	(cd fna3d_git ; cmake ; make)
+	(cd fna3d_git ; cmake . ; make)
 
 clean:
 	rm -rf fna3d_git
