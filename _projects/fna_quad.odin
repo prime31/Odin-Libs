@@ -21,6 +21,7 @@ effect: ^fna.Effect;
 vert_decl: fna.Vertex_Declaration;
 texture: ^fna.Texture;
 vert_buff_bindings: []fna.Vertex_Buffer_Binding;
+vert_buff_binding: fna.Vertex_Buffer_Binding;
 
 main :: proc() {
 	window := create_window();
@@ -82,6 +83,8 @@ main :: proc() {
 		// fna.draw_primitives(device, .Triangle_List, 0, 2);
 
 
+		// either send an array or just one
+		// fna.apply_vertex_buffer_bindings(device, &vert_buff_binding, 1, 1, 0);
 		fna.apply_vertex_buffer_bindings(device, &vert_buff_bindings[0], 1, 1, 0);
 		fna.draw_indexed_primitives(device, .Triangle_List, 0, 0, 4, 0, 2, ibuff, ._16_Bit);
 		fna.swap_buffers(device, nil, nil, params.device_window_handle);
@@ -138,6 +141,7 @@ prepper :: proc() {
     binding := fna.Vertex_Buffer_Binding{vbuff, vert_decl, 0, 0};
 	vert_buff_bindings = make([]fna.Vertex_Buffer_Binding, 1);
 	vert_buff_bindings[0] = binding;
+	vert_buff_binding = binding;
 
 	// load an effect
 	data, success := os.read_entire_file("assets/VertexColorTexture.fxb");
