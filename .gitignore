@@ -20,3 +20,4 @@ _projects/*.exe
 _projects/*.lib
 _projects/*.obj
 _projects/*.dll
+*.fxb
