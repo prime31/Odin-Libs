@@ -2,8 +2,6 @@ package main
 
 import "core:os"
 import "core:fmt"
-import "core:mem"
-import "core:math/linalg"
 import "shared:engine/libs/sdl"
 import "shared:engine/libs/fna"
 import "shared:engine/libs/imgui"
@@ -81,9 +79,7 @@ create_window :: proc() -> ^sdl.Window {
 	sdl.init(sdl.Init_Flags.Everything);
 
 	window_attrs := fna.prepare_window_attributes();
-	window := sdl.create_window("Odin + FNA + SDL + OpenGL", i32(sdl.Window_Pos.Undefined), i32(sdl.Window_Pos.Undefined), 640, 480, cast(sdl.Window_Flags)window_attrs);
-
-	return window;
+	return sdl.create_window("Odin + FNA + SDL + OpenGL", i32(sdl.Window_Pos.Undefined), i32(sdl.Window_Pos.Undefined), 640, 480, cast(sdl.Window_Flags)window_attrs);
 }
 
 

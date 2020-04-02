@@ -138,7 +138,7 @@ prepper :: proc() {
 
 
 	// bindings
-    vert_buff_binding := fna.Vertex_Buffer_Binding{vbuff, vert_decl, 0, 0};
+    vert_buff_binding = fna.Vertex_Buffer_Binding{vbuff, vert_decl, 0, 0};
 	vert_buff_bindings = make([]fna.Vertex_Buffer_Binding, 1);
 	vert_buff_bindings[0] = vert_buff_binding;
 

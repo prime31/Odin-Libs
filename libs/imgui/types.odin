@@ -212,6 +212,8 @@ DrawCmd :: struct {
     elem_count         : u32,
     clip_rect          : Vec4,
     texture_id         : TextureID,
+    vtx_offset         : u32,
+    idx_offset         : u32,
     user_callback      : Draw_Callback,
     user_callback_data : rawptr,
 }
@@ -234,12 +236,14 @@ DrawList :: struct {
     flags             : Draw_List_Flags,
     _data             : ^DrawListSharedData,
     _owner_name       : cstring,
+    _vtx_current_offset : u32,
     _vtx_current_idx  : u32,
     _vtx_write_ptr    : ^DrawVert,
     _idx_write_ptr    : ^DrawIdx,
     _clip_rect_stack  : ImVector(Vec4), // <ImVec4>
     _texture_id_stack : ImVector(TextureID), // <ImTextureID>
     _path             : ImVector(Vec2), // <ImVec2>
+    // _splitter         : DrawListSplitter, // below fields are from this struct
     _channels_current : i32,
     _channels_count   : i32,
     _channels         : ImVector(DrawChannel), // <ImDrawChannel>

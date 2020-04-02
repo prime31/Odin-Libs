@@ -40,6 +40,25 @@ main :: proc() {
 	device = fna.create_device(&params, 0);
 	fna.set_presentation_interval(device, .One);
 
+	// ColorSourceBlend = Blend.One;
+	// ColorDestinationBlend = Blend.Zero;
+	// ColorBlendFunction = BlendFunction.Add;
+	// AlphaSourceBlend = Blend.One;
+	// AlphaDestinationBlend = Blend.Zero;
+	// AlphaBlendFunction = BlendFunction.Add;
+	// ColorWriteChannels = ColorWriteChannels.All;
+	// ColorWriteChannels1 = ColorWriteChannels.All;
+	// ColorWriteChannels2 = ColorWriteChannels.All;
+	// ColorWriteChannels3 = ColorWriteChannels.All;
+	// BlendFactor = Color.White;
+	// MultiSampleMask = -1; // AKA 0xFFFFFFFF
+	blend := fna.Blend_State{
+		.Source_Alpha, .Inverse_Source_Alpha, .Add,
+		.Source_Alpha, .Inverse_Source_Alpha, .Add,
+		.All, .All, .All, .All, fna.Color{255, 255, 255, 255}, -1
+	};
+	fna.set_blend_state(device, &blend);
+
 	prepper();
 	create_texture();
 	prepare_imgui();
@@ -58,19 +77,11 @@ main :: proc() {
 		g := color.y + 0.01;
 		color.y = g > 1.0 ? 0.0 : g;
 
+		vp := fna.Viewport{0, 0, 640, 480, -1, 1};
+		fna.set_viewport(device, &vp);
+
 		fna.begin_frame(device);
 		fna.clear(device, fna.Clear_Options.Target, &color, 0, 0);
-
-		// sampler_state := fna.Sampler_State{
-		// 	address_u = .Wrap,
-		// 	address_v = .Wrap,
-		// 	address_w = .Wrap,
-		// 	filter = .Point,
-		// 	max_anisotropy = 4,
-		// 	max_mip_level = 0,
-		// 	mip_map_level_of_detail_bias = 0
-		// };
-		// fna.verify_sampler(device, 0, imgui_tex, &sampler_state);
 
 		// fmt.println("using technique: ", effect.mojo_effect.current_technique.name);
 		state_changes := fna.Mojoshader_Effect_State_Changes{};
@@ -96,6 +107,10 @@ main :: proc() {
 
 		imgui.new_frame();
 		imgui.im_text("whatever");
+		imgui.bullet();
+		imgui.im_text("whatever");
+		imgui.bullet();
+		imgui.im_text("whatever");
 		imgui.render();
 		imgui_render();
 
@@ -104,8 +119,6 @@ main :: proc() {
 }
 
 prepper :: proc() {
-	vertices := [?]Vertex{};
-
 	vert_elements := make([]fna.Vertex_Element, 3);
 	vert_elements[0] = fna.Vertex_Element{
 		offset = 0,
@@ -134,8 +147,7 @@ prepper :: proc() {
 		elements = &vert_elements[0]
 	};
 
-	vbuff = fna.gen_vertex_buffer(device, 0, .Write_Only, len(vertices), 0);
-	fna.set_vertex_buffer_data(device, vbuff, 0, &vertices, len(vertices), .None);
+	vbuff = fna.gen_vertex_buffer(device, 0, .Write_Only, 0, 0);
 
 	// load an effect
 	data, success := os.read_entire_file("assets/VertexColorTexture.fxb");
@@ -225,22 +237,29 @@ imgui_render :: proc() {
     imgui_vert_buffer_binding := fna.Vertex_Buffer_Binding{imgui_vert_buffer, imgui_vert_decl, 0, 0};
 	bindings_updated: u8 = 1;
 
-	// L : f32 = draw_data.display_pos.x;
-	//    R : f32 = draw_data.display_pos.x + draw_data.display_size.x;
-	//    T : f32 = draw_data.display_pos.y;
-	//    B : f32 = draw_data.display_pos.y + draw_data.display_size.y;
-	//    ortho_projection := math.Mat4{
-	//        { 2.0/(R-L),   0.0,          0.0, 0.0 },
-	//        { 0.0,         2.0 / (T-B),  0.0, 0.0 },
-	//        { 0.0,         0.0,         -1.0, 0.0 },
-	//        { (R+L)/(L-R), (T+B)/(B-T),  0.0, 1.0 },
-	//    };
+	L : f32 = draw_data.display_pos.x;
+	R : f32 = draw_data.display_pos.x + draw_data.display_size.x;
+	T : f32 = draw_data.display_pos.y;
+	B : f32 = draw_data.display_pos.y + draw_data.display_size.y;
+	ortho_projection := linalg.Matrix4{
+		{ 2.0/(R-L),   0.0,          0.0, 0.0 },
+		{ 0.0,         2.0 / (T-B),  0.0, 0.0 },
+		{ 0.0,         0.0,         -1.0, 0.0 },
+		{ (R+L)/(L-R), (T+B)/(B-T),  0.0, 1.0 },
+	};
 
-	vtx_buffer_offset: i32;
-	idx_buffer_offset: i32;
 
 	new_list := mem.slice_ptr(draw_data.cmd_lists, int(draw_data.cmd_lists_count));
 	for list in new_list {
+		// translate on CPU for now
+		tmp_verts := mem.slice_ptr(list.vtx_buffer.data, cast(int)list.vtx_buffer.size);
+		for i in 0..<len(tmp_verts) {
+			temp_vec4 := linalg.Vector4{tmp_verts[i].pos.x, tmp_verts[i].pos.y, 0, 1};
+			temp_vec4 = linalg.matrix_mul_vector(ortho_projection, temp_vec4);
+			tmp_verts[i].pos.x = temp_vec4.x;
+			tmp_verts[i].pos.y = temp_vec4.y;
+		}
+
 		fna.set_vertex_buffer_data(device, imgui_vert_buffer, 0, list.vtx_buffer.data, list.vtx_buffer.size * size_of(imgui.DrawVert), .None);
 		fna.set_index_buffer_data(device, imgui_index_buffer, 0, list.idx_buffer.data, list.idx_buffer.size * size_of(imgui.DrawIdx), .None);
 
@@ -251,10 +270,9 @@ imgui_render :: proc() {
             	// the magic reset call back is cmd.user_callback: ImDrawCallback_ResetRenderState which is -1
             	if cast(uintptr)cast(rawptr)cmd.user_callback == ~uintptr(0) {
             		fmt.panicf("imgui panic. reset state detected");
+            	} else {
+            		cmd.user_callback(list, &cmds[idx]);
             	}
-
-            	fmt.println("imgui user_callback", cmds[idx]);
-                // cmd.user_callback(list, &cmds[idx]);
             } else {
                 clip := imgui.Vec4{
                     cmd.clip_rect.x - pos.x,
@@ -268,20 +286,15 @@ imgui_render :: proc() {
                 	fna.set_scissor_rect(device, &clip_rect);
 
                 	sampler_state := fna.Sampler_State{};
-                	// fmt.println("cmd.texture_id", cmd.texture_id);
                 	fna.verify_sampler(device, 0, cast(^fna.Texture)cmd.texture_id, &sampler_state);
 
-                	fmt.println("--------- draw. vtx_buffer_offset:", vtx_buffer_offset, "idx_buffer_offset:", idx_buffer_offset, "primitives:", cast(i32)cmd.elem_count / 3);
-                	fna.apply_vertex_buffer_bindings(device, &imgui_vert_buffer_binding, 1, bindings_updated, vtx_buffer_offset);
-                	fna.draw_indexed_primitives(device, .Triangle_List, vtx_buffer_offset, 0, list.vtx_buffer.size, idx_buffer_offset, cast(i32)cmd.elem_count / 3, imgui_index_buffer, ._16_Bit);
+                	fna.apply_vertex_buffer_bindings(device, &imgui_vert_buffer_binding, 1, bindings_updated, cast(i32)cmd.vtx_offset);
+                	fna.draw_indexed_primitives(device, .Triangle_List, cast(i32)cmd.vtx_offset, 0, list.vtx_buffer.size, cast(i32)cmd.idx_offset, cast(i32)cmd.elem_count / 3, imgui_index_buffer, ._16_Bit);
                 	bindings_updated = 0;
                 }
             }
-
-            idx_buffer_offset += i32(cmd.elem_count);
-        }
-        vtx_buffer_offset += i32(list.vtx_buffer.size);
-	}
+        } // for cmd, idx in cmds
+	} // for list in new_list
 }
 
 imgui_update_buffers :: proc(draw_data: ^imgui.DrawData) {
