@@ -1,32 +1,19 @@
 sampler s0;
 
-float _attenuation; // 800.0
-float _linesFactor; // 0.04
+float Attenuation; // 800.0
+float LinesFactor; // 0.04
 
 
-struct VertexShaderOutput
+void MainVS(inout float4 position: SV_Position, inout float4 color: COLOR0, inout float2 texCoord: TEXCOORD0)
 {
-	float4 position : POSITION;
-	float4 color : COLOR0;
-	float2 texCoord : TEXCOORD0;
-};
-
-
-VertexShaderOutput MainVS(float4 position: POSITION0, float4 color: COLOR0, float2 texCoord: TEXCOORD0)
-{
-	VertexShaderOutput output;
-    output.position = position;
-	output.color = color;
-	output.texCoord = texCoord;
-
-	return output;
+	position = position;
 }
 
 
 float4 MainPS(float2 texCoord:TEXCOORD0, in float2 screenPos:VPOS) : COLOR0
 {
-	float4 color = tex2D( s0, texCoord );
-	float scanline = sin( texCoord.y * _linesFactor ) * _attenuation;
+	float4 color = tex2D(s0, texCoord);
+	float scanline = sin(texCoord.y * LinesFactor) * Attenuation;
 	color.rgb -= scanline;
 
 	return color;

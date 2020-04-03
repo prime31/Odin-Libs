@@ -11,4 +11,3 @@
     sampler Name##Sampler : register(s##index) = sampler_state { Texture = (Name); };
 
 #define SAMPLE_TEXTURE(Name, texCoord)  tex2D(Name##Sampler, texCoord)
-#define SAMPLE_CUBEMAP(Name, texCoord)  texCUBE(Name##Sampler, texCoord)

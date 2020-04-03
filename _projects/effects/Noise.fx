@@ -1,49 +1,38 @@
 sampler s0;
 
-float noise; // 1.0
+float Noise; // 1.0
 
-float rand( float2 co )
+
+float rand(float2 co)
 {
-    return frac( sin( dot( co.xy, float2( 12.9898, 78.233 ) ) ) * 43758.5453 );
+	return frac(sin(dot(co.xy, float2(12.9898, 78.233))) * 43758.5453);
 }
 
 
-struct VertexShaderOutput
+void MainVS(inout float4 position: SV_Position, inout float4 color: COLOR0, inout float2 texCoord: TEXCOORD0)
 {
-	float4 position : POSITION;
-	float4 color : COLOR0;
-	float2 texCoord : TEXCOORD0;
-};
-
-VertexShaderOutput mainVS(float4 position: POSITION0, float4 color: COLOR0, float2 texCoord: TEXCOORD0)
-{
-	VertexShaderOutput output;
-    output.position = position;
-	output.color = color;
-	output.texCoord = texCoord;
-
-	return output;
+	position = position;
 }
 
-float4 PixelShaderFunction( float2 coords:TEXCOORD0, in float2 screenPos:VPOS ) : COLOR0
+float4 PixelShaderFunction(float2 coords:TEXCOORD0, in float2 screenPos:VPOS) : COLOR0
 {
-    float4 color = tex2D( s0, coords );
+	float4 color = tex2D(s0, coords);
 
-    float diff = ( rand( coords ) - 0.5 ) * noise;
+	float diff = (rand(coords) - 0.5) * Noise;
 
-    color.r += diff;
-    color.g += diff;
-    color.b += diff;
+	color.r += diff;
+	color.g += diff;
+	color.b += diff;
 
-    return color;
+	return color;
 }
 
 
 technique Technique1
 {
-    pass Pass1
-    {
-        VertexShader = compile vs_2_0 mainVS();
-        PixelShader = compile ps_3_0 PixelShaderFunction();
-    }
+	pass Pass1
+	{
+		VertexShader = compile vs_2_0 MainVS();
+		PixelShader = compile ps_3_0 PixelShaderFunction();
+	}
 }
