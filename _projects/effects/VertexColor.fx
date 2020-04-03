@@ -1,24 +1,14 @@
 
-struct VertexShaderOutput
+
+void SpriteVert(inout float4 position: SV_Position, inout float4 color: COLOR0, inout float2 texCoord: TEXCOORD0)
 {
-	float4 Position : POSITION;
-	float4 Color : COLOR0;
-};
-
-
-VertexShaderOutput spriteVert(float4 position: POSITION0, float4 color: COLOR0)
-{
-	VertexShaderOutput output;
-    output.Position = position;
-	output.Color = color;
-
-	return output;
+	position = position;
 }
 
 
-float4 mainPixel( VertexShaderOutput input ) : COLOR
+float4 MainPixel(float4 color: COLOR0, float2 texCoord: TEXCOORD0) : SV_Target0
 {
-	return input.Color;
+	return color;
 }
 
 
@@ -26,7 +16,7 @@ technique SpriteBlink
 {
 	pass P0
 	{
-		VertexShader = compile vs_2_0 spriteVert();
-		PixelShader = compile ps_3_0 mainPixel();
+		VertexShader = compile vs_2_0 SpriteVert();
+		PixelShader = compile ps_3_0 MainPixel();
 	}
 };

@@ -150,7 +150,7 @@ prepper :: proc() {
 	vbuff = fna.gen_vertex_buffer(device, 0, .Write_Only, 0, 0);
 
 	// load an effect
-	data, success := os.read_entire_file("assets/VertexColorTexture.fxb");
+	data, success := os.read_entire_file("effects/VertexColorTexture.fxb");
 	defer if success { delete(data); }
 
 	effect = fna.create_effect(device, &data[0], cast(u32)len(data));
