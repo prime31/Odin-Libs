@@ -40,18 +40,7 @@ main :: proc() {
 	device = fna.create_device(&params, 0);
 	fna.set_presentation_interval(device, .One);
 
-	// ColorSourceBlend = Blend.One;
-	// ColorDestinationBlend = Blend.Zero;
-	// ColorBlendFunction = BlendFunction.Add;
-	// AlphaSourceBlend = Blend.One;
-	// AlphaDestinationBlend = Blend.Zero;
-	// AlphaBlendFunction = BlendFunction.Add;
-	// ColorWriteChannels = ColorWriteChannels.All;
-	// ColorWriteChannels1 = ColorWriteChannels.All;
-	// ColorWriteChannels2 = ColorWriteChannels.All;
-	// ColorWriteChannels3 = ColorWriteChannels.All;
-	// BlendFactor = Color.White;
-	// MultiSampleMask = -1; // AKA 0xFFFFFFFF
+	// alpha blend
 	blend := fna.Blend_State{
 		.Source_Alpha, .Inverse_Source_Alpha, .Add,
 		.Source_Alpha, .Inverse_Source_Alpha, .Add,
