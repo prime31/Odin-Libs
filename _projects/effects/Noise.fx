@@ -1,6 +1,7 @@
 sampler s0;
 
 float Noise; // 1.0
+float3x2 TransformMatrix;
 
 
 float rand(float2 co)
@@ -11,7 +12,7 @@ float rand(float2 co)
 
 void MainVS(inout float4 position: SV_Position, inout float4 color: COLOR0, inout float2 texCoord: TEXCOORD0)
 {
-	position = position;
+	position = float4(mul(position.xy, TransformMatrix), 0, 1);
 }
 
 float4 PixelShaderFunction(float2 coords:TEXCOORD0, in float2 screenPos:VPOS) : COLOR0

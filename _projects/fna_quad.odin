@@ -5,6 +5,7 @@ import "core:fmt"
 import "core:mem"
 import "core:math"
 import "shared:engine/gfx"
+import "shared:engine/maf"
 import "shared:engine/libs/sdl"
 import "shared:engine/libs/stb_image"
 import "shared:engine/libs/fna"
@@ -18,10 +19,7 @@ Vertex :: struct {
 device: ^fna.Device;
 vbuff: ^fna.Buffer;
 ibuff: ^fna.Buffer;
-effect: ^fna.Effect;
-vert_decl: fna.Vertex_Declaration;
 texture: ^fna.Texture;
-vert_buff_bindings: []fna.Vertex_Buffer_Binding;
 vert_buff_binding: fna.Vertex_Buffer_Binding;
 
 main :: proc() {
@@ -69,10 +67,6 @@ main :: proc() {
 		fna.begin_frame(device);
 		fna.clear(device, fna.Clear_Options.Target, &color, 0, 0);
 
-		// state_changes := fna.Mojoshader_Effect_State_Changes{};
-		// fna.apply_effect(device, effect, effect.mojo_effect.current_technique, 0, &state_changes);
-
-
 		// vertices := [?]Vertex{
 		// 	{{+0.0, +0.0}, {1.0, 1.0}, 0xFF0099FF},
 		// 	{{+0.0, -1.0}, {1.0, 0.0}, 0xFFFFFFFF},
@@ -81,13 +75,12 @@ main :: proc() {
 		// 	{{-1.0, +0.0}, {0.0, 1.0}, 0xFFFF99FF},
 		// 	{{+0.0, +0.0}, {1.0, 1.0}, 0xFFFF99FF}
 		// };
-		// fna.apply_vertex_declaration(device, &vert_decl, &vertices, 0);
+		// fna.apply_vertex_declaration(device, &vert_buff_binding.vertex_declaration, &vertices, 0);
 		// fna.draw_primitives(device, .Triangle_List, 0, 2);
 
 
 		// either send an array or just one
-		// fna.apply_vertex_buffer_bindings(device, &vert_buff_binding, 1, 1, 0);
-		fna.apply_vertex_buffer_bindings(device, &vert_buff_bindings[0], 1, 1, 0);
+		fna.apply_vertex_buffer_bindings(device, &vert_buff_binding, 1, 1, 0);
 		fna.draw_indexed_primitives(device, .Triangle_List, 0, 0, 4, 0, 2, ibuff, ._16_Bit);
 		fna.swap_buffers(device, nil, nil, params.device_window_handle);
 	}
@@ -95,7 +88,7 @@ main :: proc() {
 
 prepper :: proc() {
 	gfx.fna_device = device;
-	vert_decl = gfx.vertex_decl_for_type(gfx.Vert_Pos_Tex_Col);
+	vert_decl := gfx.vertex_decl_for_type(gfx.Vert_Pos_Tex_Col);
 
 	// buffers
 	vertices := [?]gfx.Vert_Pos_Tex_Col{
@@ -114,16 +107,10 @@ prepper :: proc() {
 
 	// bindings
     vert_buff_binding = fna.Vertex_Buffer_Binding{vbuff, vert_decl, 0, 0};
-	vert_buff_bindings = make([]fna.Vertex_Buffer_Binding, 1);
-	vert_buff_bindings[0] = vert_buff_binding;
 
 	// load an effect
-	data, success := os.read_entire_file("effects/VertexColorTexture.fxb");
-	defer if success { delete(data); }
-
-	effect = fna.create_effect(device, &data[0], cast(u32)len(data));
-	state_changes := fna.Mojoshader_Effect_State_Changes{};
-	fna.apply_effect(device, effect, effect.mojo_effect.current_technique, 0, &state_changes);
+	shader := gfx.new_shader("effects/VertexColorTexture.fxb");
+	gfx.shader_apply(shader);
 }
 
 create_texture :: proc() {

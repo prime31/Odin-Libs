@@ -46,7 +46,7 @@ Effect_Value :: struct {
     value_count: u32,
     value: struct #raw_union {
     	void: rawptr,
-    	int: ^int,
+    	int: ^i32,
     	float: ^f32
     }
     // union {
@@ -187,14 +187,14 @@ Symbol_Type :: enum i32 {
 	Float = 3,
 	String = 4,
 	Texture = 5,
-	Texture1_D = 6,
-	Texture2_D = 7,
-	Texture3_D = 8,
+	Texture_1D = 6,
+	Texture_2D = 7,
+	Texture_3D = 8,
 	Texturecube = 9,
 	Sampler = 10,
-	Sampler1_D = 11,
-	Sampler2_D = 12,
-	Sampler3_D = 13,
+	Sampler_1D = 11,
+	Sampler_2D = 12,
+	Sampler_3D = 13,
 	Samplercube = 14,
 	Pixelshader = 15,
 	Vertexshader = 16,
