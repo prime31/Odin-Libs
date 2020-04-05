@@ -5,6 +5,9 @@ import "core:runtime";
 import "core:intrinsics";
 import "shared:engine/libs/fna"
 
+// @(private)
+fna_device: ^fna.Device;
+
 Vert_Pos_Col :: struct {
 	pos: [2]f32,
 	col: u32
@@ -50,8 +53,10 @@ free_vert_buffer :: proc(buffer: ^fna.Buffer) {
 	fna.add_dispose_vertex_buffer(fna_device, buffer);
 }
 
-set_vertex_buffer_data :: proc(buffer: ^fna.Buffer, data: rawptr, data_length: i32, offset_in_bytes: i32 = 0, options: fna.Set_Data_Options = .None) {
-	fna.set_vertex_buffer_data(fna_device, buffer, offset_in_bytes, data, data_length, options);
+set_vertex_buffer_data :: proc(buffer: ^fna.Buffer, data: ^$T, offset_in_bytes: i32 = 0, options: fna.Set_Data_Options = .None)
+	where intrinsics.type_is_indexable(T) {
+	element_size := cast(i32)size_of(intrinsics.type_elem_type(T));
+	fna.set_vertex_buffer_data(fna_device, buffer, offset_in_bytes, &data[0], element_size * cast(i32)len(data), options);
 }
 
 
@@ -65,8 +70,11 @@ free_index_buffer :: proc(buffer: ^fna.Buffer) {
 	fna.add_dispose_index_buffer(fna_device, buffer);
 }
 
-set_index_buffer_data :: proc(buffer: ^fna.Buffer, data: rawptr, data_length: i32, offset_in_bytes: i32 = 0, options: fna.Set_Data_Options = .None) {
-	fna.set_index_buffer_data(fna_device, buffer, offset_in_bytes, data, data_length, options);
+// for support with slices[:] it could be: data: []$T and for the data size: i32(size_of(T) * len(data))
+set_index_buffer_data :: proc(buffer: ^fna.Buffer, data: ^$T, offset_in_bytes: i32 = 0, options: fna.Set_Data_Options = .None)
+	where intrinsics.type_is_indexable(T) {
+	element_size := cast(i32)size_of(intrinsics.type_elem_type(T));
+	fna.set_index_buffer_data(fna_device, buffer, offset_in_bytes, &data[0], element_size * cast(i32)len(data), options);
 }
 
 

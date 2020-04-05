@@ -25,7 +25,8 @@ vert_buff_bindings: []fna.Vertex_Buffer_Binding;
 vert_buff_binding: fna.Vertex_Buffer_Binding;
 
 main :: proc() {
-	window := create_window();
+	sdl.init(sdl.Init_Flags.Everything);
+	window := sdl.create_window("Odin + FNA + SDL + OpenGL", i32(sdl.Window_Pos.Undefined), i32(sdl.Window_Pos.Undefined), 640, 480, cast(sdl.Window_Flags)fna.prepare_window_attributes());
 
 	params := fna.Presentation_Parameters{
 		back_buffer_width = 640,
@@ -93,35 +94,6 @@ main :: proc() {
 }
 
 prepper :: proc() {
-	// vertex declaration
-	// vert_elements := make([]fna.Vertex_Element, 3);
-	// vert_elements[0] = fna.Vertex_Element{
-	// 	offset = 0,
-	// 	vertex_element_format = .Vector2,
-	// 	vertex_element_usage = .Position,
-	// 	usage_index = 0
-	// };
-
-	// vert_elements[1] = fna.Vertex_Element{
-	// 	offset = 8,
-	// 	vertex_element_format = .Vector2,
-	// 	vertex_element_usage = .Texture_Coordinate,
-	// 	usage_index = 0
-	// };
-
-	// vert_elements[2] = fna.Vertex_Element{
-	// 	offset = 16,
-	// 	vertex_element_format = .Color,
-	// 	vertex_element_usage = .Color,
-	// 	usage_index = 0
-	// };
-
-	// vert_decl = fna.Vertex_Declaration{
-	// 	vertex_stride = get_vertex_stride(vert_elements),
-	// 	element_count = 3,
-	// 	elements = &vert_elements[0]
-	// };
-
 	gfx.fna_device = device;
 	vert_decl = gfx.vertex_decl_for_type(gfx.Vert_Pos_Tex_Col);
 
@@ -134,19 +106,11 @@ prepper :: proc() {
 	};
 
 	vbuff = gfx.new_vert_buffer_from_type(gfx.Vert_Pos_Tex_Col, len(vertices));
-	gfx.set_vertex_buffer_data(vbuff, &vertices, size_of(vertices));
-
-	// vbuff = fna.gen_vertex_buffer(device, 0, .None, len(vertices), vert_decl.vertex_stride);
-	// fna.set_vertex_buffer_data(device, vbuff, 0, &vertices, size_of(vertices), .None);
+	gfx.set_vertex_buffer_data(vbuff, &vertices);
 
 	indices := [?]i16{0, 1, 2, 2, 3, 0};
-
 	ibuff = gfx.new_index_buffer(len(indices));
-	gfx.set_index_buffer_data(ibuff, &indices, size_of(indices));
-
-	// ibuff = fna.gen_index_buffer(device, 0, .None, len(indices), ._16_Bit);
-	// fna.set_index_buffer_data(device, ibuff, 0, &indices, size_of(indices), .None);
-
+	gfx.set_index_buffer_data(ibuff, &indices);
 
 	// bindings
     vert_buff_binding = fna.Vertex_Buffer_Binding{vbuff, vert_decl, 0, 0};
@@ -154,31 +118,12 @@ prepper :: proc() {
 	vert_buff_bindings[0] = vert_buff_binding;
 
 	// load an effect
-	data, success := os.read_entire_file("assets/VertexColorTexture.fxb");
+	data, success := os.read_entire_file("effects/VertexColorTexture.fxb");
 	defer if success { delete(data); }
 
 	effect = fna.create_effect(device, &data[0], cast(u32)len(data));
 	state_changes := fna.Mojoshader_Effect_State_Changes{};
 	fna.apply_effect(device, effect, effect.mojo_effect.current_technique, 0, &state_changes);
-}
-
-get_vertex_stride :: proc(elements: []fna.Vertex_Element) -> i32 {
-	max:i32 = 0;
-	for ele in elements {
-		start := ele.offset + get_type_size(ele.vertex_element_format);
-		if max < start do max = start;
-	}
-	return max;
-}
-
-get_type_size :: proc(type: fna.Vertex_Element_Format) -> i32 {
-	#partial switch type {
-		case fna.Vertex_Element_Format.Color: return 4;
-		case fna.Vertex_Element_Format.Vector2: return 8;
-		case fna.Vertex_Element_Format.Vector3: return 12;
-		case fna.Vertex_Element_Format.Vector4: return 16;
-	}
-	return -1;
 }
 
 create_texture :: proc() {
@@ -201,14 +146,5 @@ create_texture :: proc() {
 	};
 
 	fna.verify_sampler(device, 0, texture, &sampler_state);
-}
-
-create_window :: proc() -> ^sdl.Window {
-	sdl.init(sdl.Init_Flags.Everything);
-
-	window_attrs := fna.prepare_window_attributes();
-	window := sdl.create_window("Odin + FNA + SDL + OpenGL", i32(sdl.Window_Pos.Undefined), i32(sdl.Window_Pos.Undefined), 640, 480, cast(sdl.Window_Flags)window_attrs);
-
-	return window;
 }
 

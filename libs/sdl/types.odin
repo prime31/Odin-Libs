@@ -926,24 +926,31 @@ Window_Event_ID :: enum u8 {
 
 GL_Context :: rawptr;
 
-Blit_Map :: struct {};
-Window :: struct {};
-Renderer :: struct {};
-Texture :: struct {};
-Cond :: struct {};
-Mutex :: struct {};
-Sem :: struct {};
-Thread :: struct {};
-Haptic :: struct {};
-Joystick :: struct {};
-Game_Controller :: struct {};
-Cursor :: struct {};
-IDirect3D_Device9 :: struct {};
-Rw_Ops :: struct {};
+Blit_Map :: struct {}
+Window :: struct {}
+Renderer :: struct {}
+Texture :: struct {}
+Cond :: struct {}
+Mutex :: struct {}
+Sem :: struct {}
+Thread :: struct {}
+Haptic :: struct {}
+Joystick :: struct {}
+Game_Controller :: struct {}
+Cursor :: struct {}
+IDirect3D_Device9 :: struct {}
+
+// TODO: not working!
+Rw_Ops :: struct {
+	seek: proc "c" (rwops: ^Rw_Ops, offset: int, whence: i32) -> int,
+	read: proc "c" (rwops: ^Rw_Ops, ptr: rawptr, size: int, maxnum: int) -> int,
+	write: proc "c" (rwops: ^Rw_Ops, ptr: rawptr, size: int, num: int) -> int,
+	close: proc "c" (rwops: ^Rw_Ops) -> int
+}
 
 // Unsure of these
-Sys_Wm_Info :: struct {};
-Sys_Wm_Msg :: struct {};
+Sys_Wm_Info :: struct {}
+Sys_Wm_Msg :: struct {}
 
 Joystick_Id :: i32;
 Timer_Id :: i32;
@@ -976,9 +983,9 @@ Game_Controller_Button_Bind :: struct {
 		button: i32,
 		axis:   i32,
 		using hat_mask: struct {
-			hat, mask: i32,
-		},
-	},
+			hat, mask: i32
+		}
+	}
 }
 
 Message_Box_Data :: struct {

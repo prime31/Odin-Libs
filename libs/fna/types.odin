@@ -209,7 +209,10 @@ Vertex_Element_Usage :: enum i32 {
 
 Device :: struct {}
 
-Texture :: struct {}
+Texture :: struct {
+	// OpenGL only! Used for ImGui custom textures
+	handle: u32
+}
 
 Buffer :: struct {}
 

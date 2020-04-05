@@ -403,6 +403,7 @@ foreign lib {
 	@(link_name="SDL_RWFromFP") rw_from_fp :: proc(fp: rawptr, auto_close: Bool) -> ^Rw_Ops ---;
 	@(link_name="SDL_RWFromFile") rw_from_file :: proc(file: cstring, mode: cstring) -> ^Rw_Ops ---;
 	@(link_name="SDL_RWFromMem") rw_from_mem :: proc(mem: rawptr, size:i32) -> ^Rw_Ops ---;
+	@(link_name="SDL_RWsize") rw_size :: proc(ctx: ^Rw_Ops) -> int ---;
 	@(link_name="SDL_SaveAllDollarTemplates") save_all_dollar_templates :: proc(dst: ^Rw_Ops) -> i32 ---;
 	@(link_name="SDL_SaveBMP_RW") save_bmp_rw :: proc(surface: ^Surface, dst: ^Rw_Ops, free_dst: i32) -> i32 ---;
 	@(link_name="SDL_SaveDollarTemplate") save_dollar_template :: proc(gesture_id: Gesture_Id, dst: ^Rw_Ops) -> i32 ---;
