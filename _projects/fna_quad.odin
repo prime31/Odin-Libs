@@ -4,6 +4,7 @@ import "core:os"
 import "core:fmt"
 import "core:mem"
 import "core:math"
+import "shared:engine/gfx"
 import "shared:engine/libs/sdl"
 import "shared:engine/libs/stb_image"
 import "shared:engine/libs/fna"
@@ -93,48 +94,58 @@ main :: proc() {
 
 prepper :: proc() {
 	// vertex declaration
-	vert_elements := make([]fna.Vertex_Element, 3);
-	vert_elements[0] = fna.Vertex_Element{
-		offset = 0,
-		vertex_element_format = .Vector2,
-		vertex_element_usage = .Position,
-		usage_index = 0
-	};
+	// vert_elements := make([]fna.Vertex_Element, 3);
+	// vert_elements[0] = fna.Vertex_Element{
+	// 	offset = 0,
+	// 	vertex_element_format = .Vector2,
+	// 	vertex_element_usage = .Position,
+	// 	usage_index = 0
+	// };
 
-	vert_elements[1] = fna.Vertex_Element{
-		offset = 8,
-		vertex_element_format = .Vector2,
-		vertex_element_usage = .Texture_Coordinate,
-		usage_index = 0
-	};
+	// vert_elements[1] = fna.Vertex_Element{
+	// 	offset = 8,
+	// 	vertex_element_format = .Vector2,
+	// 	vertex_element_usage = .Texture_Coordinate,
+	// 	usage_index = 0
+	// };
 
-	vert_elements[2] = fna.Vertex_Element{
-		offset = 16,
-		vertex_element_format = .Color,
-		vertex_element_usage = .Color,
-		usage_index = 0
-	};
+	// vert_elements[2] = fna.Vertex_Element{
+	// 	offset = 16,
+	// 	vertex_element_format = .Color,
+	// 	vertex_element_usage = .Color,
+	// 	usage_index = 0
+	// };
 
-	vert_decl = fna.Vertex_Declaration{
-		vertex_stride = get_vertex_stride(vert_elements),
-		element_count = 3,
-		elements = &vert_elements[0]
-	};
+	// vert_decl = fna.Vertex_Declaration{
+	// 	vertex_stride = get_vertex_stride(vert_elements),
+	// 	element_count = 3,
+	// 	elements = &vert_elements[0]
+	// };
+
+	gfx.fna_device = device;
+	vert_decl = gfx.vertex_decl_for_type(gfx.Vert_Pos_Tex_Col);
 
 	// buffers
-	vertices := [?]Vertex{
+	vertices := [?]gfx.Vert_Pos_Tex_Col{
 		{{+0.5, -0.5}, {1.0, 1.0}, 0xFF0099FF},
 		{{-0.5, -0.5}, {0.0, 1.0}, 0xFFFFFFFF},
 		{{-0.5, +0.5}, {0.0, 0.0}, 0xFFFFFFFF},
 		{{+0.5, +0.5}, {1.0, 0.0}, 0xFFFF99FF}
 	};
 
-	vbuff = fna.gen_vertex_buffer(device, 0, .None, len(vertices), vert_decl.vertex_stride);
-	fna.set_vertex_buffer_data(device, vbuff, 0, &vertices, size_of(vertices), .None);
+	vbuff = gfx.new_vert_buffer_from_type(gfx.Vert_Pos_Tex_Col, len(vertices));
+	gfx.set_vertex_buffer_data(vbuff, &vertices, size_of(vertices));
+
+	// vbuff = fna.gen_vertex_buffer(device, 0, .None, len(vertices), vert_decl.vertex_stride);
+	// fna.set_vertex_buffer_data(device, vbuff, 0, &vertices, size_of(vertices), .None);
 
 	indices := [?]i16{0, 1, 2, 2, 3, 0};
-	ibuff = fna.gen_index_buffer(device, 0, .None, len(indices), ._16_Bit);
-	fna.set_index_buffer_data(device, ibuff, 0, &indices, size_of(indices), .None);
+
+	ibuff = gfx.new_index_buffer(len(indices));
+	gfx.set_index_buffer_data(ibuff, &indices, size_of(indices));
+
+	// ibuff = fna.gen_index_buffer(device, 0, .None, len(indices), ._16_Bit);
+	// fna.set_index_buffer_data(device, ibuff, 0, &indices, size_of(indices), .None);
 
 
 	// bindings

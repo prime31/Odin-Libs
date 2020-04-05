@@ -17,7 +17,6 @@ Vertex :: struct {
 };
 
 device: ^fna.Device;
-vbuff: ^fna.Buffer;
 effect: ^fna.Effect;
 vert_decl: fna.Vertex_Declaration;
 texture: ^fna.Texture;
@@ -85,7 +84,7 @@ main :: proc() {
 		// 	{{+0.5, +0.5}, {1.0, 1.0}, 0xFF0099FF},
 		// };
 
-		// fna.apply_vertex_declaration(device, &imgui_vert_decl, &vertices, 0);
+		// fna.apply_vertex_declaration(device, &vert_decl, &vertices, 0);
 		// fna.draw_primitives(device, .Triangle_List, 0, 2);
 
 
@@ -135,8 +134,6 @@ prepper :: proc() {
 		element_count = 3,
 		elements = &vert_elements[0]
 	};
-
-	vbuff = fna.gen_vertex_buffer(device, 0, .Write_Only, 0, 0);
 
 	// load an effect
 	data, success := os.read_entire_file("effects/VertexColorTexture.fxb");
@@ -293,13 +290,13 @@ imgui_update_buffers :: proc(draw_data: ^imgui.DrawData) {
 	if draw_data.total_vtx_count > imgui_vert_buffer_size {
 		fmt.println("Regenerating vertex buffer");
 		imgui_vert_buffer_size = cast(i32)(cast(f32)draw_data.total_vtx_count * 1.5);
-		imgui_vert_buffer = fna.gen_vertex_buffer(device, 0, .None, imgui_vert_buffer_size, imgui_vert_decl.vertex_stride);
+		imgui_vert_buffer = fna.gen_vertex_buffer(device, 0, .Write_Only, imgui_vert_buffer_size, imgui_vert_decl.vertex_stride);
 	}
 
 	if draw_data.total_idx_count > imgui_index_buffer_size {
 		fmt.println("Regenerating index buffer");
 		imgui_index_buffer_size = cast(i32)(cast(f32)draw_data.total_idx_count * 1.5);
-		imgui_index_buffer = fna.gen_index_buffer(device, 1, .None, imgui_index_buffer_size, ._16_Bit);
+		imgui_index_buffer = fna.gen_index_buffer(device, 1, .Write_Only, imgui_index_buffer_size, ._16_Bit);
 	}
 }
 
