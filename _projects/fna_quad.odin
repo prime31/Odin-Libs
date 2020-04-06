@@ -92,10 +92,10 @@ prepper :: proc() {
 
 	// buffers
 	vertices := [?]gfx.Vert_Pos_Tex_Col{
-		{{+0.5, -0.5}, {1.0, 1.0}, 0xFF0099FF},
-		{{-0.5, -0.5}, {0.0, 1.0}, 0xFFFFFFFF},
-		{{-0.5, +0.5}, {0.0, 0.0}, 0xFFFFFFFF},
-		{{+0.5, +0.5}, {1.0, 0.0}, 0xFFFF99FF}
+		{{+100.5, -100.5}, {1.0, 1.0}, 0xFF0099FF},
+		{{-100.5, -100.5}, {0.0, 1.0}, 0xFFFFFFFF},
+		{{-100.5, +100.5}, {0.0, 0.0}, 0xFFFFFFFF},
+		{{+100.5, +100.5}, {1.0, 0.0}, 0xFFFF99FF}
 	};
 
 	vbuff = gfx.new_vert_buffer_from_type(gfx.Vert_Pos_Tex_Col, len(vertices));
@@ -110,6 +110,10 @@ prepper :: proc() {
 
 	// load an effect
 	shader := gfx.new_shader("effects/VertexColorTexture.fxb");
+	transform := maf.mat32_ortho(640, 480);
+	gfx.shader_set_mat32(shader, "TransformMatrix", &transform);
+	// transform := maf.mat4_ortho(640, 480);
+	// gfx.shader_set_mat4(shader, "TransformMatrix", &transform);
 	gfx.shader_apply(shader);
 }
 

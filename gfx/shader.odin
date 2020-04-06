@@ -141,3 +141,15 @@ shader_set_mat32 :: proc(shader: ^Shader, name: string, value: ^maf.Mat32) {
 		}
 	}
 }
+
+shader_set_mat3 :: proc(shader: ^Shader, name: string, value: ^maf.Mat3) {
+	params := mem.slice_ptr(shader.mojo_effect.params, cast(int)shader.mojo_effect.param_count);
+	for param in params {
+		if cast(string)param.effect_value.name == name {
+			assert(param.effect_value.type.parameter_type == .Float && param.effect_value.type.parameter_class == .Matrix_Rows);
+			assert(param.effect_value.type.rows == 3 && param.effect_value.type.columns == 3);
+			mem.copy(param.effect_value.value.float, &value[0], size_of(maf.Mat3));
+			return;
+		}
+	}
+}
