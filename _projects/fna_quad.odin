@@ -80,7 +80,7 @@ main :: proc() {
 
 
 		// either send an array or just one
-		fna.apply_vertex_buffer_bindings(device, &vert_buff_binding, 1, 1, 0);
+		fna.apply_vertex_buffer_bindings(device, &vert_buff_binding, 1, 0, 0);
 		fna.draw_indexed_primitives(device, .Triangle_List, 0, 0, 4, 0, 2, ibuff, ._16_Bit);
 		fna.swap_buffers(device, nil, nil, params.device_window_handle);
 	}
@@ -112,8 +112,6 @@ prepper :: proc() {
 	shader := gfx.new_shader("effects/VertexColorTexture.fxb");
 	transform := maf.mat32_ortho(640, 480);
 	gfx.shader_set_mat32(shader, "TransformMatrix", &transform);
-	// transform := maf.mat4_ortho(640, 480);
-	// gfx.shader_set_mat4(shader, "TransformMatrix", &transform);
 	gfx.shader_apply(shader);
 }
 

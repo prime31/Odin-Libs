@@ -4,7 +4,7 @@ float angle; // 0.5
 float scale; // 0.5
 
 
-void MainVS(inout float4 position: SV_Position, inout float4 color: COLOR0, inout float2 texCoord: TEXCOORD0)
+void Vert(inout float4 position: SV_Position, inout float4 color: COLOR0, inout float2 texCoord: TEXCOORD0)
 {
 	//position = float4(mul(position.xy, MatrixTransform), 0, 0);
 	position = position;
@@ -20,7 +20,7 @@ float pattern(float angle, float2 uv, float scale, float2 screenPos)
 }
 
 
-float4 PixelShaderFunction(float2 coords:TEXCOORD0, in float2 screenPos:VPOS) : COLOR0
+float4 Pixel(float2 coords:TEXCOORD0, in float2 screenPos:VPOS) : COLOR0
 {
 	float4 color = tex2D(s0, coords);
 	float average = (color.r + color.g + color.b) / 3.0;
@@ -33,7 +33,7 @@ technique Technique1
 {
 	pass Pass1
 	{
-			VertexShader = compile vs_2_0 MainVS();
-			PixelShader = compile ps_3_0 PixelShaderFunction();
+		VertexShader = compile vs_2_0 Vert();
+		PixelShader = compile ps_3_0 Pixel();
 	}
 }

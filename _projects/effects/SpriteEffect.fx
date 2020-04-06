@@ -18,7 +18,7 @@ float4 SpritePixel(float4 color: COLOR0, float2 texCoord: TEXCOORD0) : SV_Target
 
 technique SpriteDrawing
 {
-	pass P0
+	pass Pass1
 	{
 		VertexShader = compile vs_2_0 SpriteVert();
 		PixelShader = compile ps_2_0 SpritePixel();

@@ -1,6 +1,8 @@
 package maf
 
-Vec2 :: distinct [2]f32;
+import "core:math/linalg"
+
+Vec2 :: linalg.Vector2;
 
 
 vec2_orthogonal :: proc(v: Vec2) -> Vec2 {

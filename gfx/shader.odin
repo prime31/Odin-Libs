@@ -121,8 +121,9 @@ shader_get_mat32 :: proc(shader: ^Shader, name: string) -> maf.Mat32 {
 		if cast(string)param.effect_value.name == name {
 			assert(param.effect_value.type.parameter_type == .Float && param.effect_value.type.parameter_class == .Matrix_Rows);
 			assert(param.effect_value.type.rows == 2 && param.effect_value.type.columns == 3);
-			floats := mem.slice_ptr(param.effect_value.value.float, 6);
-			return maf.Mat32{floats[0], floats[1], floats[2], floats[3], floats[4], floats[5]};
+
+			floats := mem.slice_ptr(param.effect_value.value.float, cast(int)param.effect_value.value_count);
+			return maf.Mat32{{floats[0], floats[4]}, {floats[1], floats[5]}, {floats[2], floats[6]}};
 		}
 	}
 
@@ -136,7 +137,14 @@ shader_set_mat32 :: proc(shader: ^Shader, name: string, value: ^maf.Mat32) {
 		if cast(string)param.effect_value.name == name {
 			assert(param.effect_value.type.parameter_type == .Float && param.effect_value.type.parameter_class == .Matrix_Rows);
 			assert(param.effect_value.type.rows == 2 && param.effect_value.type.columns == 3);
-			mem.copy(param.effect_value.value.float, &value[0], size_of(maf.Mat32));
+
+			dst := mem.slice_ptr(param.effect_value.value.float, cast(int)param.effect_value.value_count);
+			dst[0] = value[0][0];
+			dst[1] = value[1][0];
+			dst[2] = value[2][0];
+			dst[4] = value[0][1];
+			dst[5] = value[1][1];
+			dst[6] = value[2][1];
 			return;
 		}
 	}
@@ -148,7 +156,48 @@ shader_set_mat3 :: proc(shader: ^Shader, name: string, value: ^maf.Mat3) {
 		if cast(string)param.effect_value.name == name {
 			assert(param.effect_value.type.parameter_type == .Float && param.effect_value.type.parameter_class == .Matrix_Rows);
 			assert(param.effect_value.type.rows == 3 && param.effect_value.type.columns == 3);
-			mem.copy(param.effect_value.value.float, &value[0], size_of(maf.Mat3));
+
+			dst := mem.slice_ptr(param.effect_value.value.float, cast(int)param.effect_value.value_count);
+			dst[0] = value[0][0];
+			dst[1] = value[1][0];
+			dst[2] = value[2][0];
+			dst[4] = value[0][1];
+			dst[5] = value[1][1];
+			dst[6] = value[2][1];
+			dst[8] = value[0][2];
+			dst[9] = value[1][2];
+			dst[10] = value[2][2];
+
+			return;
+		}
+	}
+}
+
+shader_set_mat4 :: proc(shader: ^Shader, name: string, value: ^maf.Mat4) {
+	params := mem.slice_ptr(shader.mojo_effect.params, cast(int)shader.mojo_effect.param_count);
+	for param in params {
+		if cast(string)param.effect_value.name == name {
+			assert(param.effect_value.type.parameter_type == .Float && param.effect_value.type.parameter_class == .Matrix_Rows);
+			assert(param.effect_value.type.rows == 4 && param.effect_value.type.columns == 4);
+
+			dst := mem.slice_ptr(param.effect_value.value.float, cast(int)param.effect_value.value_count);
+			dst[0] = value[0][0];
+			dst[1] = value[1][0];
+			dst[2] = value[2][0];
+			dst[2] = value[3][0];
+			dst[4] = value[0][1];
+			dst[5] = value[1][1];
+			dst[6] = value[2][1];
+			dst[2] = value[3][1];
+			dst[8] = value[0][2];
+			dst[9] = value[1][2];
+			dst[10] = value[2][2];
+			dst[11] = value[3][2];
+			dst[12] = value[0][3];
+			dst[13] = value[1][3];
+			dst[14] = value[2][3];
+			dst[15] = value[3][3];
+
 			return;
 		}
 	}
