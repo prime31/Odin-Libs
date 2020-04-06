@@ -13,7 +13,8 @@ Shader :: struct {
 
 new_shader :: proc(file: string) -> ^Shader {
 	data, success := os.read_entire_file(file);
-	defer if success { delete(data); } else { panic("could not open effect file"); }
+	defer if success do delete(data);;
+	if !success do panic("could not open effect file");
 
 	shader := new(Shader);
 	shader.effect = fna.create_effect(fna_device, &data[0], cast(u32)len(data));
@@ -36,6 +37,8 @@ shader_apply :: proc(shader: ^Shader) {
 	fna.apply_effect(fna_device, shader, shader.mojo_effect.current_technique, 0, &state_changes);
 }
 
+
+// Shader parameter get/set procs
 shader_set :: proc{shader_set_f32, shader_set_i32, shader_set_vec2, shader_set_mat32};
 
 shader_get_f32 :: proc(shader: ^Shader, name: string) -> f32 {
