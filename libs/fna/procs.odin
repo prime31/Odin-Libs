@@ -181,13 +181,16 @@ foreign fna_lib {
 	get_index_buffer_data :: proc(device: ^Device, buffer: ^Buffer, offset_in_bytes: i32, data: rawptr, start_index: i32, element_count: i32, element_size_in_bytes: i32) ---;
 
 	@(link_name = "FNA3D_CreateEffect")
-	create_effect :: proc(device: ^Device, effect_code: ^u8, effect_code_length: u32) -> ^Effect ---;
+	create_effect :: proc(device: ^Device, effect_code: ^u8, effect_code_length: u32, effect: ^^Effect, effect_data: ^^Mojoshader_Effect) ---;
 
 	@(link_name = "FNA3D_CloneEffect")
-	clone_effect :: proc(device: ^Device, effect: ^Effect) -> ^Effect ---;
+	clone_effect :: proc(device: ^Device, clone_source: ^Effect, effect: ^^Effect, effect_data: ^^Mojoshader_Effect) ---;
 
 	@(link_name = "FNA3D_AddDisposeEffect")
 	add_dispose_effect :: proc(device: ^Device, effect: ^Effect) ---;
+
+	@(link_name = "FNA3D_SetEffectTechnique")
+	set_effect_technique :: proc(device: ^Device, effect: ^Effect, technique: ^Mojoshader_Effect_Technique) ---;
 
 	@(link_name = "FNA3D_ApplyEffect")
 	apply_effect :: proc(device: ^Device, effect: ^Effect, technique: ^Mojoshader_Effect_Technique, pass: u32, state_changes: ^Mojoshader_Effect_State_Changes) ---;
@@ -237,12 +240,6 @@ foreign fna_lib {
 	@(link_name = "FNA3D_SetStringMarker")
 	set_string_marker :: proc(device: ^Device, text: cstring) ---;
 
-	@(link_name = "FNA3D_GetBufferSize")
-	get_buffer_size :: proc(device: ^Device, buffer: ^Buffer) -> i32 ---;
-
-	@(link_name = "FNA3D_GetEffectData")
-	get_effect_data :: proc(device: ^Device, effect: ^Effect) -> ^Mojoshader_Effect ---;
-
 	// include/FNA3D_Image
 	@(link_name = "FNA3D_Image_Load")
 	image_load :: proc(read_func: proc "c" (rawptr, ^byte, i32) -> i32, skip_func: proc "c" (rawptr, i32), eof_func: proc "c" (rawptr) -> i32, ctx: rawptr, w: ^i32, h: ^i32, len: ^i32, force_w: i32, force_h: i32, zoom: u8) -> ^u8 ---;
@@ -255,4 +252,5 @@ foreign fna_lib {
 
 	@(link_name = "FNA3D_Image_SaveJPG")
 	image_save_jpg :: proc(write_func: proc(rawptr, rawptr, i32), ctx: rawptr, src_w: i32, src_h: i32, dst_w: i32, dst_h: i32, data: ^u8, quality: i32) ---;
+
 }

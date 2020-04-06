@@ -8,7 +8,8 @@ import "shared:engine/libs/fna"
 
 
 Shader :: struct {
-	using effect: ^fna.Effect
+	using effect: ^fna.Effect,
+	mojo_effect: ^fna.Mojoshader_Effect
 }
 
 new_shader :: proc(file: string) -> ^Shader {
@@ -17,7 +18,15 @@ new_shader :: proc(file: string) -> ^Shader {
 	if !success do panic("could not open effect file");
 
 	shader := new(Shader);
-	shader.effect = fna.create_effect(fna_device, &data[0], cast(u32)len(data));
+	fna.create_effect(fna_device, &data[0], cast(u32)len(data), &shader.effect, &shader.mojo_effect);
+
+	if shader.mojo_effect.error_count > 0 {
+		errors := mem.slice_ptr(shader.mojo_effect.errors, cast(int)shader.mojo_effect.error_count);
+		fmt.eprint("new_shader errors: ", errors);
+	}
+
+	techniques := mem.slice_ptr(shader.mojo_effect.techniques, cast(int)shader.mojo_effect.technique_count);
+	fna.set_effect_technique(fna_device, shader, &techniques[0]);
 
 	params := mem.slice_ptr(shader.mojo_effect.params, cast(int)shader.mojo_effect.param_count);
 	for param in params {
@@ -30,6 +39,10 @@ new_shader :: proc(file: string) -> ^Shader {
 free_shader :: proc(shader: ^Shader) {
 	fna.add_dispose_effect(fna_device, shader);
 	free(shader);
+}
+
+shader_set_current_technique :: proc(shader: ^Shader) {
+	panic("Not implemented");
 }
 
 shader_apply :: proc(shader: ^Shader) {

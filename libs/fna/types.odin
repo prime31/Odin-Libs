@@ -218,10 +218,7 @@ Buffer :: struct {}
 
 Renderbuffer :: struct {}
 
-Effect :: struct {
-	mojo_effect: ^Mojoshader_Effect,
-	gl_effect: rawptr
-}
+Effect :: struct {}
 
 Query :: struct {}
 
@@ -343,15 +340,12 @@ Presentation_Parameters :: struct {
 
 Render_Target_Binding :: struct {
 	type: u8,
-	format: Surface_Format,
 	level_count: i32,
 	texture: ^Texture,
 	width: i32,
 	height: i32,
-	render_target_usage: Render_Target_Usage,
-	color_buffer: ^Renderbuffer,
-	depth_stencil_format: Depth_Format,
 	multi_sample_count: i32,
+	color_buffer: ^Renderbuffer,
 	cube_map_face: Cube_Map_Face
 }
 

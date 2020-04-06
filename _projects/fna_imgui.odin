@@ -18,10 +18,12 @@ Vertex :: struct {
 
 device: ^fna.Device;
 effect: ^fna.Effect;
+mojo_effect: ^fna.Mojoshader_Effect;
 vert_decl: fna.Vertex_Declaration;
 texture: ^fna.Texture;
 
 main :: proc() {
+	sdl.set_hint("FNA3D_FORCE_DRIVER", "OpenGL");
 	window := create_window();
 
 	params := fna.Presentation_Parameters{
@@ -73,7 +75,7 @@ main :: proc() {
 
 		// fmt.println("using technique: ", effect.mojo_effect.current_technique.name);
 		state_changes := fna.Mojoshader_Effect_State_Changes{};
-		fna.apply_effect(device, effect, effect.mojo_effect.current_technique, 0, &state_changes);
+		fna.apply_effect(device, effect, mojo_effect.current_technique, 0, &state_changes);
 
 		// vertices := [?]Vertex{
 		// 	{{+0.5, +0.5}, {1.0, 1.0}, 0xFF0099FF}, // ABGR
@@ -136,11 +138,13 @@ prepper :: proc() {
 	};
 
 	// load an effect
-	data, success := os.read_entire_file("effects/VertexColorTexture.fxb");
+	// TODO: rendering needs to use new shader code with TransformMatrix
+	// data, success := os.read_entire_file("assets/VertexColorTexture.fxb");
+	data, success := os.read_entire_file("assets/Noise.fxb");
 	defer if success { delete(data); }
 
-	effect = fna.create_effect(device, &data[0], cast(u32)len(data));
-	// fmt.println("effect:", effect, "mojo_effect:", effect.mojo_effect);
+	fna.create_effect(device, &data[0], cast(u32)len(data), &effect, &mojo_effect);
+	//fmt.println("effect:", effect, "mojo_effect:", mojo_effect);
 
 	// params := mem.slice_ptr(effect.mojo_effect.params, cast(int)effect.mojo_effect.param_count);
 	// for param in params {

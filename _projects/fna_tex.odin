@@ -17,11 +17,13 @@ Vertex :: struct {
 device: ^fna.Device;
 vbuff: ^fna.Buffer;
 effect: ^fna.Effect;
+mojo_effect: ^fna.Mojoshader_Effect;
 vert_decl: fna.Vertex_Declaration;
 texture: ^fna.Texture;
 
 
 main :: proc() {
+	sdl.set_hint("FNA3D_FORCE_DRIVER", "OpenGL");
 	window := create_window();
 
 	params := fna.Presentation_Parameters{
@@ -61,7 +63,7 @@ main :: proc() {
 
 		// fmt.println("using technique: ", effect.mojo_effect.current_technique.name);
 		state_changes := fna.Mojoshader_Effect_State_Changes{};
-		fna.apply_effect(device, effect, effect.mojo_effect.current_technique, 0, &state_changes);
+		fna.apply_effect(device, effect, mojo_effect.current_technique, 0, &state_changes);
 		// fmt.println("state_changes:", state_changes);
 
 		// here is where Effect.cs
@@ -120,10 +122,11 @@ prepper :: proc() {
 	data, success := os.read_entire_file("assets/Noise.fxb");
 	defer if success { delete(data); }
 
-	effect = fna.create_effect(device, &data[0], cast(u32)len(data));
+	fna.create_effect(device, &data[0], cast(u32)len(data), &effect, &mojo_effect);
+	// effect = fna.create_effect(device, &data[0], cast(u32)len(data));
 	// fmt.println("effect:", effect, "mojo_effect:", effect.mojo_effect);
 
-	params := mem.slice_ptr(effect.mojo_effect.params, cast(int)effect.mojo_effect.param_count);
+	params := mem.slice_ptr(mojo_effect.params, cast(int)mojo_effect.param_count);
 	for param in params {
 		fmt.println("param", param);
 	}
@@ -160,7 +163,7 @@ create_texture :: proc() {
 }
 
 load_texture :: proc() {
-	file, err := os.open("assets/font_atlas.png");
+	file, err := os.open("assets/angular.png");
 	if err != 0 do fmt.panicf("thanatos");
 	fmt.println("file handle", file);
 

@@ -138,7 +138,7 @@ Uniform_Type :: enum i32 {
 
 Sampler_Type :: enum i32 {
 	Unknown = -1,
-	_2_D = 0,
+	_2D = 0,
 	Cube = 1,
 	Volume = 2
 }
