@@ -47,7 +47,7 @@ shader_set_current_technique :: proc(shader: ^Shader) {
 
 shader_apply :: proc(shader: ^Shader) {
 	state_changes := fna.Mojoshader_Effect_State_Changes{};
-	fna.apply_effect(fna_device, shader, shader.mojo_effect.current_technique, 0, &state_changes);
+	fna.apply_effect(fna_device, shader, 0, &state_changes);
 }
 
 

@@ -193,7 +193,7 @@ foreign fna_lib {
 	set_effect_technique :: proc(device: ^Device, effect: ^Effect, technique: ^Mojoshader_Effect_Technique) ---;
 
 	@(link_name = "FNA3D_ApplyEffect")
-	apply_effect :: proc(device: ^Device, effect: ^Effect, technique: ^Mojoshader_Effect_Technique, pass: u32, state_changes: ^Mojoshader_Effect_State_Changes) ---;
+	apply_effect :: proc(device: ^Device, effect: ^Effect, pass: u32, state_changes: ^Mojoshader_Effect_State_Changes) ---;
 
 	@(link_name = "FNA3D_BeginPassRestore")
 	begin_pass_restore :: proc(device: ^Device, effect: ^Effect, state_changes: ^Mojoshader_Effect_State_Changes) ---;
