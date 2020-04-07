@@ -5,25 +5,21 @@ import "core:fmt"
 import "core:mem"
 import "core:math"
 import "core:math/linalg"
+import "shared:engine/gfx"
+import "shared:engine/maf"
 import "shared:engine/libs/sdl"
 import "shared:engine/libs/stb_image"
 import "shared:engine/libs/fna"
 import "shared:engine/libs/imgui"
 
-Vertex :: struct {
-	pos: [2]f32,
-	uv: [2]f32,
-	col: u32
-};
 
 device: ^fna.Device;
 effect: ^fna.Effect;
 mojo_effect: ^fna.Mojoshader_Effect;
 vert_decl: fna.Vertex_Declaration;
-texture: ^fna.Texture;
 
 main :: proc() {
-	sdl.set_hint("FNA3D_FORCE_DRIVER", "OpenGL");
+	// sdl.set_hint("FNA3D_FORCE_DRIVER", "OpenGL");
 	window := create_window();
 
 	params := fna.Presentation_Parameters{
@@ -39,6 +35,7 @@ main :: proc() {
 		render_target_usage = fna.Render_Target_Usage.Discard_Contents
 	};
 	device = fna.create_device(&params, 0);
+	gfx.fna_device = device;
 	fna.set_presentation_interval(device, .One);
 
 	// alpha blend
@@ -49,8 +46,23 @@ main :: proc() {
 	};
 	fna.set_blend_state(device, &blend);
 
+	rasterizer_state := fna.Rasterizer_State{
+		fill_mode = .Solid,
+		cull_mode = .None,
+		scissor_test_enable = 1
+	};
+	fna.apply_rasterizer_state(device, &rasterizer_state);
+
+	depth_stencil := fna.Depth_Stencil_State{
+		depth_buffer_enable = 0,
+		stencil_enable = 0
+	};
+	fna.set_depth_stencil_state(device, &depth_stencil);
+
+	vp := fna.Viewport{0, 0, 640, 480, -1, 1};
+	fna.set_viewport(device, &vp);
+
 	prepper();
-	create_texture();
 	prepare_imgui();
 
 	color := fna.Vec4 {1, 0, 0, 1};
@@ -67,27 +79,12 @@ main :: proc() {
 		g := color.y + 0.01;
 		color.y = g > 1.0 ? 0.0 : g;
 
-		vp := fna.Viewport{0, 0, 640, 480, -1, 1};
-		fna.set_viewport(device, &vp);
-
 		fna.begin_frame(device);
 		fna.clear(device, fna.Clear_Options.Target, &color, 0, 0);
 
 		// fmt.println("using technique: ", effect.mojo_effect.current_technique.name);
-		state_changes := fna.Mojoshader_Effect_State_Changes{};
-		fna.apply_effect(device, effect, mojo_effect.current_technique, 0, &state_changes);
-
-		// vertices := [?]Vertex{
-		// 	{{+0.5, +0.5}, {1.0, 1.0}, 0xFF0099FF}, // ABGR
-		// 	{{+0.5, -0.5}, {1.0, 0.0}, 0xFFFFFFFF},
-		// 	{{-0.5, -0.5}, {0.0, 0.0}, 0xFFFFFFFF},
-		// 	{{-0.5, -0.5}, {0.0, 0.0}, 0xFFFFFFFF},
-		// 	{{-0.5, +0.5}, {0.0, 1.0}, 0xFFFFFFFF},
-		// 	{{+0.5, +0.5}, {1.0, 1.0}, 0xFF0099FF},
-		// };
-
-		// fna.apply_vertex_declaration(device, &vert_decl, &vertices, 0);
-		// fna.draw_primitives(device, .Triangle_List, 0, 2);
+		// state_changes := fna.Mojoshader_Effect_State_Changes{};
+		// fna.apply_effect(device, effect, 0, &state_changes);
 
 
 		width, height : i32;
@@ -109,47 +106,12 @@ main :: proc() {
 }
 
 prepper :: proc() {
-	vert_elements := make([]fna.Vertex_Element, 3);
-	vert_elements[0] = fna.Vertex_Element{
-		offset = 0,
-		vertex_element_format = .Vector2,
-		vertex_element_usage = .Position,
-		usage_index = 0
-	};
+	vert_decl = gfx.vertex_decl_for_type(gfx.Vert_Pos_Tex_Col);
 
-	vert_elements[1] = fna.Vertex_Element{
-		offset = 8,
-		vertex_element_format = .Vector2,
-		vertex_element_usage = .Texture_Coordinate,
-		usage_index = 0
-	};
-
-	vert_elements[2] = fna.Vertex_Element{
-		offset = 16,
-		vertex_element_format = .Color,
-		vertex_element_usage = .Color,
-		usage_index = 0
-	};
-
-	vert_decl = fna.Vertex_Declaration{
-		vertex_stride = get_vertex_stride(vert_elements),
-		element_count = 3,
-		elements = &vert_elements[0]
-	};
-
-	// load an effect
-	// TODO: rendering needs to use new shader code with TransformMatrix
-	// data, success := os.read_entire_file("assets/VertexColorTexture.fxb");
-	data, success := os.read_entire_file("assets/Noise.fxb");
-	defer if success { delete(data); }
-
-	fna.create_effect(device, &data[0], cast(u32)len(data), &effect, &mojo_effect);
-	//fmt.println("effect:", effect, "mojo_effect:", mojo_effect);
-
-	// params := mem.slice_ptr(effect.mojo_effect.params, cast(int)effect.mojo_effect.param_count);
-	// for param in params {
-	// 	fmt.println("param", param);
-	// }
+	shader := gfx.new_shader("effects/VertexColorTexture.fxb");
+	transform := maf.mat32_ortho(640, 480);
+	gfx.shader_set_mat32(shader, "TransformMatrix", &transform);
+	gfx.shader_apply(shader);
 }
 
 get_vertex_stride :: proc(elements: []fna.Vertex_Element) -> i32 {
@@ -171,28 +133,6 @@ get_type_size :: proc(type: fna.Vertex_Element_Format) -> i32 {
 	return -1;
 }
 
-create_texture :: proc() {
-	pixels := [?]u32 {0xFFFFFFFF, 0x00000000, 0xFFFFFFFF, 0x00000000,
-		0x00000000, 0xFFFFFFFF, 0x00000000, 0xFFFFFFFF,
-		0xFFFFFFFF, 0x00000000, 0xFFFFFFFF, 0x00000000,
-		0x00000000, 0xFFFFFFFF, 0x00000000, 0xFFFFFFFF};
-
-	texture = fna.create_texture_2d(device, .Color, 4, 4, 1, 0);
-	fna.set_texture_data_2d(device, texture, .Color, 0, 0, 4, 4, 0, &pixels, size_of(pixels));
-
-	sampler_state := fna.Sampler_State{
-		address_u = .Wrap,
-		address_v = .Wrap,
-		address_w = .Wrap,
-		filter = .Point,
-		max_anisotropy = 4,
-		max_mip_level = 0,
-		mip_map_level_of_detail_bias = 0
-	};
-
-	fna.verify_sampler(device, 0, texture, &sampler_state);
-}
-
 create_window :: proc() -> ^sdl.Window {
 	sdl.init(sdl.Init_Flags.Everything);
 
@@ -206,7 +146,6 @@ create_window :: proc() -> ^sdl.Window {
 
 imgui_tex: ^fna.Texture;
 imgui_vert_decl: fna.Vertex_Declaration;
-imgui_rasterizer_state: fna.Rasterizer_State;
 imgui_vert_buffer_size: i32;
 imgui_vert_buffer: ^fna.Buffer;
 imgui_index_buffer_size: i32;
@@ -221,69 +160,49 @@ imgui_render :: proc() {
 	imgui.draw_data_scale_clip_rects(draw_data, io.display_framebuffer_scale);
 	imgui_update_buffers(draw_data);
 
-    width  := i32(draw_data.display_size.x * io.display_framebuffer_scale.x);
-    height := i32(draw_data.display_size.y * io.display_framebuffer_scale.y);
+	width  := i32(draw_data.display_size.x * io.display_framebuffer_scale.x);
+	height := i32(draw_data.display_size.y * io.display_framebuffer_scale.y);
 
-    imgui_vert_buffer_binding := fna.Vertex_Buffer_Binding{imgui_vert_buffer, imgui_vert_decl, 0, 0};
 	bindings_updated: u8 = 1;
-
-	L : f32 = draw_data.display_pos.x;
-	R : f32 = draw_data.display_pos.x + draw_data.display_size.x;
-	T : f32 = draw_data.display_pos.y;
-	B : f32 = draw_data.display_pos.y + draw_data.display_size.y;
-	ortho_projection := linalg.Matrix4{
-		{ 2.0/(R-L),   0.0,          0.0, 0.0 },
-		{ 0.0,         2.0 / (T-B),  0.0, 0.0 },
-		{ 0.0,         0.0,         -1.0, 0.0 },
-		{ (R+L)/(L-R), (T+B)/(B-T),  0.0, 1.0 },
-	};
+	imgui_vert_buffer_binding = fna.Vertex_Buffer_Binding{imgui_vert_buffer, imgui_vert_decl, 0, 0};
 
 
 	new_list := mem.slice_ptr(draw_data.cmd_lists, int(draw_data.cmd_lists_count));
 	for list in new_list {
-		// translate on CPU for now
-		tmp_verts := mem.slice_ptr(list.vtx_buffer.data, cast(int)list.vtx_buffer.size);
-		for i in 0..<len(tmp_verts) {
-			temp_vec4 := linalg.Vector4{tmp_verts[i].pos.x, tmp_verts[i].pos.y, 0, 1};
-			temp_vec4 = linalg.matrix_mul_vector(ortho_projection, temp_vec4);
-			tmp_verts[i].pos.x = temp_vec4.x;
-			tmp_verts[i].pos.y = temp_vec4.y;
-		}
-
 		fna.set_vertex_buffer_data(device, imgui_vert_buffer, 0, list.vtx_buffer.data, list.vtx_buffer.size * size_of(imgui.DrawVert), .None);
 		fna.set_index_buffer_data(device, imgui_index_buffer, 0, list.idx_buffer.data, list.idx_buffer.size * size_of(imgui.DrawIdx), .None);
 
 		pos := draw_data.display_pos;
-        cmds := mem.slice_ptr(list.cmd_buffer.data, int(list.cmd_buffer.size));
-        for cmd, idx in cmds {
-            if cmd.user_callback != nil {
-            	// the magic reset call back is cmd.user_callback: ImDrawCallback_ResetRenderState which is -1
-            	if cast(uintptr)cast(rawptr)cmd.user_callback == ~uintptr(0) {
-            		fmt.panicf("imgui panic. reset state detected");
-            	} else {
-            		cmd.user_callback(list, &cmds[idx]);
-            	}
-            } else {
-                clip := imgui.Vec4{
-                    cmd.clip_rect.x - pos.x,
-                    cmd.clip_rect.y - pos.y,
-                    cmd.clip_rect.z - pos.x,
-                    cmd.clip_rect.w - pos.y
-                };
+		cmds := mem.slice_ptr(list.cmd_buffer.data, int(list.cmd_buffer.size));
+		for cmd, idx in cmds {
+			if cmd.user_callback != nil {
+				// the magic reset call back is cmd.user_callback: ImDrawCallback_ResetRenderState which is -1
+				if cast(uintptr)cast(rawptr)cmd.user_callback == ~uintptr(0) {
+					fmt.panicf("imgui panic. reset state detected");
+				} else {
+					cmd.user_callback(list, &cmds[idx]);
+				}
+			} else {
+				clip := imgui.Vec4{
+					cmd.clip_rect.x - pos.x,
+					cmd.clip_rect.y - pos.y,
+					cmd.clip_rect.z - pos.x,
+					cmd.clip_rect.w - pos.y
+				};
 
-                if clip.x < f32(width) && clip.y < f32(height) && clip.z >= 0 && clip.w >= 0 {
-                	clip_rect := fna.Rect{i32(clip.x), height - i32(clip.w), i32(clip.z - clip.x), i32(clip.w - clip.y)};
-                	fna.set_scissor_rect(device, &clip_rect);
+				if clip.x < f32(width) && clip.y < f32(height) && clip.z >= 0 && clip.w >= 0 {
+					clip_rect := fna.Rect{i32(clip.x), height - i32(clip.w), i32(clip.z - clip.x), i32(clip.w - clip.y)};
+					fna.set_scissor_rect(device, &clip_rect);
 
-                	sampler_state := fna.Sampler_State{};
-                	fna.verify_sampler(device, 0, cast(^fna.Texture)cmd.texture_id, &sampler_state);
+					sampler_state := fna.Sampler_State{};
+					fna.verify_sampler(device, 0, cast(^fna.Texture)cmd.texture_id, &sampler_state);
 
-                	fna.apply_vertex_buffer_bindings(device, &imgui_vert_buffer_binding, 1, bindings_updated, cast(i32)cmd.vtx_offset);
-                	fna.draw_indexed_primitives(device, .Triangle_List, cast(i32)cmd.vtx_offset, 0, list.vtx_buffer.size, cast(i32)cmd.idx_offset, cast(i32)cmd.elem_count / 3, imgui_index_buffer, ._16_Bit);
-                	bindings_updated = 0;
-                }
-            }
-        } // for cmd, idx in cmds
+					fna.apply_vertex_buffer_bindings(device, &imgui_vert_buffer_binding, 1, bindings_updated, cast(i32)cmd.vtx_offset);
+					fna.draw_indexed_primitives(device, .Triangle_List, cast(i32)cmd.vtx_offset, 0, list.vtx_buffer.size, cast(i32)cmd.idx_offset, cast(i32)cmd.elem_count / 3, imgui_index_buffer, ._16_Bit);
+					bindings_updated = 0;
+				}
+			}
+		} // for cmd, idx in cmds
 	} // for list in new_list
 }
 
@@ -305,7 +224,7 @@ imgui_update_buffers :: proc(draw_data: ^imgui.DrawData) {
 }
 
 prepare_imgui :: proc() {
-	imgui_setup_vertex_declaration();
+	imgui_vert_decl = gfx.vertex_decl_for_type(gfx.Vert_Pos_Tex_Col);
 
 	imgui.create_context();
 	io := imgui.get_io();
@@ -328,39 +247,3 @@ prepare_imgui :: proc() {
 	imgui.font_atlas_clear_tex_data(io.fonts);
 }
 
-imgui_setup_vertex_declaration :: proc() {
-	imgui_rasterizer_state = fna.Rasterizer_State{
-		fill_mode = .Solid,
-		cull_mode = .None,
-		scissor_test_enable = 1
-	};
-
-	vert_elements := make([]fna.Vertex_Element, 3);
-	vert_elements[0] = fna.Vertex_Element{
-		offset = 0,
-		vertex_element_format = .Vector2,
-		vertex_element_usage = .Position,
-		usage_index = 0
-	};
-
-	vert_elements[1] = fna.Vertex_Element{
-		offset = 8,
-		vertex_element_format = .Vector2,
-		vertex_element_usage = .Texture_Coordinate,
-		usage_index = 0
-	};
-
-	vert_elements[2] = fna.Vertex_Element{
-		offset = 16,
-		vertex_element_format = .Color,
-		vertex_element_usage = .Color,
-		usage_index = 0
-	};
-
-
-	imgui_vert_decl = fna.Vertex_Declaration{
-		vertex_stride = get_vertex_stride(vert_elements),
-		element_count = 3,
-		elements = &vert_elements[0]
-	};
-}

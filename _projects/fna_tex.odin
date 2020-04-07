@@ -15,11 +15,11 @@ Vertex :: struct {
 };
 
 device: ^fna.Device;
-vbuff: ^fna.Buffer;
 effect: ^fna.Effect;
 mojo_effect: ^fna.Mojoshader_Effect;
 vert_decl: fna.Vertex_Declaration;
 texture: ^fna.Texture;
+vert_buff_binding: fna.Vertex_Buffer_Binding;
 
 
 main :: proc() {
@@ -41,6 +41,33 @@ main :: proc() {
 	device = fna.create_device(&params, 0);
 	fna.set_presentation_interval(device, .One);
 
+	// rasterizer_state := fna.Rasterizer_State{
+	// 	fill_mode = .Solid,
+	// 	cull_mode = .None,
+	// 	scissor_test_enable = 0
+	// };
+	// fna.apply_rasterizer_state(device, &rasterizer_state);
+
+	blend := fna.Blend_State{
+		.Source_Alpha, .Inverse_Source_Alpha, .Add,
+		.Source_Alpha, .Inverse_Source_Alpha, .Add,
+		.All, .All, .All, .All, fna.Color{255, 255, 255, 255}, -1
+	};
+	fna.set_blend_state(device, &blend);
+
+	// depth_stencil := fna.Depth_Stencil_State{
+	// 	depth_buffer_enable = 0,
+	// 	stencil_enable = 0
+	// };
+	// fna.set_depth_stencil_state(device, &depth_stencil);
+
+	vp := fna.Viewport{0, 0, 640, 480, -1, 1};
+	fna.set_viewport(device, &vp);
+
+	// scissor := fna.Rect{0, 0, 640, 480};
+	// fna.set_scissor_rect(device, &scissor);
+
+
 	prepper();
 	// create_texture();
 	load_texture();
@@ -61,23 +88,7 @@ main :: proc() {
 		fna.begin_frame(device);
 		fna.clear(device, fna.Clear_Options.Target, &color, 0, 0);
 
-		// fmt.println("using technique: ", effect.mojo_effect.current_technique.name);
-		state_changes := fna.Mojoshader_Effect_State_Changes{};
-		fna.apply_effect(device, effect, 0, &state_changes);
-		// fmt.println("state_changes:", state_changes);
-
-		// here is where Effect.cs
-
-		vertices := [?]Vertex{
-			{{+0.5, +0.5, +0.5}, 0xFF0099FF, {1.0, 1.0}}, // ABGR
-			{{+0.5, -0.5, +0.5}, 0xFFFFFFFF, {1.0, 0.0}},
-			{{-0.5, -0.5, +0.5}, 0xFFFFFFFF, {0.0, 0.0}},
-			{{-0.5, -0.5, +0.5}, 0xFFFFFFFF, {0.0, 0.0}},
-			{{-0.5, +0.5, +0.5}, 0xFFFFFFFF, {0.0, 1.0}},
-			{{+0.5, +0.5, +0.5}, 0xFF0099FF, {1.0, 1.0}},
-		};
-
-		fna.apply_vertex_declaration(device, &vert_decl, &vertices, 0);
+		fna.apply_vertex_buffer_bindings(device, &vert_buff_binding, 1, 0, 0);
 		fna.draw_primitives(device, .Triangle_List, 0, 2);
 
 		fna.swap_buffers(device, nil, nil, params.device_window_handle);
@@ -85,8 +96,6 @@ main :: proc() {
 }
 
 prepper :: proc() {
-	vertices := [?]Vertex{};
-
 	vert_elements := make([]fna.Vertex_Element, 3);
 	vert_elements[0] = fna.Vertex_Element{
 		offset = 0,
@@ -115,8 +124,24 @@ prepper :: proc() {
 		elements = &vert_elements[0]
 	};
 
-	vbuff = fna.gen_vertex_buffer(device, 0, .Write_Only, len(vertices), 0);
-	fna.set_vertex_buffer_data(device, vbuff, 0, &vertices, len(vertices), .None);
+
+
+	vertices := [?]Vertex{
+		{{+0.5, +0.5, +0.5}, 0xFF0099FF, {1.0, 1.0}}, // ABGR
+		{{+0.5, -0.5, +0.5}, 0xFFFFFFFF, {1.0, 0.0}},
+		{{-0.5, -0.5, +0.5}, 0xFFFFFFFF, {0.0, 0.0}},
+		{{-0.5, -0.5, +0.5}, 0xFFFFFFFF, {0.0, 0.0}},
+		{{-0.5, +0.5, +0.5}, 0xFFFFFFFF, {0.0, 1.0}},
+		{{+0.5, +0.5, +0.5}, 0xFF0099FF, {1.0, 1.0}},
+	};
+
+	fmt.println(len(vertices), size_of(vertices));
+	vbuff := fna.gen_vertex_buffer(device, 0, .Write_Only, len(vertices), 20);
+	fna.set_vertex_buffer_data(device, vbuff, 0, &vertices[0], size_of(vertices), .None);
+
+	// bindings
+	vert_buff_binding = fna.Vertex_Buffer_Binding{vbuff, vert_decl, 0, 0};
+
 
 	// load an effect
 	data, success := os.read_entire_file("assets/Noise.fxb");
@@ -126,7 +151,17 @@ prepper :: proc() {
 	// fmt.println("effect:", effect, "mojo_effect:", mojo_effect);
 
 	params := mem.slice_ptr(mojo_effect.params, cast(int)mojo_effect.param_count);
-	params[1].effect_value.value.float^ = 0;
+	if len(params) > 0 do params[1].effect_value.value.float^ = 0;
+
+	state_changes := fna.Mojoshader_Effect_State_Changes{};
+	fna.apply_effect(device, effect, 0, &state_changes);
+
+	if state_changes.render_state_change_count > 0 {
+		changes := mem.slice_ptr(state_changes.render_state_changes, cast(int)state_changes.render_state_change_count);
+		fmt.println(changes);
+	}
+
+	fmt.println(state_changes);
 }
 
 create_texture :: proc() {
@@ -230,6 +265,7 @@ get_type_size :: proc(type: fna.Vertex_Element_Format) -> i32 {
 	}
 	return -1;
 }
+
 
 create_window :: proc() -> ^sdl.Window {
 	sdl.init(sdl.Init_Flags.Everything);
