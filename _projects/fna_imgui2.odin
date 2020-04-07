@@ -12,6 +12,7 @@ effect: ^fna.Effect;
 vert_decl: fna.Vertex_Declaration;
 
 main :: proc() {
+	sdl.set_hint("FNA3D_FORCE_DRIVER", "OpenGL");
 	window := create_window();
 
 	params := fna.Presentation_Parameters{
@@ -61,6 +62,10 @@ main :: proc() {
 		fna.clear(device, fna.Clear_Options.Target, &color, 0, 0);
 
 		imgui.impl_new_frame2(window);
+		imgui.im_text("whatever");
+		imgui.bullet();
+		imgui.im_text("whatever");
+		imgui.bullet();
 		imgui.im_text("whatever");
 		imgui.render();
 		imgui.impl_render2();
