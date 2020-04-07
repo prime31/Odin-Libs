@@ -21,7 +21,8 @@ shader: ^gfx.Shader;
 
 main :: proc() {
 	sdl.set_hint("FNA3D_FORCE_DRIVER", "OpenGL");
-	window := create_window();
+	sdl.init(sdl.Init_Flags.Everything);
+	window := sdl.create_window("Odin + FNA + SDL + OpenGL", i32(sdl.Window_Pos.Undefined), i32(sdl.Window_Pos.Undefined), 640, 480, cast(sdl.Window_Flags)fna.prepare_window_attributes());
 
 	params := fna.Presentation_Parameters{
 		back_buffer_width = 640,
@@ -65,6 +66,7 @@ main :: proc() {
 
 	prepper();
 	prepare_imgui();
+	imgui.ImGui_ImplSDL2_InitForOpenGL(window, sdl.gl_get_current_context());
 
 	color := fna.Vec4 {1, 0, 0, 1};
 	running := true;
@@ -83,19 +85,18 @@ main :: proc() {
 		fna.begin_frame(device);
 		fna.clear(device, fna.Clear_Options.Target, &color, 0, 0);
 
-		// fmt.println("using technique: ", effect.mojo_effect.current_technique.name);
-		// state_changes := fna.Mojoshader_Effect_State_Changes{};
-		// fna.apply_effect(device, effect, 0, &state_changes);
 
 
-		width, height : i32;
-		fna.get_drawable_size(params.device_window_handle, &width, &height);
-		io := imgui.get_io();
-		io.display_size = imgui.Vec2{cast(f32)width, cast(f32)height};
+		// width, height : i32;
+		// fna.get_drawable_size(params.device_window_handle, &width, &height);
+		// io := imgui.get_io();
+		// io.display_size = imgui.Vec2{cast(f32)width, cast(f32)height};
 
+		imgui.ImGui_ImplSDL2_NewFrame(window);
 		imgui.new_frame();
 		imgui.im_text("whatever");
 		imgui.bullet();
+		if imgui.button("Im a Button") do fmt.println("-------------- buttton");
 		imgui.im_text("whatever");
 		imgui.bullet();
 		imgui.im_text("whatever");
@@ -109,9 +110,9 @@ main :: proc() {
 prepper :: proc() {
 	vert_decl = gfx.vertex_decl_for_type(gfx.Vert_Pos_Tex_Col);
 
-	shader = gfx.new_shader("effects/VertexColorTexture.fxb");
-	transform := maf.mat3_ortho(640, 480);
-	gfx.shader_set_mat3(shader, "TransformMatrix", &transform);
+	shader = gfx.new_shader("assets/VertexColorTexture.fxb");
+	transform := maf.mat4_ortho(640, 480);
+	gfx.shader_set_mat4(shader, "TransformMatrix", &transform);
 	gfx.shader_apply(shader);
 }
 
@@ -132,15 +133,6 @@ get_type_size :: proc(type: fna.Vertex_Element_Format) -> i32 {
 		case fna.Vertex_Element_Format.Vector4: return 16;
 	}
 	return -1;
-}
-
-create_window :: proc() -> ^sdl.Window {
-	sdl.init(sdl.Init_Flags.Everything);
-
-	window_attrs := fna.prepare_window_attributes();
-	window := sdl.create_window("Odin + FNA + SDL + OpenGL", i32(sdl.Window_Pos.Undefined), i32(sdl.Window_Pos.Undefined), 640, 480, cast(sdl.Window_Flags)window_attrs);
-
-	return window;
 }
 
 
@@ -184,15 +176,14 @@ imgui_render :: proc() {
 					cmd.user_callback(list, &cmds[idx]);
 				}
 			} else {
-				clip := imgui.Vec4{
-					cmd.clip_rect.x - pos.x,
-					cmd.clip_rect.y - pos.y,
-					cmd.clip_rect.z - pos.x,
-					cmd.clip_rect.w - pos.y
+				clip_rect := fna.Rect{
+					cast(i32)cmd.clip_rect.x,
+					cast(i32)cmd.clip_rect.y,
+					cast(i32)(cmd.clip_rect.z - cmd.clip_rect.x),
+					cast(i32)(cmd.clip_rect.w - cmd.clip_rect.y)
 				};
 
-				if clip.x < f32(width) && clip.y < f32(height) && clip.z >= 0 && clip.w >= 0 {
-					clip_rect := fna.Rect{i32(clip.x), height - i32(clip.w), i32(clip.z - clip.x), i32(clip.w - clip.y)};
+				if clip_rect.x < width && clip_rect.y < height && clip_rect.h >= 0 && clip_rect.w >= 0 {
 					fna.set_scissor_rect(device, &clip_rect);
 
 					sampler_state := fna.Sampler_State{};
@@ -245,6 +236,6 @@ prepare_imgui :: proc() {
 	// stb_image.write_png("/Users/mikedesaro/Desktop/font_atlas.png", int(width), int(height), 4, mem.slice_ptr(pixels, int(width * height)), 0);
 
 	imgui.font_atlas_set_text_id(io.fonts, imgui_tex);
-	imgui.font_atlas_clear_tex_data(io.fonts);
+	// imgui.font_atlas_clear_tex_data(io.fonts); // ImGui_ImplSDL2_NewFrame doesnt like if we wipe the data
 }
 
