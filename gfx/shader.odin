@@ -200,11 +200,11 @@ shader_set_mat4 :: proc(shader: ^Shader, name: string, value: ^maf.Mat4) {
 			dst[0] = value[0][0];
 			dst[1] = value[1][0];
 			dst[2] = value[2][0];
-			dst[2] = value[3][0];
+			dst[3] = value[3][0];
 			dst[4] = value[0][1];
 			dst[5] = value[1][1];
 			dst[6] = value[2][1];
-			dst[2] = value[3][1];
+			dst[7] = value[3][1];
 			dst[8] = value[0][2];
 			dst[9] = value[1][2];
 			dst[10] = value[2][2];

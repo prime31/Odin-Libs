@@ -17,9 +17,10 @@ device: ^fna.Device;
 effect: ^fna.Effect;
 mojo_effect: ^fna.Mojoshader_Effect;
 vert_decl: fna.Vertex_Declaration;
+shader: ^gfx.Shader;
 
 main :: proc() {
-	// sdl.set_hint("FNA3D_FORCE_DRIVER", "OpenGL");
+	sdl.set_hint("FNA3D_FORCE_DRIVER", "OpenGL");
 	window := create_window();
 
 	params := fna.Presentation_Parameters{
@@ -108,9 +109,9 @@ main :: proc() {
 prepper :: proc() {
 	vert_decl = gfx.vertex_decl_for_type(gfx.Vert_Pos_Tex_Col);
 
-	shader := gfx.new_shader("effects/VertexColorTexture.fxb");
-	transform := maf.mat32_ortho(640, 480);
-	gfx.shader_set_mat32(shader, "TransformMatrix", &transform);
+	shader = gfx.new_shader("effects/VertexColorTexture.fxb");
+	transform := maf.mat3_ortho(640, 480);
+	gfx.shader_set_mat3(shader, "TransformMatrix", &transform);
 	gfx.shader_apply(shader);
 }
 

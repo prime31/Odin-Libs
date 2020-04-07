@@ -18,7 +18,6 @@ mat32_ortho :: proc(width, height: f32) -> Mat32 {
 	result := Mat32{};
     result[0][0] = 2 / width;
     result[1][1] = -2 / height;
-
     return result;
 }
 
