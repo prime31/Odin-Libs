@@ -12,7 +12,7 @@ float rand(float2 co)
 
 void MainVS(inout float4 position: SV_Position, inout float4 color: COLOR0, inout float2 texCoord: TEXCOORD0)
 {
-	position = float4(mul(position.xy, TransformMatrix), 0, 1);
+	position = float4(mul(float3(position.xy, 1), TransformMatrix), 0, 1);
 }
 
 float4 PixelShaderFunction(float2 coords:TEXCOORD0, in float2 screenPos:VPOS) : COLOR0

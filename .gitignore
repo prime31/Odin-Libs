@@ -21,3 +21,4 @@ _projects/*.lib
 _projects/*.obj
 _projects/*.dll
 *.fxb
+*.trace

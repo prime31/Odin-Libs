@@ -20,7 +20,7 @@ vert_decl: fna.Vertex_Declaration;
 shader: ^gfx.Shader;
 
 main :: proc() {
-	sdl.set_hint("FNA3D_FORCE_DRIVER", "OpenGL");
+	// sdl.set_hint("FNA3D_FORCE_DRIVER", "OpenGL");
 	sdl.init(sdl.Init_Flags.Everything);
 	window := sdl.create_window("Odin + FNA + SDL + OpenGL", i32(sdl.Window_Pos.Undefined), i32(sdl.Window_Pos.Undefined), 640, 480, cast(sdl.Window_Flags)fna.prepare_window_attributes());
 
@@ -64,6 +64,7 @@ main :: proc() {
 	vp := fna.Viewport{0, 0, 640, 480, -1, 1};
 	fna.set_viewport(device, &vp);
 
+	quad_prepper();
 	prepper();
 	prepare_imgui();
 	imgui.ImGui_ImplSDL2_InitForOpenGL(window, sdl.gl_get_current_context());
@@ -87,10 +88,10 @@ main :: proc() {
 
 
 
-		// width, height : i32;
-		// fna.get_drawable_size(params.device_window_handle, &width, &height);
-		// io := imgui.get_io();
-		// io.display_size = imgui.Vec2{cast(f32)width, cast(f32)height};
+		width, height : i32;
+		fna.get_drawable_size(params.device_window_handle, &width, &height);
+		io := imgui.get_io();
+		io.display_size = imgui.Vec2{cast(f32)width, cast(f32)height};
 
 		imgui.ImGui_ImplSDL2_NewFrame(window);
 		imgui.new_frame();
@@ -100,6 +101,12 @@ main :: proc() {
 		imgui.im_text("whatever");
 		imgui.bullet();
 		imgui.im_text("whatever");
+
+
+		clip_rect := fna.Rect{0, 0, 640, 480};
+		fna.set_scissor_rect(device, &clip_rect);
+		draw_quad();
+
 		imgui.render();
 		imgui_render();
 
@@ -111,28 +118,9 @@ prepper :: proc() {
 	vert_decl = gfx.vertex_decl_for_type(gfx.Vert_Pos_Tex_Col);
 
 	shader = gfx.new_shader("assets/VertexColorTexture.fxb");
-	transform := maf.mat4_ortho(640, 480);
-	gfx.shader_set_mat4(shader, "TransformMatrix", &transform);
+	transform := maf.mat32_ortho(640, 480);
+	gfx.shader_set_mat32(shader, "TransformMatrix", &transform);
 	gfx.shader_apply(shader);
-}
-
-get_vertex_stride :: proc(elements: []fna.Vertex_Element) -> i32 {
-	max:i32 = 0;
-	for ele in elements {
-		start := ele.offset + get_type_size(ele.vertex_element_format);
-		if max < start do max = start;
-	}
-	return max;
-}
-
-get_type_size :: proc(type: fna.Vertex_Element_Format) -> i32 {
-	#partial switch type {
-		case fna.Vertex_Element_Format.Color: return 4;
-		case fna.Vertex_Element_Format.Vector2: return 8;
-		case fna.Vertex_Element_Format.Vector3: return 12;
-		case fna.Vertex_Element_Format.Vector4: return 16;
-	}
-	return -1;
 }
 
 
@@ -239,3 +227,73 @@ prepare_imgui :: proc() {
 	// imgui.font_atlas_clear_tex_data(io.fonts); // ImGui_ImplSDL2_NewFrame doesnt like if we wipe the data
 }
 
+
+
+
+
+ibuff: ^fna.Buffer;
+texture: ^fna.Texture;
+quad_shader: ^gfx.Shader;
+vert_buff_binding: fna.Vertex_Buffer_Binding;
+
+draw_quad :: proc() {
+	sampler_state := fna.Sampler_State{
+		address_u = .Wrap,
+		address_v = .Wrap,
+		address_w = .Wrap,
+		filter = .Point,
+		max_anisotropy = 4
+	};
+	fna.verify_sampler(device, 0, texture, &sampler_state);
+	gfx.shader_apply(quad_shader);
+
+	fna.apply_vertex_buffer_bindings(device, &vert_buff_binding, 1, 0, 0);
+	fna.draw_indexed_primitives(device, .Triangle_List, 0, 0, 4, 0, 2, ibuff, ._16_Bit);
+
+	gfx.shader_apply(shader);
+}
+
+quad_prepper :: proc() {
+	create_texture();
+	vert_decl := gfx.vertex_decl_for_type(gfx.Vert_Pos_Tex_Col);
+
+	// buffers
+	vertices := [?]gfx.Vert_Pos_Tex_Col{
+		{{220, 	20}, {1.0, 0.0}, 0xFF0099FF},
+		{{20, 	20}, {0.0, 0.0}, 0xFFFFFFFF},
+		{{20, 	220}, {0.0, 1.0}, 0xFFFFFFFF},
+		{{220, 	220}, {1.0, 1.0}, 0xFFFF99FF}
+	};
+
+	vbuff := gfx.new_vert_buffer_from_type(gfx.Vert_Pos_Tex_Col, len(vertices));
+	gfx.set_vertex_buffer_data(vbuff, &vertices);
+
+	indices := [?]i16{0, 1, 2, 2, 3, 0};
+	ibuff = gfx.new_index_buffer(len(indices));
+	gfx.set_index_buffer_data(ibuff, &indices);
+
+	// // bindings
+	vert_buff_binding = fna.Vertex_Buffer_Binding{vbuff, vert_decl, 0, 0};
+
+	// load an effect
+	quad_shader = gfx.new_shader("effects/VertexColorTexture.fxb");
+	transform := maf.mat32_ortho(640, 480);
+	gfx.shader_set_mat32(quad_shader, "TransformMatrix", &transform);
+}
+
+create_texture :: proc() {
+	pixels := [?]u32 {0xFFFFFFFF, 0xFF000000, 0xFFFFFFFF, 0xFF000000,
+		0xFF000000, 0xFFFFFFFF, 0xFF000000, 0xFFFFFFFF,
+		0xFFFFFFFF, 0xFF000000, 0xFFFFFFFF, 0xFF000000,
+		0xFF000000, 0xFFFFFFFF, 0xFF000000, 0xFFFFFFFF};
+
+	texture = fna.create_texture_2d(device, .Color, 4, 4, 1, 0);
+	fna.set_texture_data_2d(device, texture, .Color, 0, 0, 4, 4, 0, &pixels, size_of(pixels));
+
+	sampler_state := fna.Sampler_State{
+		filter = .Point,
+		max_anisotropy = 4
+	};
+
+	fna.verify_sampler(device, 0, texture, &sampler_state);
+}
