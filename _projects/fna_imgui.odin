@@ -215,8 +215,8 @@ prepare_imgui :: proc() {
 
 	imgui.create_context();
 	io := imgui.get_io();
-	io.config_flags |= .DockingEnable;
-	io.config_flags |= .ViewportsEnable;
+	// io.config_flags |= .DockingEnable;
+	// io.config_flags |= .ViewportsEnable;
 
 	imgui.style_colors_dark(imgui.get_style());
 

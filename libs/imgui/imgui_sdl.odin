@@ -51,8 +51,8 @@ init :: proc(window: ^sdl.Window) {
     mouse_cursors[Mouse_Cursor.Hand] = sdl.create_system_cursor(sdl.System_Cursor.Hand);
     mouse_cursors[Mouse_Cursor.NotAllowed] = sdl.create_system_cursor(sdl.System_Cursor.No);
 
-    main_viewport := get_main_viewport();
-    main_viewport.platform_handle = window;
+    // main_viewport := get_main_viewport();
+    // main_viewport.platform_handle = window;
 
     // TODO: ImGui_ImplSDL2_UpdateMonitors
 }

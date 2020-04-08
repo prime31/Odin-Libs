@@ -8,6 +8,7 @@ IMGUI := $(CIMGUI)/imgui
 
 # might as well use docking branch since its stable now
 IMGUI_BRANCH := --single-branch --branch docking_last
+IMGUI_BRANCH =
 
 LIBS :=
 
