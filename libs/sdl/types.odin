@@ -145,7 +145,11 @@ Keymod :: enum i32 {
 	Num = 0x1000,
 	Caps = 0x2000,
 	Mode = 0x4000,
-	Reserved = 0x8000
+	Reserved = 0x8000,
+	Shift = LShift | RShift,
+	Alt = LAlt | RAlt,
+	Ctrl = LCtrl | RCtrl,
+	Gui = LGui | RGui
 }
 
 Renderer_Flip :: enum i32 {

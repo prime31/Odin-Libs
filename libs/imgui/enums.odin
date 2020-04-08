@@ -160,7 +160,7 @@ Key :: enum i32 {
     Space,
     Enter,
     Escape,
-    KeyPadEscape,
+    KeyPadEnter,
     A,
     C,
     V,
@@ -212,9 +212,14 @@ Config_Flags :: enum i32 {
 }
 
 Backend_Flags :: enum i32 {
-    HasGamepad      = 1 << 0,
-    HasMouseCursors = 1 << 1,
-    HasSetMousePos  = 1 << 2
+    None                    = 0,
+    HasGamepad              = 1 << 0,
+    HasMouseCursors         = 1 << 1,
+    HasSetMousePos          = 1 << 2,
+    RendererHasVtxOffset    = 1 << 3,
+    PlatformHasViewports    = 1 << 10,
+    HasMouseHoveredViewport = 1 << 11,
+    RendererHasViewports    = 1 << 12
 }
 
 Style_Color :: enum i32 {
@@ -327,7 +332,8 @@ Mouse_Cursor :: enum i32 {
     ResizeNESW,
     ResizeNWSE,
     Hand,
-    COUNT,
+    NotAllowed,
+    COUNT
 }
 
 Set_Cond :: enum i32 {

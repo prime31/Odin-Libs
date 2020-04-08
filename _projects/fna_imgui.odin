@@ -19,6 +19,8 @@ mojo_effect: ^fna.Mojoshader_Effect;
 vert_decl: fna.Vertex_Declaration;
 shader: ^gfx.Shader;
 
+t:f32 = 0;
+
 main :: proc() {
 	// sdl.set_hint("FNA3D_FORCE_DRIVER", "OpenGL");
 	sdl.init(sdl.Init_Flags.Everything);
@@ -67,14 +69,17 @@ main :: proc() {
 	quad_prepper();
 	prepper();
 	prepare_imgui();
-	imgui.ImGui_ImplSDL2_InitForOpenGL(window, sdl.gl_get_current_context());
+	imgui.init();
+
+	// currently works when both of the ImGui_ImplSDL2_* methods are uncommented
+	//imgui.ImGui_ImplSDL2_InitForOpenGL(window, sdl.gl_get_current_context());
 
 	color := fna.Vec4 {1, 0, 0, 1};
 	running := true;
 	for running {
 		e: sdl.Event;
 		for sdl.poll_event(&e) != 0 {
-			if imgui.impl_handle_event(&e) do continue;
+			if imgui.handle_event(&e) do continue;
 			if e.type == sdl.Event_Type.Quit {
 				running = false;
 			}
@@ -90,12 +95,14 @@ main :: proc() {
 
 		width, height : i32;
 		fna.get_drawable_size(params.device_window_handle, &width, &height);
-		io := imgui.get_io();
-		io.display_size = imgui.Vec2{cast(f32)width, cast(f32)height};
+		imgui.sdl_new_frame(cast(^sdl.Window)params.device_window_handle, width, height);
+		// imgui.ImGui_ImplSDL2_NewFrame(window);
 
-		imgui.ImGui_ImplSDL2_NewFrame(window);
 		imgui.new_frame();
 		imgui.im_text("whatever");
+
+		imgui.drag_float("Thing", &t);
+
 		imgui.bullet();
 		if imgui.button("Im a Button") do fmt.println("-------------- buttton");
 		imgui.im_text("whatever");
