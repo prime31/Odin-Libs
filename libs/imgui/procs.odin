@@ -681,6 +681,26 @@ foreign cimgui {
     @(link_name = "igUpdatePlatformWindows") update_platform_windows :: proc() ---;
     @(link_name = "igRenderPlatformWindowsDefault") render_platform_windows_default :: proc(platform_arg: rawptr = nil, renderer_arg: rawptr = nil) ---;
     @(link_name = "igGetMainViewport") get_main_viewport :: proc() -> ^Viewport ---;
+    @(link_name = "igGetWindowViewport") get_window_viewport :: proc() -> ^Viewport ---;
+    @(link_name = "igSetNextWindowViewport") set_next_window_viewport :: proc(viewport_id: u32) ---;
+    @(link_name = "igDockSpaceOverViewport") dock_space_over_viewport :: proc(viewport: ^Viewport, flags: i32, window_class: ^Window_Class) -> u32 ---;
+    @(link_name = "igGetBackgroundDrawListViewportPtr") get_background_draw_list_viewport_ptr :: proc(viewport: ^Viewport) -> ^DrawList ---;
+    @(link_name = "igGetForegroundDrawListViewportPtr") get_foreground_draw_list_viewport_ptr :: proc(viewport: ^Viewport) -> ^DrawList ---;
+    @(link_name = "igFindViewportByID") find_viewport_by_i_d :: proc(id: u32) -> ^Viewport ---;
+    @(link_name = "igFindViewportByPlatformHandle") find_viewport_by_platform_handle :: proc(platform_handle: rawptr) -> ^Viewport ---;
+    @(link_name = "ImGuiViewport_ImGuiViewport") viewport_viewport :: proc() -> ^Viewport ---;
+    @(link_name = "ImGuiViewport_destroy") viewport_destroy :: proc(self: ^Viewport) ---;
+    @(link_name = "ImGuiViewport_GetWorkPos") viewport_getworkpos :: proc(p_out: ^Vec2, self: ^Viewport) ---;
+    @(link_name = "ImGuiViewport_GetWorkSize") viewport_getworksize :: proc(p_out: ^Vec2, self: ^Viewport) ---;
+    @(link_name = "ImGuiViewportP_ImGuiViewportP") viewportp_viewportp :: proc() -> ^Viewport_P ---;
+    @(link_name = "ImGuiViewportP_destroy") viewportp_destroy :: proc(self: ^Viewport_P) ---;
+    @(link_name = "ImGuiViewportP_GetMainRect") viewportp_getmainrect :: proc(p_out: ^Rect, self: ^Viewport_P) ---;
+    @(link_name = "ImGuiViewportP_GetWorkRect") viewportp_getworkrect :: proc(p_out: ^Rect, self: ^Viewport_P) ---;
+    @(link_name = "ImGuiViewportP_ClearRequestFlags") viewportp_clearrequestflags :: proc(self: ^Viewport_P) ---;
+    @(link_name = "igTranslateWindowsInViewport")   translate_windows_in_viewport :: proc(viewport: ^Viewport_P, old_pos: Vec2, new_pos: Vec2) ---;
+    @(link_name = "igScaleWindowsInViewport") scale_windows_in_viewport :: proc(viewport: ^Viewport_P, scale: f32) ---;
+    @(link_name = "igDestroyPlatformWindow") destroy_platform_window :: proc(viewport: ^Viewport_P) ---;
+    @(link_name = "igShowViewportThumbnails") show_viewport_thumbnails :: proc() ---;
 
 // Helpers functions to access functions pointers in ImGui::GetIO()
     @(link_name = "igMemAlloc")          mem_alloc             :: proc(sz : uint) -> rawptr ---;

@@ -16,6 +16,16 @@ DrawListSharedData :: struct {}
 
 ///////////////////////////
 // Actual structs
+Nav_Layer :: enum i32 {
+	Main = 0,
+	Menu = 1,
+	Count = 2
+}
+
+Vec1 :: struct {
+	x: f32
+}
+
 Vec2 :: struct {
 	x : f32,
 	y : f32,
@@ -26,6 +36,32 @@ Vec4 :: struct {
 	y : f32,
 	z : f32,
 	w : f32,
+}
+
+Rect :: struct {
+	min: Vec2,
+	max: Vec2
+}
+
+Menu_Columns :: struct {
+	spacing: f32,
+	width: f32,
+	next_width: f32,
+	pos: [3]f32,
+	next_widths: [3]f32
+}
+
+Axis :: enum i32 {
+	None = -1,
+	X = 0,
+	Y = 1
+}
+
+Dock_Node_State :: enum i32 {
+	Unknown,
+	Host_Window_Hidden_Because_Single_Window,
+	Host_Window_Hidden_Because_Windows_Are_Resizing,
+	Host_Window_Visible
 }
 
 Style :: struct {
@@ -165,25 +201,6 @@ IO :: struct {
 	nav_inputs_down_duration_prev    : [Nav_Input.COUNT]f32,
 	input_queue_characters           : ImVector(Wchar)
 }
-
-Viewport :: struct {
-	id: ID,
-	flags: i32, // ImGuiViewportFlags
-	pos: Vec2,
-	size: Vec2,
-	work_offset_min: Vec2,
-	work_offset_max: Vec2,
-	dpi_scale: f32,
-	draw_data: ^DrawData,
-	parent_viewport_id: ID,
-	renderer_user_data: rawptr,
-	platform_user_data: rawptr,
-	platform_handle: rawptr,
-	platform_handle_raw: rawptr,
-	platform_request_move: bool,
-	platform_request_resize: bool,
-	platform_request_close: bool
-};
 
 ImVector :: struct(T : typeid) {
 	size     : i32,
@@ -387,8 +404,8 @@ CustomRect :: struct {
 }
 
 TextRange :: struct {
-	b : cstring,
-	e : cstring,
+	b: cstring,
+	e: cstring,
 }
 
 Pair :: struct {
@@ -403,3 +420,348 @@ Pair :: struct {
 Text_Edit_Callback       :: proc "c" (data : ^InputTextCallbackData) -> i32;
 Size_Constraint_Callback :: proc "c" (data : ^SizeCallbackData);
 Draw_Callback            :: proc "c" (parent_list : ^DrawList, cmd : ^DrawCmd);
+
+
+// Docking/Viewports
+Draw_Data_Builder :: struct {
+	layers: [2]ImVector(DrawList)
+}
+
+Viewport_P :: struct {
+	_imguiviewport: Viewport,
+	idx: i32,
+	last_frame_active: i32,
+	last_frame_draw_lists: [2]i32,
+	last_front_most_stamp_count: i32,
+	last_name_hash: u32,
+	last_pos: Vec2,
+	alpha: f32,
+	last_alpha: f32,
+	platform_monitor: i16,
+	platform_window_created: bool,
+	window: ^Window,
+	draw_lists: [2]^DrawList,
+	draw_data_p: DrawData,
+	draw_data_builder: Draw_Data_Builder,
+	last_platform_pos: Vec2,
+	last_platform_size: Vec2,
+	last_renderer_size: Vec2,
+	curr_work_offset_min: Vec2,
+	curr_work_offset_max: Vec2
+}
+
+Viewport :: struct {
+	id: ID,
+	flags: i32, // ImGuiViewportFlags
+	pos: Vec2,
+	size: Vec2,
+	work_offset_min: Vec2,
+	work_offset_max: Vec2,
+	dpi_scale: f32,
+	draw_data: ^DrawData,
+	parent_viewport_id: ID,
+	renderer_user_data: rawptr,
+	platform_user_data: rawptr,
+	platform_handle: rawptr,
+	platform_handle_raw: rawptr,
+	platform_request_move: bool,
+	platform_request_resize: bool,
+	platform_request_close: bool
+}
+
+Item_Flags :: enum i32 {
+	None = 0,
+	No_Tab_Stop = 1,
+	Button_Repeat = 2,
+	Disabled = 4,
+	No_Nav = 8,
+	No_Nav_Default_Focus = 16,
+	Selectable_Dont_Close_Popup = 32,
+	Mixed_Value = 64,
+	Default = 0
+}
+
+Group_Data :: struct {
+	backup_cursor_pos: Vec2,
+	backup_cursor_max_pos: Vec2,
+	backup_indent: Vec1,
+	backup_group_offset: Vec1,
+	backup_curr_line_size: Vec2,
+	backup_curr_line_text_base_offset: f32,
+	backup_active_id_is_alive: u32,
+	backup_active_id_previous_frame_is_alive: bool,
+	emit_item: bool
+}
+
+Vec2_Ih :: struct {
+	x: i16,
+	y: i16
+}
+
+Window :: struct {
+	name: cstring,
+	id: ID,
+	flags: i32,
+	flags_previous_frame: i32,
+	window_class: Window_Class,
+	viewport: ^Viewport_P,
+	viewport_id: u32,
+	viewport_pos: Vec2,
+	viewport_allow_platform_monitor_extend: i32,
+	pos: Vec2,
+	size: Vec2,
+	size_full: Vec2,
+	content_size: Vec2,
+	content_size_explicit: Vec2,
+	window_padding: Vec2,
+	window_rounding: f32,
+	window_border_size: f32,
+	name_buf_len: i32,
+	move_id: u32,
+	child_id: u32,
+	scroll: Vec2,
+	scroll_max: Vec2,
+	scroll_target: Vec2,
+	scroll_target_center_ratio: Vec2,
+	scrollbar_sizes: Vec2,
+	scrollbar_x: bool,
+	scrollbar_y: bool,
+	viewport_owned: bool,
+	active: bool,
+	was_active: bool,
+	write_accessed: bool,
+	collapsed: bool,
+	want_collapse_toggle: bool,
+	skip_items: bool,
+	appearing: bool,
+	hidden: bool,
+	is_fallback_window: bool,
+	has_close_button: bool,
+	resize_border_held: byte,
+	begin_count: i16,
+	begin_order_within_parent: i16,
+	begin_order_within_context: i16,
+	popup_id: u32,
+	auto_fit_frames_x: byte,
+	auto_fit_frames_y: byte,
+	auto_fit_child_axises: byte,
+	auto_fit_only_grows: bool,
+	auto_pos_last_direction: i32,
+	hidden_frames_can_skip_items: i32,
+	hidden_frames_cannot_skip_items: i32,
+	set_window_pos_allow_flags: i32,
+	set_window_size_allow_flags: i32,
+	set_window_collapsed_allow_flags: i32,
+	set_window_dock_allow_flags: i32,
+	set_window_pos_val: Vec2,
+	set_window_pos_pivot: Vec2,
+	id_stack: ImVector(ID),
+	dc: Window_Temp_Data,
+	outer_rect_clipped: Rect,
+	inner_rect: Rect,
+	inner_clip_rect: Rect,
+	work_rect: Rect,
+	clip_rect: Rect,
+	content_region_rect: Rect,
+	hit_test_hole_size: Vec2_Ih,
+	hit_test_hole_offset: Vec2_Ih,
+	last_frame_active: i32,
+	last_frame_just_focused: i32,
+	last_time_active: f32,
+	item_width_default: f32,
+	state_storage: Storage,
+	columns_storage: ImVector(Columns),
+	font_window_scale: f32,
+	font_dpi_scale: f32,
+	settings_offset: i32,
+	draw_list: ^DrawList,
+	draw_list_inst: DrawList,
+	parent_window: ^Window,
+	root_window: ^Window,
+	root_window_dock_stop: ^Window,
+	root_window_for_title_bar_highlight: ^Window,
+	root_window_for_nav: ^Window,
+	nav_last_child_nav_window: ^Window,
+	nav_last_ids: [2]u32,
+	nav_rect_rel: [2]Rect,
+	memory_compacted: bool,
+	memory_draw_list_idx_capacity: i32,
+	memory_draw_list_vtx_capacity: i32,
+	dock_node: ^Dock_Node,
+	dock_node_as_host: ^Dock_Node,
+	dock_id: u32,
+	dock_tab_item_status_flags: i32,
+	dock_tab_item_rect: Rect,
+	dock_order: i16,
+	dock_is_active: bool,
+	dock_tab_is_visible: bool,
+	dock_tab_want_close: bool
+}
+
+Window_Temp_Data :: struct {
+	cursor_pos: Vec2,
+	cursor_pos_prev_line: Vec2,
+	cursor_start_pos: Vec2,
+	cursor_max_pos: Vec2,
+	curr_line_size: Vec2,
+	prev_line_size: Vec2,
+	curr_line_text_base_offset: f32,
+	prev_line_text_base_offset: f32,
+	indent: Vec1,
+	columns_offset: Vec1,
+	group_offset: Vec1,
+	last_item_id: u32,
+	last_item_status_flags: i32,
+	last_item_rect: Rect,
+	last_item_display_rect: Rect,
+	nav_layer_current: Nav_Layer,
+	nav_layer_current_mask: i32,
+	nav_layer_active_mask: i32,
+	nav_layer_active_mask_next: i32,
+	nav_focus_scope_id_current: u32,
+	nav_hide_highlight_one_frame: bool,
+	nav_has_scroll: bool,
+	menu_bar_appending: bool,
+	menu_bar_offset: Vec2,
+	menu_columns: Menu_Columns,
+	tree_depth: i32,
+	tree_jump_to_parent_on_pop_mask: u32,
+	child_windows: ImVector(Window),
+	state_storage: ^Storage,
+	current_columns: ^Columns,
+	layout_type: i32,
+	parent_layout_type: i32,
+	focus_counter_regular: i32,
+	focus_counter_tab_stop: i32,
+	item_flags: i32,
+	item_width: f32,
+	text_wrap_pos: f32,
+	item_flags_stack: ImVector(Item_Flags),
+	item_width_stack: ImVector(f32),
+	text_wrap_pos_stack: ImVector(f32),
+	group_stack: ImVector(Group_Data),
+	stack_sizes_backup: [6]i16
+}
+
+Columns :: struct {
+	id: ID,
+	flags: i32,
+	is_first_frame: bool,
+	is_being_resized: bool,
+	current: i32,
+	count: i32,
+	off_min_x: f32,
+	off_max_x: f32,
+	line_min_y: f32,
+	line_max_y: f32,
+	host_cursor_pos_y: f32,
+	host_cursor_max_pos_x: f32,
+	host_clip_rect: Rect,
+	host_work_rect: Rect,
+	columns: ImVector(Column_Data),
+	// splitter         : DrawListSplitter, // below fields are from this struct
+	_channels_current : i32,
+	_channels_count   : i32,
+	_channels         : ImVector(DrawChannel), // <ImDrawChannel>
+}
+
+Column_Data :: struct {
+	offset_norm: f32,
+	offset_norm_before_resize: f32,
+	flags: i32,
+	clip_rect: Rect
+}
+
+Window_Class :: struct {
+	class_id: u32,
+	parent_viewport_id: u32,
+	viewport_flags_override_set: i32,
+	viewport_flags_override_clear: i32,
+	dock_node_flags_override_set: i32,
+	dock_node_flags_override_clear: i32,
+	docking_always_tab_bar: bool,
+	docking_allow_unclassed: bool
+}
+
+Dock_Node :: struct {
+	id: ID,
+	shared_flags: i32,
+	local_flags: i32,
+	parent_node: ^Dock_Node,
+	child_nodes: [2]^Dock_Node,
+	windows: ImVector(Window),
+	tab_bar: ^Tab_Bar,
+	pos: Vec2,
+	size: Vec2,
+	size_ref: Vec2,
+	split_axis: Axis,
+	window_class: Window_Class,
+	state: Dock_Node_State,
+	host_window: ^Window,
+	visible_window: ^Window,
+	central_node: ^Dock_Node,
+	only_node_with_windows: ^Dock_Node,
+	last_frame_alive: i32,
+	last_frame_active: i32,
+	last_frame_focused: i32,
+	last_focused_node_id: u32,
+	selected_tab_id: u32,
+	want_close_tab_id: u32,
+	authority_for_pos: i32,
+	authority_for_size: i32,
+	authority_for_viewport: i32,
+	is_visible: bool,
+	is_focused: bool,
+	has_close_button: bool,
+	has_window_menu_button: bool,
+	enable_close_button: bool,
+	want_close_all: bool,
+	want_lock_size_once: bool,
+	want_mouse_move: bool,
+	want_hidden_tab_bar_update: bool,
+	want_hidden_tab_bar_toggle: bool,
+	marked_for_pos_size_write: bool
+}
+
+Tab_Bar :: struct {
+	tabs: ImVector(Tab_Item),
+	id: ID,
+	selected_tab_id: u32,
+	next_selected_tab_id: u32,
+	visible_tab_id: u32,
+	curr_frame_visible: i32,
+	prev_frame_visible: i32,
+	bar_rect: Rect,
+	last_tab_content_height: f32,
+	offset_max: f32,
+	offset_max_ideal: f32,
+	offset_next_tab: f32,
+	scrolling_anim: f32,
+	scrolling_target: f32,
+	scrolling_target_dist_to_visibility: f32,
+	scrolling_speed: f32,
+	flags: i32,
+	reorder_request_tab_id: u32,
+	reorder_request_dir: byte,
+	want_layout: bool,
+	visible_tab_was_submitted: bool,
+	last_tab_item_idx: i16,
+	frame_padding: Vec2,
+	tabs_names: Text_Buffer
+}
+
+Text_Buffer :: struct {
+	buf: ImVector(cstring)
+}
+
+Tab_Item :: struct {
+	id: ID,
+	flags: i32,
+	window: ^Window,
+	last_frame_visible: i32,
+	last_frame_selected: i32,
+	name_offset: i32,
+	offset: f32,
+	width: f32,
+	content_width: f32
+}

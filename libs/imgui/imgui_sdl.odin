@@ -5,7 +5,7 @@ import "core:math"
 import "shared:engine/libs/sdl"
 
 @(private)
-mouse_cursors: [Mouse_Cursor.COUNT]^sdl.Cursor;
+mouse_cursors: [Mouse_Cursor.Count]^sdl.Cursor;
 
 @(private)
 mouse_button_state: [3]bool;
@@ -43,14 +43,14 @@ init :: proc(window: ^sdl.Window) {
     // TODO: wire up clipboard get/set methods
 
     mouse_cursors[Mouse_Cursor.Arrow] = sdl.create_system_cursor(sdl.System_Cursor.Arrow);
-    mouse_cursors[Mouse_Cursor.TextInput] = sdl.create_system_cursor(sdl.System_Cursor.IBeam);
-    mouse_cursors[Mouse_Cursor.ResizeAll] = sdl.create_system_cursor(sdl.System_Cursor.Size_All);
-    mouse_cursors[Mouse_Cursor.ResizeNS] = sdl.create_system_cursor(sdl.System_Cursor.Size_NS);
-    mouse_cursors[Mouse_Cursor.ResizeEW] = sdl.create_system_cursor(sdl.System_Cursor.Size_WE);
-    mouse_cursors[Mouse_Cursor.ResizeNESW] = sdl.create_system_cursor(sdl.System_Cursor.Size_NESW);
-    mouse_cursors[Mouse_Cursor.ResizeNWSE] = sdl.create_system_cursor(sdl.System_Cursor.Size_NWSE);
+    mouse_cursors[Mouse_Cursor.Text_Input] = sdl.create_system_cursor(sdl.System_Cursor.IBeam);
+    mouse_cursors[Mouse_Cursor.Resize_All] = sdl.create_system_cursor(sdl.System_Cursor.Size_All);
+    mouse_cursors[Mouse_Cursor.Resize_Ns] = sdl.create_system_cursor(sdl.System_Cursor.Size_NS);
+    mouse_cursors[Mouse_Cursor.Resize_Ew] = sdl.create_system_cursor(sdl.System_Cursor.Size_WE);
+    mouse_cursors[Mouse_Cursor.Resize_Nesw] = sdl.create_system_cursor(sdl.System_Cursor.Size_NESW);
+    mouse_cursors[Mouse_Cursor.Resize_Nwse] = sdl.create_system_cursor(sdl.System_Cursor.Size_NWSE);
     mouse_cursors[Mouse_Cursor.Hand] = sdl.create_system_cursor(sdl.System_Cursor.Hand);
-    mouse_cursors[Mouse_Cursor.NotAllowed] = sdl.create_system_cursor(sdl.System_Cursor.No);
+    mouse_cursors[Mouse_Cursor.Not_Allowed] = sdl.create_system_cursor(sdl.System_Cursor.No);
 
     main_viewport := get_main_viewport();
     main_viewport.platform_handle = window;
