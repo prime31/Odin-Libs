@@ -22,7 +22,7 @@ shader: ^gfx.Shader;
 t:f32 = 0;
 
 main :: proc() {
-	// sdl.set_hint("FNA3D_FORCE_DRIVER", "OpenGL");
+	sdl.set_hint("FNA3D_FORCE_DRIVER", "OpenGL");
 	sdl.init(sdl.Init_Flags.Everything);
 	window := sdl.create_window("Odin + FNA + SDL + OpenGL", i32(sdl.Window_Pos.Undefined), i32(sdl.Window_Pos.Undefined), 640, 480, cast(sdl.Window_Flags)fna.prepare_window_attributes());
 
@@ -69,10 +69,9 @@ main :: proc() {
 	quad_prepper();
 	prepper();
 	prepare_imgui();
-	imgui.init(cast(^sdl.Window)params.device_window_handle);
 
-	// currently works when both of the ImGui_ImplSDL2_* methods are uncommented
-	//imgui.ImGui_ImplSDL2_InitForOpenGL(window, sdl.gl_get_current_context());
+	io := imgui.get_io();
+	imgui.init(cast(^sdl.Window)params.device_window_handle);
 
 	color := fna.Vec4 {1, 0, 0, 1};
 	running := true;
@@ -95,8 +94,7 @@ main :: proc() {
 
 		width, height : i32;
 		fna.get_drawable_size(params.device_window_handle, &width, &height);
-		// imgui.sdl_new_frame(cast(^sdl.Window)params.device_window_handle, width, height);
-		imgui.ImGui_ImplSDL2_NewFrame(window);
+		imgui.sdl_new_frame(cast(^sdl.Window)params.device_window_handle, width, height);
 
 		imgui.new_frame();
 		imgui.im_text("whatever");
@@ -215,8 +213,8 @@ prepare_imgui :: proc() {
 
 	imgui.create_context();
 	io := imgui.get_io();
-	// io.config_flags |= .DockingEnable;
-	// io.config_flags |= .ViewportsEnable;
+	io.config_flags |= .DockingEnable;
+	io.config_flags |= .ViewportsEnable;
 
 	imgui.style_colors_dark(imgui.get_style());
 
@@ -231,7 +229,7 @@ prepare_imgui :: proc() {
 	// stb_image.write_png("/Users/mikedesaro/Desktop/font_atlas.png", int(width), int(height), 4, mem.slice_ptr(pixels, int(width * height)), 0);
 
 	imgui.font_atlas_set_text_id(io.fonts, imgui_tex);
-	// imgui.font_atlas_clear_tex_data(io.fonts); // ImGui_ImplSDL2_NewFrame doesnt like if we wipe the data
+	imgui.font_atlas_clear_tex_data(io.fonts);
 }
 
 

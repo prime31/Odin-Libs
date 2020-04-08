@@ -15,6 +15,7 @@ init :: proc(window: ^sdl.Window) {
 	io := get_io();
 	io.backend_flags |= .HasMouseCursors;
 	io.backend_flags |= .PlatformHasViewports;
+	//io.backend_flags |= .PlatformHasViewports;
 
     io.key_map[Key.Tab] = cast(i32)sdl.Scancode.Tab;
     io.key_map[Key.LeftArrow] = cast(i32)sdl.Scancode.Left;
@@ -51,10 +52,15 @@ init :: proc(window: ^sdl.Window) {
     mouse_cursors[Mouse_Cursor.Hand] = sdl.create_system_cursor(sdl.System_Cursor.Hand);
     mouse_cursors[Mouse_Cursor.NotAllowed] = sdl.create_system_cursor(sdl.System_Cursor.No);
 
-    // main_viewport := get_main_viewport();
-    // main_viewport.platform_handle = window;
+    main_viewport := get_main_viewport();
+    main_viewport.platform_handle = window;
 
     // TODO: ImGui_ImplSDL2_UpdateMonitors
+
+    // TODO: ImGui_ImplSDL2_InitPlatformInterface
+    if int(io.config_flags & .ViewportsEnable) != 0 && int(io.backend_flags & .PlatformHasViewports) != 0 {
+    	fmt.println("------- viewports requested but not yet implemented");
+    }
 }
 
 sdl_new_frame :: proc(window: ^sdl.Window, drawable_width: i32, drawable_height: i32) {
@@ -105,12 +111,12 @@ sdl_new_frame :: proc(window: ^sdl.Window, drawable_width: i32, drawable_height:
 
 	if int(io.config_flags & .ViewportsEnable) != 0 {
 		// TODO: viewports
+		fmt.println("---- viewports not implemented");
 	} else {
 		if sdl.get_window_flags(window) | cast(u32)sdl.Window_Flags.Input_Focus != 0 {
 			window_x, window_y: i32;
 			sdl.get_window_position(window, &window_x, &window_y);
 			io.mouse_pos = Vec2{f32(mouse_x_global - window_x), f32(mouse_y_global - window_y)};
-			fmt.println(io.mouse_pos);
 		}
 	}
 
@@ -119,14 +125,15 @@ sdl_new_frame :: proc(window: ^sdl.Window, drawable_width: i32, drawable_height:
 	if int(io.config_flags & .NoMouseCursorChange) == 0 {
 		imgui_cursor := get_mouse_cursor();
 		if io.mouse_draw_cursor || imgui_cursor == .None {
-			// fmt.println("io.mouse_draw_cursor", io.mouse_draw_cursor, "imgui_cursor", imgui_cursor);
-			//sdl.show_cursor(0);
+			sdl.show_cursor(0);
 		} else {
-			// fmt.println("mouse_cursors[imgui_cursor]", mouse_cursors[imgui_cursor]);
 			sdl.set_cursor(mouse_cursors[imgui_cursor]);
 			sdl.show_cursor(1);
 		}
 	}
+
+
+	// TODO: ImGui_ImplSDL2_UpdateGamepads
 }
 
 // returns true if the event is handled by imgui and should be ignored

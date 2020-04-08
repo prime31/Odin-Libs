@@ -222,6 +222,14 @@ Backend_Flags :: enum i32 {
     RendererHasViewports    = 1 << 12
 }
 
+Key_Mod_Flags :: enum i32 {
+    None = 0,
+    Ctrl = 1 << 0,
+    Shift = 1 << 1,
+    Alt = 1 << 2,
+    Super = 1 << 3
+}
+
 Style_Color :: enum i32 {
     Text,
     TextDisabled,
