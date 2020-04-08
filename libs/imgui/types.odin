@@ -135,6 +135,25 @@ IO :: struct {
     nav_inputs_down_duration_prev    : [Nav_Input.COUNT]f32,
 }
 
+Viewport :: struct {
+    id: ID,
+    flags: i32, // ImGuiViewportFlags
+    pos: Vec2,
+    size: Vec2,
+    work_offset_min: Vec2,
+    work_offset_max: Vec2,
+    dpi_scale: f32,
+    draw_data: ^DrawData,
+    parent_viewport_id: ID,
+    renderer_user_data: rawptr,
+    platform_user_data: rawptr,
+    platform_handle: rawptr,
+    platform_handle_raw: rawptr,
+    platform_request_move: bool,
+    platform_request_resize: bool,
+    platform_request_close: bool
+};
+
 ImVector :: struct(T : typeid) {
     size     : i32,
     capacity : i32,

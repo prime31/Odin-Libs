@@ -11,7 +11,7 @@ mouse_cursors: [Mouse_Cursor.COUNT]^sdl.Cursor;
 mouse_button_state: [3]bool;
 
 
-init :: proc() {
+init :: proc(window: ^sdl.Window) {
 	io := get_io();
 	io.backend_flags |= .HasMouseCursors;
 	io.backend_flags |= .PlatformHasViewports;
@@ -50,6 +50,9 @@ init :: proc() {
     mouse_cursors[Mouse_Cursor.ResizeNWSE] = sdl.create_system_cursor(sdl.System_Cursor.Size_NWSE);
     mouse_cursors[Mouse_Cursor.Hand] = sdl.create_system_cursor(sdl.System_Cursor.Hand);
     mouse_cursors[Mouse_Cursor.NotAllowed] = sdl.create_system_cursor(sdl.System_Cursor.No);
+
+    main_viewport := get_main_viewport();
+    main_viewport.platform_handle = window;
 
     // TODO: ImGui_ImplSDL2_UpdateMonitors
 }

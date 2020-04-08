@@ -69,7 +69,7 @@ main :: proc() {
 	quad_prepper();
 	prepper();
 	prepare_imgui();
-	imgui.init();
+	imgui.init(cast(^sdl.Window)params.device_window_handle);
 
 	// currently works when both of the ImGui_ImplSDL2_* methods are uncommented
 	//imgui.ImGui_ImplSDL2_InitForOpenGL(window, sdl.gl_get_current_context());
@@ -95,8 +95,8 @@ main :: proc() {
 
 		width, height : i32;
 		fna.get_drawable_size(params.device_window_handle, &width, &height);
-		imgui.sdl_new_frame(cast(^sdl.Window)params.device_window_handle, width, height);
-		// imgui.ImGui_ImplSDL2_NewFrame(window);
+		// imgui.sdl_new_frame(cast(^sdl.Window)params.device_window_handle, width, height);
+		imgui.ImGui_ImplSDL2_NewFrame(window);
 
 		imgui.new_frame();
 		imgui.im_text("whatever");

@@ -680,6 +680,7 @@ foreign cimgui {
     // Viewports
     @(link_name = "igUpdatePlatformWindows") update_platform_windows :: proc() ---;
     @(link_name = "igRenderPlatformWindowsDefault") render_platform_windows_default :: proc(platform_arg: rawptr = nil, renderer_arg: rawptr = nil) ---;
+    @(link_name = "igGetMainViewport") get_main_viewport :: proc() -> ^Viewport ---;
 
 // Helpers functions to access functions pointers in ImGui::GetIO()
     @(link_name = "igMemAlloc")          mem_alloc             :: proc(sz : uint) -> rawptr ---;
