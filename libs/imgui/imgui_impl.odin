@@ -21,6 +21,13 @@ foreign imgui_impl {
     ImGui_ImplOpenGL3_NewFrame :: proc() ---;
     ImGui_ImplOpenGL3_RenderDrawData :: proc(draw_data: ^DrawData) ---;
     ImGui_ImplOpenGL3_Shutdown :: proc() ---;
+
+
+    // OpenGL 2
+    ImGui_ImplOpenGL2_Init :: proc() -> bool ---;
+    ImGui_ImplOpenGL2_NewFrame :: proc() ---;
+    ImGui_ImplOpenGL2_RenderDrawData :: proc(draw_data: ^DrawData) ---;
+    ImGui_ImplOpenGL2_Shutdown :: proc() ---;
 }
 
 
@@ -46,6 +53,29 @@ impl_render :: proc() {
 
 impl_shutdown :: proc() {
 	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplSDL2_Shutdown();
+	destroy_context();
+}
+
+
+impl_init_for_gl2 :: proc(window: ^sdl.Window, gl_context: rawptr) {
+	create_context();
+	ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
+	ImGui_ImplOpenGL2_Init();
+}
+
+impl_new_frame2 :: proc(window: ^sdl.Window) {
+	ImGui_ImplOpenGL2_NewFrame();
+	ImGui_ImplSDL2_NewFrame(window);
+	new_frame();
+}
+
+impl_render2 :: proc() {
+	ImGui_ImplOpenGL2_RenderDrawData(get_draw_data());
+}
+
+impl_shutdown2 :: proc() {
+	ImGui_ImplOpenGL2_Shutdown();
 	ImGui_ImplSDL2_Shutdown();
 	destroy_context();
 }

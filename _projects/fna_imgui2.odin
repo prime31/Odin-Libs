@@ -7,14 +7,15 @@ import "shared:engine/maf"
 import "shared:engine/libs/sdl"
 import "shared:engine/libs/fna"
 import "shared:engine/libs/imgui"
+import "shared:engine/libs/flextgl"
 
 device: ^fna.Device;
-vbuff: ^fna.Buffer;
-effect: ^fna.Effect;
-vert_decl: fna.Vertex_Declaration;
+shader: ^gfx.Shader;
+texture: ^fna.Texture;
 
+// this gets ImGui working with opengl 2 with viewports on metal and opengl
 main :: proc() {
-	sdl.set_hint("FNA3D_FORCE_DRIVER", "OpenGL");
+	// sdl.set_hint("FNA3D_FORCE_DRIVER", "OpenGL");
 	sdl.init(sdl.Init_Flags.Everything);
 
 	window_attrs := fna.prepare_window_attributes();
@@ -34,8 +35,8 @@ main :: proc() {
 	};
 	device = fna.create_device(&params, 0);
 	fna.set_presentation_interval(device, .One);
-	fna_gl_txt := sdl.gl_get_current_context();
 
+	// alpha blend
 	blend := fna.Blend_State{
 		.Source_Alpha, .Inverse_Source_Alpha, .Add,
 		.Source_Alpha, .Inverse_Source_Alpha, .Add,
@@ -43,8 +44,24 @@ main :: proc() {
 	};
 	fna.set_blend_state(device, &blend);
 
+	rasterizer_state := fna.Rasterizer_State{
+		fill_mode = .Solid,
+		cull_mode = .None,
+		scissor_test_enable = 0
+	};
+	fna.apply_rasterizer_state(device, &rasterizer_state);
 
-	// hack in a quad to test with. ImGui doesnt work once we do this...
+	depth_stencil := fna.Depth_Stencil_State{
+		depth_buffer_enable = 0,
+		stencil_enable = 0
+	};
+	fna.set_depth_stencil_state(device, &depth_stencil);
+
+	vp := fna.Viewport{0, 0, 640, 480, -1, 1};
+	fna.set_viewport(device, &vp);
+
+
+	// hack in a quad to test with.
 	gfx.fna_device = device;
 	prepper();
 
@@ -60,15 +77,19 @@ main :: proc() {
 		style.colors[2].w = 1.0;
 	}
 
-	imgui.impl_init_for_gl2(window, fna_gl_txt);
-
+	fna_gl_ctx := sdl.gl_get_current_context();
+	gl_win, gl_ctx := create_gl_window();
+	sdl.gl_make_current(gl_win, gl_ctx);
+	flextgl.init();
+	imgui.impl_init_for_gl("#version 120", gl_win, gl_ctx);
+	imgui.impl_init_for_gl2(gl_win, gl_ctx);
 
 	color := fna.Vec4 {1, 0, 0, 1};
 	running := true;
 	for running {
 		e: sdl.Event;
 		for sdl.poll_event(&e) != 0 {
-			if imgui.impl_handle_event(&e) do continue;
+			// if imgui.impl_handle_event(&e) do continue;
 			if e.type == sdl.Event_Type.Quit {
 				running = false;
 			}
@@ -77,13 +98,15 @@ main :: proc() {
 		g := color.y + 0.01;
 		color.y = g > 1.0 ? 0.0 : g;
 
+		if fna_gl_ctx != nil do sdl.gl_make_current(window, fna_gl_ctx);
 		fna.begin_frame(device);
 		fna.clear(device, fna.Clear_Options.Target, &color, 0, 0);
 
 		// draw FNA stuff
-		fna.apply_vertex_buffer_bindings(device, &vert_buff_binding, 1, 0, 0);
-		fna.draw_indexed_primitives(device, .Triangle_List, 0, 0, 4, 0, 2, ibuff, ._16_Bit);
+		draw_quad();
 
+		// imgui
+		sdl.gl_make_current(gl_win, gl_ctx);
 		imgui.impl_new_frame2(window);
 		imgui.im_text("whatever");
 		imgui.bullet();
@@ -96,19 +119,49 @@ main :: proc() {
 		if int(io.config_flags & .ViewportsEnable) != 0 {
 			imgui.update_platform_windows();
 			imgui.render_platform_windows_default();
-			sdl.gl_make_current(window, fna_gl_txt);
 		}
+
+		if fna_gl_ctx != nil { sdl.gl_make_current(window, fna_gl_ctx); } else { sdl.gl_make_current(gl_win, gl_ctx); }
 
 		fna.swap_buffers(device, nil, nil, params.device_window_handle);
 	}
+}
+
+create_gl_window :: proc() -> (^sdl.Window, sdl.GL_Context) {
+	window := sdl.create_window("Window Dos", i32(sdl.Window_Pos.Undefined), i32(sdl.Window_Pos.Undefined), 50, 50, .Open_GL | .Borderless);
+
+	// sdl.gl_set_attribute(sdl.GL_Attr.Context_Flags, i32(sdl.GL_Context_Flag.Forward_Compatible));
+	// sdl.gl_set_attribute(sdl.GL_Attr.Context_Profile_Mask, i32(sdl.GL_Context_Profile.Core));
+	// sdl.gl_set_attribute(sdl.GL_Attr.Context_Major_Version, 3);
+	// sdl.gl_set_attribute(sdl.GL_Attr.Context_Minor_Version, 3);
+
+	// sdl.gl_set_attribute(sdl.GL_Attr.Doublebuffer, 1);
+	// sdl.gl_set_attribute(sdl.GL_Attr.Depth_Size, 24);
+	// sdl.gl_set_attribute(sdl.GL_Attr.Stencil_Size, 8);
+
+	return window, sdl.gl_create_context(window);
 }
 
 
 
 
 ibuff: ^fna.Buffer;
-texture: ^fna.Texture;
 vert_buff_binding: fna.Vertex_Buffer_Binding;
+
+draw_quad :: proc() {
+	sampler_state := fna.Sampler_State{
+		address_u = .Wrap,
+		address_v = .Wrap,
+		address_w = .Wrap,
+		filter = .Point,
+		max_anisotropy = 4
+	};
+	fna.verify_sampler(device, 0, texture, &sampler_state);
+	gfx.shader_apply(shader);
+
+	fna.apply_vertex_buffer_bindings(device, &vert_buff_binding, 1, 0, 0);
+	fna.draw_indexed_primitives(device, .Triangle_List, 0, 0, 4, 0, 2, ibuff, ._16_Bit);
+}
 
 prepper :: proc() {
 	create_texture();
@@ -122,21 +175,18 @@ prepper :: proc() {
 		{{+100.5, +100.5}, {1.0, 1.0}, 0xFFFF99FF}
 	};
 
-	vbuff = gfx.new_vert_buffer_from_type(gfx.Vert_Pos_Tex_Col, len(vertices));
+	vbuff := gfx.new_vert_buffer_from_type(gfx.Vert_Pos_Tex_Col, len(vertices));
 	gfx.set_vertex_buffer_data(vbuff, &vertices);
 
 	indices := [?]i16{0, 1, 2, 2, 3, 0};
 	ibuff = gfx.new_index_buffer(len(indices));
 	gfx.set_index_buffer_data(ibuff, &indices);
 
-	b := fna.Buffer{};
-	gfx.set_index_buffer_data(&b, &indices);
-
 	// // bindings
 	vert_buff_binding = fna.Vertex_Buffer_Binding{vbuff, vert_decl, 0, 0};
 
 	// load an effect
-	shader := gfx.new_shader("effects/VertexColorTexture.fxb");
+	shader = gfx.new_shader("effects/VertexColorTexture.fxb");
 	transform := maf.mat32_ortho(640, 480);
 	gfx.shader_set_mat32(shader, "TransformMatrix", &transform);
 	gfx.shader_apply(shader);
@@ -152,13 +202,8 @@ create_texture :: proc() {
 	fna.set_texture_data_2d(device, texture, .Color, 0, 0, 4, 4, 0, &pixels, size_of(pixels));
 
 	sampler_state := fna.Sampler_State{
-		address_u = .Wrap,
-		address_v = .Wrap,
-		address_w = .Wrap,
 		filter = .Point,
-		max_anisotropy = 4,
-		max_mip_level = 0,
-		mip_map_level_of_detail_bias = 0
+		max_anisotropy = 4
 	};
 
 	fna.verify_sampler(device, 0, texture, &sampler_state);

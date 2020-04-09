@@ -14,15 +14,13 @@ import "shared:engine/libs/imgui"
 
 
 device: ^fna.Device;
-effect: ^fna.Effect;
-mojo_effect: ^fna.Mojoshader_Effect;
 vert_decl: fna.Vertex_Declaration;
 shader: ^gfx.Shader;
 
 t:f32 = 0;
 
 main :: proc() {
-	sdl.set_hint("FNA3D_FORCE_DRIVER", "OpenGL");
+	// sdl.set_hint("FNA3D_FORCE_DRIVER", "OpenGL");
 	sdl.init(sdl.Init_Flags.Everything);
 	window := sdl.create_window("Odin + FNA + SDL + OpenGL", i32(sdl.Window_Pos.Undefined), i32(sdl.Window_Pos.Undefined), 640, 480, cast(sdl.Window_Flags)fna.prepare_window_attributes());
 
