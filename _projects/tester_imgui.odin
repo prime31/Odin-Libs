@@ -1,6 +1,7 @@
 package main
 
 import "core:fmt"
+import sg "shared:engine/libs/sokol"
 import "shared:engine/libs/flextgl"
 import "shared:engine/libs/imgui"
 import "shared:engine/libs/sdl"
@@ -16,6 +17,7 @@ main :: proc() {
 	gl_context := sdl.gl_create_context(window);
 
 	flextgl.init();
+	sg.setup({});
 
 	imgui.create_context();
 	io := imgui.get_io();
@@ -25,6 +27,8 @@ main :: proc() {
 	imgui.impl_init_for_gl("#version 150", window, gl_context);
 
 	t := Thing{};
+	pass_action: sg.Pass_Action;
+	pass_action.colors[0] = {action = .Clear, val = {0.5, 0.7, 1.0, 1}};
 
 	running := true;
 	for running {
@@ -35,6 +39,12 @@ main :: proc() {
 				running = false;
 			}
 		}
+
+		w, h: i32;
+		sdl.gl_get_drawable_size(window, &w, &h);
+		sg.begin_default_pass(pass_action, int(w), int(h));
+
+
 
 		imgui.impl_new_frame(window);
 		imgui.im_text("whatever");
@@ -47,6 +57,8 @@ main :: proc() {
 			imgui.render_platform_windows_default();
 		}
 
+		sg.end_pass();
+		sg.commit();
 		sdl.gl_swap_window(window);
 	}
 }
