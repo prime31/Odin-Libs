@@ -3,12 +3,12 @@ package engine
 import "core:fmt"
 import "shared:engine/time"
 import "shared:engine/gfx"
+import "shared:engine/input"
+import "shared:engine/window"
 import "shared:engine/libs/fna"
 import "shared:engine/libs/sdl"
 import "shared:engine/libs/imgui"
 
-
-window: ^sdl.Window;
 
 run :: proc(init: proc(), update: proc(), render: proc() = nil) {
 	width:i32 = 640;
@@ -16,14 +16,14 @@ run :: proc(init: proc(), update: proc(), render: proc() = nil) {
 
 	// sdl.set_hint("FNA3D_FORCE_DRIVER", "OpenGL");
 	if sdl.init(sdl.Init_Flags.Everything) != 0 do fmt.panicf("SDL failed to initialize");
-	window = sdl.create_window("Odin + FNA + SDL + OpenGL", i32(sdl.Window_Pos.Undefined), i32(sdl.Window_Pos.Undefined), width, height, cast(sdl.Window_Flags)fna.prepare_window_attributes());
+	window.create(width, height);
 
 	params := fna.Presentation_Parameters{
 		back_buffer_width = width,
 		back_buffer_height = height,
 		back_buffer_format = fna.Surface_Format.Color,
 		multi_sample_count = 0,
-		device_window_handle = window,
+		device_window_handle = window.sdl_window,
 		is_full_screen = 0,
 		depth_stencil_format = fna.Depth_Format.D24_S8,
 		presentation_interval = fna.Present_Interval.Default,
@@ -41,7 +41,7 @@ run :: proc(init: proc(), update: proc(), render: proc() = nil) {
 	init();
 
 	imgui.imgui_init(gfx.fna_device);
-	imgui.init(window);
+	imgui.init(window.sdl_window);
 
 	run_loop(update, render);
 }
@@ -76,8 +76,8 @@ run_loop :: proc(update: proc(), render: proc()) {
 		time.tick();
 
 		width, height : i32;
-		fna.get_drawable_size(window, &width, &height);
-		imgui.sdl_new_frame(window, width, height);
+		fna.get_drawable_size(window.sdl_window, &width, &height);
+		imgui.sdl_new_frame(window.sdl_window, width, height);
 		imgui.new_frame();
 
 		color := fna.Vec4 {1, 0, 0, 1};
@@ -88,7 +88,7 @@ run_loop :: proc(update: proc(), render: proc()) {
 		render();
 
 		imgui.imgui_render();
-		fna.swap_buffers(gfx.fna_device, nil, nil, window); // TODO: whould be window.swap()
+		window.swap(gfx.fna_device); // TODO: should be window.swap()
 	}
 }
 
@@ -102,15 +102,14 @@ poll_events :: proc() -> bool {
 		#partial switch e.type {
 			case .Quit : return true;
 			case .Window_Event: {
-				if e.window.window_id == sdl.get_window_id(window) {
+				if e.window.window_id == sdl.get_window_id(window.sdl_window) {
 					if e.window.event == .Close do return true;
-					//window.handle_event(&e); TODO
+					window.handle_event(&e);
 				}
 			}
 			case .Render_Targets_Reset: fmt.println("Render_Targets_Reset");
 			case .Render_Device_Reset: fmt.println("Render_Device_Reset");
-			case: {//input.handle_event(&e); TODO
-			}
+			case: input.handle_event(&e);
 		}
 	}
 	return false;

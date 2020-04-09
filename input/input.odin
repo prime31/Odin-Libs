@@ -37,6 +37,11 @@ init :: proc() {
 	input.dirty_mouse_buttons = make([dynamic]byte, 3);
 }
 
+handle_event :: proc(evt: ^sdl.Event) {
+
+}
+
+
 main :: proc() {
 	mouse_down: Mouse_Button_Bits;
 
