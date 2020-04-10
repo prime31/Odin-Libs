@@ -341,12 +341,9 @@ Presentation_Parameters :: struct {
 Render_Target_Binding :: struct {
 	type: u8,
 	level_count: i32,
-	texture: ^Texture,
-	width: i32,
-	height: i32,
 	multi_sample_count: i32,
-	color_buffer: ^Renderbuffer,
-	cube_map_face: Cube_Map_Face
+	texture: ^Texture,
+	color_buffer: ^Renderbuffer
 }
 
 // Mojoshader_Effect :: struct {}

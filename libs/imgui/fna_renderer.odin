@@ -76,7 +76,7 @@ imgui_render :: proc() {
 
 	new_list := mem.slice_ptr(draw_data.cmd_lists, int(draw_data.cmd_lists_count));
 	for list in new_list {
-		fna.set_vertex_buffer_data(device, vert_buffer, 0, list.vtx_buffer.data, list.vtx_buffer.size * size_of(DrawVert), .None);
+		fna.set_vertex_buffer_data(device, vert_buffer, 0, list.vtx_buffer.data, list.vtx_buffer.size, size_of(DrawVert), size_of(DrawVert), .None);
 		fna.set_index_buffer_data(device, index_buffer, 0, list.idx_buffer.data, list.idx_buffer.size * size_of(DrawIdx), .None);
 
 		pos := draw_data.display_pos;

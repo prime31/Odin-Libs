@@ -56,7 +56,7 @@ free_vert_buffer :: proc(buffer: ^fna.Buffer) {
 set_vertex_buffer_data :: proc(buffer: ^fna.Buffer, data: ^$T, offset_in_bytes: i32 = 0, options: fna.Set_Data_Options = .None)
 	where intrinsics.type_is_indexable(T) {
 	element_size := cast(i32)size_of(intrinsics.type_elem_type(T));
-	fna.set_vertex_buffer_data(fna_device, buffer, offset_in_bytes, &data[0], element_size * cast(i32)len(data), options);
+	fna.set_vertex_buffer_data(fna_device, buffer, offset_in_bytes, &data[0], cast(i32)len(data), element_size, element_size, options);
 }
 
 

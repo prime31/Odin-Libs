@@ -91,7 +91,7 @@ foreign fna_lib {
 	apply_vertex_declaration :: proc(device: ^Device, vertex_declaration: ^Vertex_Declaration, ptr: rawptr, vertex_offset: i32) ---;
 
 	@(link_name = "FNA3D_SetRenderTargets")
-	set_render_targets :: proc(device: ^Device, render_targets: ^Render_Target_Binding, num_render_targets: i32, renderbuffer: ^Renderbuffer, depth_format: Depth_Format) ---;
+	set_render_targets :: proc(device: ^Device, render_targets: ^Render_Target_Binding, num_render_targets: i32, depth_stencil_buffer: ^Renderbuffer, depth_format: Depth_Format) ---;
 
 	@(link_name = "FNA3D_ResolveTarget")
 	resolve_target :: proc(device: ^Device, target: ^Render_Target_Binding) ---;
@@ -100,7 +100,7 @@ foreign fna_lib {
 	reset_backbuffer :: proc(device: ^Device, presentation_parameters: ^Presentation_Parameters) ---;
 
 	@(link_name = "FNA3D_ReadBackbuffer")
-	read_backbuffer :: proc(device: ^Device, data: rawptr, data_len: i32, start_index: i32, element_count: i32, element_size_in_bytes: i32, x: i32, y: i32, w: i32, h: i32) ---;
+	read_backbuffer :: proc(device: ^Device, x: i32, y: i32, w: i32, h: i32, data: rawptr, data_length: i32) ---;
 
 	@(link_name = "FNA3D_GetBackbufferSize")
 	get_backbuffer_size :: proc(device: ^Device, w: ^i32, h: ^i32) ---;
@@ -130,7 +130,7 @@ foreign fna_lib {
 	set_texture_data_2d :: proc(device: ^Device, texture: ^Texture, format: Surface_Format, x: i32, y: i32, w: i32, h: i32, level: i32, data: rawptr, data_length: i32) ---;
 
 	@(link_name = "FNA3D_SetTextureData3D")
-	set_texture_data_3d :: proc(device: ^Device, texture: ^Texture, format: Surface_Format, level: i32, left: i32, top: i32, right: i32, bottom: i32, front: i32, back: i32, data: rawptr, data_length: i32) ---;
+	set_texture_data_3d :: proc(device: ^Device, texture: ^Texture, format: Surface_Format, x: i32, y: i32, z: i32, w: i32, h: i32, d: i32, level: i32, data: rawptr, data_length: i32) ---;
 
 	@(link_name = "FNA3D_SetTextureDataCube")
 	set_texture_data_cube :: proc(device: ^Device, texture: ^Texture, format: Surface_Format, x: i32, y: i32, w: i32, h: i32, cube_map_face: Cube_Map_Face, level: i32, data: rawptr, data_length: i32) ---;
@@ -139,13 +139,13 @@ foreign fna_lib {
 	set_texture_data_yuv :: proc(device: ^Device, y: ^Texture, u: ^Texture, v: ^Texture, w: i32, h: i32, ptr: rawptr) ---;
 
 	@(link_name = "FNA3D_GetTextureData2D")
-	get_texture_data_2d :: proc(device: ^Device, texture: ^Texture, format: Surface_Format, texture_width: i32, texture_height: i32, level: i32, x: i32, y: i32, w: i32, h: i32, data: rawptr, start_index: i32, element_count: i32, element_size_in_bytes: i32) ---;
+	get_texture_data_2d :: proc(device: ^Device, texture: ^Texture, format: Surface_Format, x: i32, y: i32, w: i32, h: i32, level: i32, data: rawptr, data_length: i32) ---;
 
 	@(link_name = "FNA3D_GetTextureData3D")
-	get_texture_data_3d :: proc(device: ^Device, texture: ^Texture, format: Surface_Format, left: i32, top: i32, front: i32, right: i32, bottom: i32, back: i32, level: i32, data: rawptr, start_index: i32, element_count: i32, element_size_in_bytes: i32) ---;
+	get_texture_data_3d :: proc(device: ^Device, texture: ^Texture, format: Surface_Format, x: i32, y: i32, z: i32, w: i32, h: i32, d: i32, level: i32, data: rawptr, data_length: i32) ---;
 
 	@(link_name = "FNA3D_GetTextureDataCube")
-	get_texture_data_cube :: proc(device: ^Device, texture: ^Texture, format: Surface_Format, texture_size: i32, cube_map_face: Cube_Map_Face, level: i32, x: i32, y: i32, w: i32, h: i32, data: rawptr, start_index: i32, element_count: i32, element_size_in_bytes: i32) ---;
+	get_texture_data_cube :: proc(device: ^Device, texture: ^Texture, format: Surface_Format, x: i32, y: i32, w: i32, h: i32, cube_map_face: Cube_Map_Face, level: i32, data: rawptr, data_length: i32) ---;
 
 	@(link_name = "FNA3D_GenColorRenderbuffer")
 	gen_color_renderbuffer :: proc(device: ^Device, width: i32, height: i32, format: Surface_Format, multi_sample_count: i32, texture: ^Texture) -> ^Renderbuffer ---;
@@ -163,10 +163,10 @@ foreign fna_lib {
 	add_dispose_vertex_buffer :: proc(device: ^Device, buffer: ^Buffer) ---;
 
 	@(link_name = "FNA3D_SetVertexBufferData")
-	set_vertex_buffer_data :: proc(device: ^Device, buffer: ^Buffer, offset_in_bytes: i32, data: rawptr, data_length: i32, options: Set_Data_Options) ---;
+	set_vertex_buffer_data :: proc(device: ^Device, buffer: ^Buffer, offset_in_bytes: i32, data: rawptr, element_count: i32, element_size_in_bytes: i32, vertex_stride: i32, options: Set_Data_Options) ---;
 
 	@(link_name = "FNA3D_GetVertexBufferData")
-	get_vertex_buffer_data :: proc(device: ^Device, buffer: ^Buffer, offset_in_bytes: i32, data: rawptr, start_index: i32, element_count: i32, element_size_in_bytes: i32, vertex_stride: i32) ---;
+	get_vertex_buffer_data :: proc(device: ^Device, buffer: ^Buffer, offset_in_bytes: i32, data: rawptr, element_count: i32, element_size_in_bytes: i32, vertex_stride: i32) ---;
 
 	@(link_name = "FNA3D_GenIndexBuffer")
 	gen_index_buffer :: proc(device: ^Device, is_dynamic: u8, usage: Buffer_Usage, index_count: i32, index_element_size: Index_Element_Size) -> ^Buffer ---;
@@ -178,7 +178,7 @@ foreign fna_lib {
 	set_index_buffer_data :: proc(device: ^Device, buffer: ^Buffer, offset_in_bytes: i32, data: rawptr, data_length: i32, options: Set_Data_Options) ---;
 
 	@(link_name = "FNA3D_GetIndexBufferData")
-	get_index_buffer_data :: proc(device: ^Device, buffer: ^Buffer, offset_in_bytes: i32, data: rawptr, start_index: i32, element_count: i32, element_size_in_bytes: i32) ---;
+	get_index_buffer_data :: proc(device: ^Device, buffer: ^Buffer, offset_in_bytes: i32, data: rawptr, data_length: i32) ---;
 
 	@(link_name = "FNA3D_CreateEffect")
 	create_effect :: proc(device: ^Device, effect_code: ^u8, effect_code_length: u32, effect: ^^Effect, effect_data: ^^Mojoshader_Effect) ---;
