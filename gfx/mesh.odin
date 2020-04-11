@@ -1,5 +1,6 @@
 package gfx
 
+import "core:fmt"
 import "shared:engine/libs/fna"
 
 Mesh :: struct {
@@ -31,3 +32,53 @@ mesh_draw :: proc(mesh: ^Mesh, num_vertices: i32) {
 	fna.draw_indexed_primitives(fna_device, .Triangle_List, 0, 0, num_vertices, 0, primitive_count, mesh.index_buffer, ._16_Bit);
 	//(device: ^Device, primitive_type: Primitive_Type, base_vertex: i32, min_vertex_index: i32, num_vertices: i32, start_index: i32, primitive_count: i32, indices: ^Buffer, index_element_size: Index_Element_Size) ---;
 }
+
+
+
+Dynamic_Mesh :: struct(T: typeid) {
+	verts: []T,
+	indices: []i16,
+	index_buffer: ^fna.Buffer,
+	vert_buffer: ^fna.Buffer,
+	vert_buffer_binding: fna.Vertex_Buffer_Binding
+}
+
+new_dynamic_mesh :: proc($T: typeid, vertex_count: i32, index_count: i32, index_buffer_dynamic: bool = false) -> ^Dynamic_Mesh(T) {
+	mesh := new(Dynamic_Mesh(T));
+
+	// only create the index buffer if it is dynamic
+	if index_buffer_dynamic do mesh.indices = make([]i16, index_count);
+
+	mesh.verts = make([]T, vertex_count);
+	mesh.index_buffer = new_index_buffer(index_count, index_buffer_dynamic);
+	mesh.vert_buffer = new_vert_buffer_from_type(T, vertex_count, true);
+	mesh.vert_buffer_binding = fna.Vertex_Buffer_Binding{mesh.vert_buffer, vertex_decl_for_type(T), 0, 0};
+
+	return mesh;
+}
+
+free_dynamic_mesh :: proc(mesh: ^$T/Dynamic_Mesh) {
+	if mesh.indices != nil {
+		delete(indices);
+	}
+	delete(mesh.verts);
+	free_vert_buffer(mesh.vert_buffer_binding.vertex_buffer);
+	free_index_buffer(mesh.index_buffer);
+	free(mesh);
+}
+
+dynamic_mesh_update_verts :: proc(mesh: ^$T/Dynamic_Mesh) {
+	set_vertex_buffer_data(mesh.vert_buffer, &mesh.verts);
+}
+
+dynamic_mesh_update_indices :: proc(mesh: ^$T/Dynamic_Mesh) {
+	assert(mesh.indices != nil);
+	set_index_buffer_data(mesh.index_buffer, &mesh.indices);
+	set_vertex_buffer_data(mesh.vert_buffer, &mesh.verts);
+}
+
+dynamic_mesh_draw :: proc(mesh: ^$T/Dynamic_Mesh, num_vertices: i32 = 0) {
+	num_vertices = num_vertices == 0 ? len(mesh.verts) : num_vertices;
+	mesh_draw(mesh, num_vertices);
+}
+

@@ -91,14 +91,14 @@ quad_prepper :: proc() {
 
 
 	// mesh
-	mesh = gfx.new_mesh(gfx.Vert_Pos_Tex_Col, 4, 6);
-	gfx.set_index_buffer_data(mesh.index_buffer, &indices);
-
 	for v, i in vertices {
 		vertices[i].pos.x += 300;
 		vertices[i].pos.y += 200;
 	}
-	gfx.set_vertex_buffer_data(mesh.vert_buffer, &vertices);
+
+	mesh = gfx.new_mesh(gfx.Vert_Pos_Tex_Col, 4, 6);
+	gfx.set_index_buffer_data(mesh.vert_buffer, &indices);
+	gfx.set_vertex_buffer_data(mesh.index_buffer, &vertices);
 }
 
 create_texture :: proc() {
