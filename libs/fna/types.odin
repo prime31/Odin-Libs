@@ -73,12 +73,12 @@ Depth_Format :: enum i32 {
 }
 
 Cube_Map_Face :: enum i32 {
-	Positivex,
-	Negativex,
-	Positivey,
-	Negativey,
-	Positivez,
-	Negativez
+	Positive_X,
+	Negative_X,
+	Positive_Y,
+	Negative_Y,
+	Positive_Z,
+	Negative_Z
 }
 
 Buffer_Usage :: enum i32 {
@@ -89,7 +89,7 @@ Buffer_Usage :: enum i32 {
 Set_Data_Options :: enum i32 {
 	None,
 	Discard,
-	Nooverwrite
+	No_Overwrite
 }
 
 Blend :: enum i32 {

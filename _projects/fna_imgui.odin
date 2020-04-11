@@ -19,6 +19,7 @@ ibuff: ^fna.Buffer;
 texture: ^fna.Texture;
 quad_shader: ^gfx.Shader;
 vert_buff_binding: fna.Vertex_Buffer_Binding;
+mesh: ^gfx.Mesh;
 t:f32 = 0;
 
 main :: proc() {
@@ -57,6 +58,8 @@ draw_quad :: proc() {
 
 	fna.apply_vertex_buffer_bindings(gfx.fna_device, &vert_buff_binding, 1, 0, 0);
 	fna.draw_indexed_primitives(gfx.fna_device, .Triangle_List, 0, 0, 4, 0, 2, ibuff, ._16_Bit);
+
+	gfx.mesh_draw(mesh, 4);
 }
 
 quad_prepper :: proc() {
@@ -78,13 +81,24 @@ quad_prepper :: proc() {
 	ibuff = gfx.new_index_buffer(len(indices));
 	gfx.set_index_buffer_data(ibuff, &indices);
 
-	// // bindings
+	// bindings
 	vert_buff_binding = fna.Vertex_Buffer_Binding{vbuff, vert_decl, 0, 0};
 
 	// load an effect
 	quad_shader = gfx.new_shader("effects/VertexColorTexture.fxb");
 	transform := maf.mat32_ortho(640, 480);
 	gfx.shader_set_mat32(quad_shader, "TransformMatrix", &transform);
+
+
+	// mesh
+	mesh = gfx.new_mesh(gfx.Vert_Pos_Tex_Col, 4, 6);
+	gfx.set_index_buffer_data(mesh.index_buffer, &indices);
+
+	for v, i in vertices {
+		vertices[i].pos.x += 300;
+		vertices[i].pos.y += 200;
+	}
+	gfx.set_vertex_buffer_data(mesh.vert_buffer, &vertices);
 }
 
 create_texture :: proc() {
