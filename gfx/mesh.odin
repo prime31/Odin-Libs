@@ -9,6 +9,14 @@ Mesh :: struct {
 	vert_buffer_binding: fna.Vertex_Buffer_Binding
 }
 
+Dynamic_Mesh :: struct(T: typeid) {
+	verts: []T,
+	indices: []i16,
+	index_buffer: ^fna.Buffer,
+	vert_buffer: ^fna.Buffer,
+	vert_buffer_binding: fna.Vertex_Buffer_Binding
+}
+
 
 new_mesh :: proc(vertex_type: typeid, vertex_count: i32, index_count: i32, vert_buffer_dynamic: bool = false, index_buffer_dynamic: bool = false) -> ^Mesh {
 	mesh := new(Mesh);
@@ -35,14 +43,6 @@ mesh_draw :: proc(mesh: ^Mesh, num_vertices: i32) {
 
 
 
-Dynamic_Mesh :: struct(T: typeid) {
-	verts: []T,
-	indices: []i16,
-	index_buffer: ^fna.Buffer,
-	vert_buffer: ^fna.Buffer,
-	vert_buffer_binding: fna.Vertex_Buffer_Binding
-}
-
 new_dynamic_mesh :: proc($T: typeid, vertex_count: i32, index_count: i32, index_buffer_dynamic: bool = false) -> ^Dynamic_Mesh(T) {
 	mesh := new(Dynamic_Mesh(T));
 
@@ -67,8 +67,9 @@ free_dynamic_mesh :: proc(mesh: ^$T/Dynamic_Mesh) {
 	free(mesh);
 }
 
-dynamic_mesh_update_verts :: proc(mesh: ^$T/Dynamic_Mesh) {
-	set_vertex_buffer_data(mesh.vert_buffer, &mesh.verts);
+// Done use .None for dynamic vert buffers: https://github.com/FNA-XNA/FNA3D/blob/master/include/FNA3D.h#L1115-L1140
+dynamic_mesh_update_verts :: proc(mesh: ^$T/Dynamic_Mesh, offset_in_bytes: i32 = 0, options: fna.Set_Data_Options = .Discard) {
+	set_vertex_buffer_data(mesh.vert_buffer, &mesh.verts, offset_in_bytes, options);
 }
 
 dynamic_mesh_update_indices :: proc(mesh: ^$T/Dynamic_Mesh) {
