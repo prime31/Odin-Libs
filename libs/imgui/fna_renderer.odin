@@ -8,7 +8,7 @@ import "shared:engine/gfx"
 import "shared:engine/libs/fna"
 
 @(private)
-font_texture: ^fna.Texture;
+font_texture: gfx.Texture;
 @(private)
 vert_decl: fna.Vertex_Declaration;
 @(private)
@@ -27,7 +27,7 @@ shader: ^gfx.Shader;
 device: ^fna.Device;
 
 
-imgui_init :: proc(fna_device: ^fna.Device) {
+fna_init :: proc(fna_device: ^fna.Device) {
 	device = fna_device;
 	shader = gfx.new_shader("effects/VertexColorTexture.fxb");
 
@@ -42,17 +42,19 @@ imgui_init :: proc(fna_device: ^fna.Device) {
 
 	font_atlas_add_font_default(io.fonts, nil);
 	width, height : i32;
-	pixels : ^u8;
+	pixels: ^u8;
 	font_atlas_get_text_data_as_rgba32(io.fonts, &pixels, &width, &height);
 
-	font_texture = fna.create_texture_2d(device, .Color, width, height, 1, 0);
-	fna.set_texture_data_2d(device, font_texture, .Color, 0, 0, width, height, 0, pixels, width * height * size_of(pixels));
+	font_texture = gfx.new_texture_from_data(pixels, width, height, gfx.default_sampler_state);
 
-	font_atlas_set_text_id(io.fonts, font_texture);
+	// font_texture = fna.create_texture_2d(device, .Color, width, height, 1, 0);
+	// fna.set_texture_data_2d(device, font_texture, .Color, 0, 0, width, height, 0, pixels, width * height * size_of(pixels));
+
+	font_atlas_set_text_id(io.fonts, font_texture.texture);
 	font_atlas_clear_tex_data(io.fonts);
 }
 
-imgui_render :: proc() {
+fna_render :: proc() {
 	render();
 
 	io := get_io();
@@ -60,7 +62,7 @@ imgui_render :: proc() {
 	if draw_data.total_vtx_count == 0 do return;
 
 	draw_data_scale_clip_rects(draw_data, io.display_framebuffer_scale);
-	imgui_update_buffers(draw_data);
+	fna_update_buffers(draw_data);
 
 	width  := i32(draw_data.display_size.x * io.display_framebuffer_scale.x);
 	height := i32(draw_data.display_size.y * io.display_framebuffer_scale.y);
@@ -99,9 +101,7 @@ imgui_render :: proc() {
 
 				if clip_rect.x < width && clip_rect.y < height && clip_rect.h >= 0 && clip_rect.w >= 0 {
 					fna.set_scissor_rect(device, &clip_rect);
-
-					sampler_state := fna.Sampler_State{};
-					fna.verify_sampler(device, 0, cast(^fna.Texture)cmd.texture_id, &sampler_state);
+					gfx.texture_bind(cast(^fna.Texture)cmd.texture_id);
 
 					fna.apply_vertex_buffer_bindings(device, &vert_buffer_binding, 1, bindings_updated, cast(i32)cmd.vtx_offset);
 					fna.draw_indexed_primitives(device, .Triangle_List, cast(i32)cmd.vtx_offset, 0, list.vtx_buffer.size, cast(i32)cmd.idx_offset, cast(i32)cmd.elem_count / 3, index_buffer, ._16_Bit);
@@ -116,7 +116,7 @@ imgui_render :: proc() {
 }
 
 @(private)
-imgui_update_buffers :: proc(draw_data: ^DrawData) {
+fna_update_buffers :: proc(draw_data: ^DrawData) {
 	if draw_data.total_vtx_count == 0 do return;
 
 	// Expand buffers if we need more room

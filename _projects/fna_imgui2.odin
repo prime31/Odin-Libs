@@ -13,7 +13,8 @@ device: ^fna.Device;
 shader: ^gfx.Shader;
 texture: ^fna.Texture;
 
-// this gets ImGui working with opengl 2 with viewports on metal and opengl
+// this gets ImGui working with opengl 2 with viewports on metal and opengl. You have to drag the invisible ImGui window
+// out of the small black window to get it working.
 main :: proc() {
 	// sdl.set_hint("FNA3D_FORCE_DRIVER", "OpenGL");
 	sdl.init(sdl.Init_Flags.Everything);
@@ -128,7 +129,7 @@ main :: proc() {
 }
 
 create_gl_window :: proc() -> (^sdl.Window, sdl.GL_Context) {
-	window := sdl.create_window("Window Dos", i32(sdl.Window_Pos.Undefined), i32(sdl.Window_Pos.Undefined), 50, 50, .Open_GL | .Borderless);
+	window := sdl.create_window("Window Dos", i32(sdl.Window_Pos.Undefined), i32(sdl.Window_Pos.Undefined), 150, 150, .Open_GL | .Borderless);
 
 	// sdl.gl_set_attribute(sdl.GL_Attr.Context_Flags, i32(sdl.GL_Context_Flag.Forward_Compatible));
 	// sdl.gl_set_attribute(sdl.GL_Attr.Context_Profile_Mask, i32(sdl.GL_Context_Profile.Core));

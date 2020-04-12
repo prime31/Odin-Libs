@@ -16,7 +16,7 @@ import "shared:engine/libs/imgui"
 vert_decl: fna.Vertex_Declaration;
 shader: ^gfx.Shader;
 ibuff: ^fna.Buffer;
-texture: ^fna.Texture;
+texture: gfx.Texture;
 quad_shader: ^gfx.Shader;
 vert_buff_binding: fna.Vertex_Buffer_Binding;
 mesh: ^gfx.Mesh;
@@ -46,14 +46,7 @@ render :: proc() {
 
 
 draw_quad :: proc() {
-	sampler_state := fna.Sampler_State{
-		address_u = .Wrap,
-		address_v = .Wrap,
-		address_w = .Wrap,
-		filter = .Point,
-		max_anisotropy = 4
-	};
-	fna.verify_sampler(gfx.fna_device, 0, texture, &sampler_state);
+	gfx.texture_bind(texture);
 	gfx.shader_apply(quad_shader);
 
 	fna.apply_vertex_buffer_bindings(gfx.fna_device, &vert_buff_binding, 1, 0, 0);
@@ -63,7 +56,7 @@ draw_quad :: proc() {
 }
 
 quad_prepper :: proc() {
-	create_texture();
+	texture = gfx.new_checkerboard_texture();
 	vert_decl := gfx.vertex_decl_for_type(gfx.Vert_Pos_Tex_Col);
 
 	// buffers
@@ -101,19 +94,3 @@ quad_prepper :: proc() {
 	gfx.set_index_buffer_data(mesh.index_buffer, &indices);
 }
 
-create_texture :: proc() {
-	pixels := [?]u32 {0xFFFFFFFF, 0xFF000000, 0xFFFFFFFF, 0xFF000000,
-		0xFF000000, 0xFFFFFFFF, 0xFF000000, 0xFFFFFFFF,
-		0xFFFFFFFF, 0xFF000000, 0xFFFFFFFF, 0xFF000000,
-		0xFF000000, 0xFFFFFFFF, 0xFF000000, 0xFFFFFFFF};
-
-	texture = fna.create_texture_2d(gfx.fna_device, .Color, 4, 4, 1, 0);
-	fna.set_texture_data_2d(gfx.fna_device, texture, .Color, 0, 0, 4, 4, 0, &pixels, size_of(pixels));
-
-	sampler_state := fna.Sampler_State{
-		filter = .Point,
-		max_anisotropy = 4
-	};
-
-	fna.verify_sampler(gfx.fna_device, 0, texture, &sampler_state);
-}

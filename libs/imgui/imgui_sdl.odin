@@ -11,11 +11,10 @@ mouse_cursors: [Mouse_Cursor.Count]^sdl.Cursor;
 mouse_button_state: [3]bool;
 
 
-init :: proc(window: ^sdl.Window) {
+sdl_init :: proc(window: ^sdl.Window) {
 	io := get_io();
 	io.backend_flags |= .HasMouseCursors;
 	io.backend_flags |= .PlatformHasViewports;
-	//io.backend_flags |= .PlatformHasViewports;
 
     io.key_map[Key.Tab] = cast(i32)sdl.Scancode.Tab;
     io.key_map[Key.LeftArrow] = cast(i32)sdl.Scancode.Left;
@@ -137,7 +136,7 @@ sdl_new_frame :: proc(window: ^sdl.Window, drawable_width: i32, drawable_height:
 }
 
 // returns true if the event is handled by imgui and should be ignored
-handle_event :: proc(evt: ^sdl.Event) -> bool {
+sdl_handle_event :: proc(evt: ^sdl.Event) -> bool {
 	#partial switch evt.type {
 		case .Mouse_Wheel: {
 			io := get_io();

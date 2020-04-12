@@ -10,6 +10,7 @@ import "shared:engine/libs/sdl"
 import "shared:engine/libs/imgui"
 
 
+// TODO: pass in config object
 run :: proc(init: proc(), update: proc(), render: proc() = nil) {
 	width:i32 = 640;
 	height:i32 = 480;
@@ -18,6 +19,7 @@ run :: proc(init: proc(), update: proc(), render: proc() = nil) {
 	if sdl.init(sdl.Init_Flags.Everything) != 0 do fmt.panicf("SDL failed to initialize");
 	window.create(width, height);
 
+	// TODO: do we need to store these?
 	params := fna.Presentation_Parameters{
 		back_buffer_width = width,
 		back_buffer_height = height,
@@ -39,9 +41,7 @@ run :: proc(init: proc(), update: proc(), render: proc() = nil) {
 	fna.set_viewport(gfx.fna_device, &vp);
 
 	init();
-
-	imgui.imgui_init(gfx.fna_device);
-	imgui.init(window.sdl_window);
+	imgui.impl_fna_init(gfx.fna_device, window.sdl_window);
 
 	run_loop(update, render);
 }
@@ -58,15 +58,11 @@ set_default_graphics_state :: proc() {
 
 	rasterizer_state := fna.Rasterizer_State{
 		fill_mode = .Solid,
-		cull_mode = .None,
-		scissor_test_enable = 0
+		cull_mode = .None
 	};
 	fna.apply_rasterizer_state(gfx.fna_device, &rasterizer_state);
 
-	depth_stencil := fna.Depth_Stencil_State{
-		depth_buffer_enable = 0,
-		stencil_enable = 0
-	};
+	depth_stencil := fna.Depth_Stencil_State{};
 	fna.set_depth_stencil_state(gfx.fna_device, &depth_stencil);
 }
 
@@ -75,10 +71,7 @@ run_loop :: proc(update: proc(), render: proc()) {
 	for !poll_events() {
 		time.tick();
 
-		width, height : i32;
-		fna.get_drawable_size(window.sdl_window, &width, &height);
-		imgui.sdl_new_frame(window.sdl_window, width, height);
-		imgui.new_frame();
+		imgui.impl_fna_new_frame(window.sdl_window);
 
 		color := fna.Vec4 {1, 0, 0, 1};
 		fna.begin_frame(gfx.fna_device);
@@ -87,8 +80,8 @@ run_loop :: proc(update: proc(), render: proc()) {
 		update();
 		render();
 
-		imgui.imgui_render();
-		window.swap(gfx.fna_device); // TODO: should be window.swap()
+		imgui.fna_render();
+		window.swap(gfx.fna_device);
 	}
 }
 
@@ -97,7 +90,7 @@ poll_events :: proc() -> bool {
 	e: sdl.Event;
 	for sdl.poll_event(&e) != 0 {
 		// ignore events imgui eats
-		if imgui.handle_event(&e) do continue;
+		if imgui.sdl_handle_event(&e) do continue;
 
 		#partial switch e.type {
 			case .Quit : return true;
