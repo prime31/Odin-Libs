@@ -55,7 +55,8 @@ new_texture_from_data :: proc(data: ^$T, w, h: i32, sampler_state: fna.Sampler_S
 
 load_texture :: proc(file: string, sampler_state: fna.Sampler_State) -> Texture {
 	file, err := os.open(file);
-	if err != 0 do fmt.panicf("Could not open file:", file);
+	if err != 0 do fmt.panicf("Could not open image file");
+	defer { os.close(file); }
 
 	width, height, len: i32;
 	data := fna.image_load(image_read_fn, image_skip_fn, image_eof_fn, &file, &width, &height, &len, -1, -1, 0);

@@ -28,10 +28,11 @@ new_shader :: proc(file: string) -> ^Shader {
 	techniques := mem.slice_ptr(shader.mojo_effect.techniques, cast(int)shader.mojo_effect.technique_count);
 	fna.set_effect_technique(fna_device, shader, &techniques[0]);
 
-	params := mem.slice_ptr(shader.mojo_effect.params, cast(int)shader.mojo_effect.param_count);
-	for param in params {
-		fmt.println("param", param);
-	}
+	// debug shader params
+	// params := mem.slice_ptr(shader.mojo_effect.params, cast(int)shader.mojo_effect.param_count);
+	// for param in params {
+	// 	fmt.println("param", param);
+	// }
 
 	return shader;
 }

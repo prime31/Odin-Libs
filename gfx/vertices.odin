@@ -5,8 +5,6 @@ import "core:runtime";
 import "core:intrinsics";
 import "shared:engine/libs/fna"
 
-// @(private)
-fna_device: ^fna.Device;
 
 Vert_Pos_Col :: struct {
 	pos: [2]f32,

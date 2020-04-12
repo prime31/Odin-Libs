@@ -32,38 +32,12 @@ run :: proc(init: proc(), update: proc(), render: proc() = nil) {
 		display_orientation = fna.Display_Orientation.Default,
 		render_target_usage = fna.Render_Target_Usage.Discard_Contents
 	};
-	gfx.fna_device = fna.create_device(&params, 0);
-	fna.set_presentation_interval(gfx.fna_device, .One);
-
-	set_default_graphics_state();
-
-	vp := fna.Viewport{0, 0, width, height, -1, 1};
-	fna.set_viewport(gfx.fna_device, &vp);
+	gfx.init(&params);
 
 	init();
 	imgui.impl_fna_init(gfx.fna_device, window.sdl_window);
 
 	run_loop(update, render);
-}
-
-@(private)
-set_default_graphics_state :: proc() {
-	// alpha blend
-	blend := fna.Blend_State{
-		.Source_Alpha, .Inverse_Source_Alpha, .Add,
-		.Source_Alpha, .Inverse_Source_Alpha, .Add,
-		.All, .All, .All, .All, fna.Color{255, 255, 255, 255}, -1
-	};
-	fna.set_blend_state(gfx.fna_device, &blend);
-
-	rasterizer_state := fna.Rasterizer_State{
-		fill_mode = .Solid,
-		cull_mode = .None
-	};
-	fna.apply_rasterizer_state(gfx.fna_device, &rasterizer_state);
-
-	depth_stencil := fna.Depth_Stencil_State{};
-	fna.set_depth_stencil_state(gfx.fna_device, &depth_stencil);
 }
 
 @(private)
@@ -80,6 +54,7 @@ run_loop :: proc(update: proc(), render: proc()) {
 		update();
 		render();
 
+		gfx.commit();
 		imgui.fna_render();
 		window.swap(gfx.fna_device);
 	}

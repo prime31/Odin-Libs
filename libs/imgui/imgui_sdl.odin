@@ -58,7 +58,7 @@ sdl_init :: proc(window: ^sdl.Window) {
 
     // TODO: ImGui_ImplSDL2_InitPlatformInterface
     if int(io.config_flags & .ViewportsEnable) != 0 && int(io.backend_flags & .PlatformHasViewports) != 0 {
-    	fmt.println("------- viewports requested but not yet implemented");
+    	// fmt.println("------- viewports requested but not yet implemented");
     }
 }
 
@@ -110,7 +110,7 @@ sdl_new_frame :: proc(window: ^sdl.Window, drawable_width: i32, drawable_height:
 
 	if int(io.config_flags & .ViewportsEnable) != 0 {
 		// TODO: viewports
-		fmt.println("---- viewports not implemented");
+		// fmt.println("---- viewports not implemented");
 	} else {
 		if sdl.get_window_flags(window) | cast(u32)sdl.Window_Flags.Input_Focus != 0 {
 			window_x, window_y: i32;
