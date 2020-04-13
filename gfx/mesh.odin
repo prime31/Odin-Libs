@@ -1,6 +1,7 @@
 package gfx
 
 import "core:fmt"
+import "core:intrinsics"
 import "shared:engine/libs/fna"
 
 Mesh :: struct {
@@ -9,12 +10,15 @@ Mesh :: struct {
 	vert_buffer_binding: fna.Vertex_Buffer_Binding
 }
 
+// used with constantly changing verts/indices. Stores the verts/indices internally and manages partial buffer
+// uploads for ease of use.
 Dynamic_Mesh :: struct(T: typeid) {
 	verts: []T,
 	indices: []i16,
 	index_buffer: ^fna.Buffer,
 	vert_buffer: ^fna.Buffer,
-	vert_buffer_binding: fna.Vertex_Buffer_Binding
+	vert_buffer_binding: fna.Vertex_Buffer_Binding,
+	vert_element_size: int
 }
 
 
@@ -68,8 +72,17 @@ free_dynamic_mesh :: proc(mesh: ^$T/Dynamic_Mesh) {
 }
 
 // Dont use .None for dynamic vert buffers: https://github.com/FNA-XNA/FNA3D/blob/master/include/FNA3D.h#L1115-L1140
-dynamic_mesh_update_verts :: proc(mesh: ^$T/Dynamic_Mesh, offset_in_bytes: i32 = 0, options: fna.Set_Data_Options = .Discard) {
-	set_vertex_buffer_data(mesh.vert_buffer, &mesh.verts, offset_in_bytes, options);
+dynamic_mesh_update_all_verts :: proc(mesh: ^$T/Dynamic_Mesh, options: fna.Set_Data_Options = .Discard) {
+	set_vertex_buffer_data(mesh.vert_buffer, &mesh.verts, 0, options);
+}
+
+// uploads to the GPU the slide from start to end
+dynamic_mesh_append_vert_slice :: proc(mesh: ^$T/Dynamic_Mesh, start_index: i32, end_index: i32, options: fna.Set_Data_Options = .Discard) {
+	// cheat a bit here and use the Vertex_Buffer_Binding data to get the element size of our verts
+	offset_in_bytes := start_index * mesh.vert_buffer_binding.vertex_declaration.vertex_stride;
+	verts := batcher.mesh.verts[start_index:end_index];
+
+	set_vertex_buffer_data(mesh.vert_buffer, &verts, offset_in_bytes, options);
 }
 
 dynamic_mesh_update_indices :: proc(mesh: ^$T/Dynamic_Mesh, offset_in_bytes: i32 = 0) {

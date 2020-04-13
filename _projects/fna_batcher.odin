@@ -27,6 +27,17 @@ render :: proc() {
 	gfx.draw_tex(texture1, 60, 60);
 	gfx.draw_tex(texture1, 70, 70);
 	gfx.end_pass();
+
+	gfx.begin_pass();
+	gfx.draw_tex(texture1, 10 + 50, 10 + 5);
+	gfx.draw_tex(texture2, 200 + 50, 200 + 5);
+	gfx.draw_tex(texture1, 10 + 50, 10 + 5);
+	gfx.draw_tex(texture1, 10 + 60, 10 + 5);
+	gfx.draw_tex(texture1, 10 + 70, 10 + 5);
+	gfx.draw_tex(texture1, 10 + 80, 10 + 5);
+	gfx.draw_tex(texture1, 10 + 90, 10 + 5);
+	gfx.draw_tex(texture1, 10 + 100, 10 + 5);
+	gfx.end_pass();
 }
 
 

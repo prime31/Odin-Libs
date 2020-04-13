@@ -29,7 +29,13 @@ Mojoshader_Effect_Technique :: struct {
     annotations: ^Effect_Annotation
 }
 
-Effect_Pass :: struct {}
+Effect_Pass :: struct {
+	name: cstring,
+	state_count: i32,
+	effect_state: ^Effect_State,
+    annotation_count: u32,
+    annotations: ^Effect_Annotation
+}
 
 Effect_Annotation :: struct {}
 
@@ -199,8 +205,6 @@ Mojoshader_Render_State_Type :: enum i32 {
 Effect_State :: struct {
 	type: Mojoshader_Render_State_Type,
 	value: Effect_Value
-    // MOJOSHADER_renderStateType type,
-    // MOJOSHADER_effectValue value,
 }
 
 Mojoshader_Effect_State_Changes :: struct {

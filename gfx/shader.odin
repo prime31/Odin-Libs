@@ -9,7 +9,8 @@ import "shared:engine/libs/fna"
 
 Shader :: struct {
 	using effect: ^fna.Effect,
-	mojo_effect: ^fna.Mojoshader_Effect
+	mojo_effect: ^fna.Mojoshader_Effect,
+	current_technique: i32
 }
 
 new_shader :: proc(file: string) -> ^Shader {
@@ -28,7 +29,16 @@ new_shader :: proc(file: string) -> ^Shader {
 	techniques := mem.slice_ptr(shader.mojo_effect.techniques, cast(int)shader.mojo_effect.technique_count);
 	fna.set_effect_technique(fna_device, shader, &techniques[0]);
 
-	// debug shader params
+
+	// debug shader techniques/passes and params
+	// for technique in techniques {
+	// 	fmt.println("Technique:", technique.name);
+	// 	passes := mem.slice_ptr(technique.passes, cast(int)technique.pass_count);
+	// 	for pass in passes {
+	// 		fmt.println("\tpass:", pass.name);
+	// 	}
+	// }
+
 	// params := mem.slice_ptr(shader.mojo_effect.params, cast(int)shader.mojo_effect.param_count);
 	// for param in params {
 	// 	fmt.println("param", param);
@@ -42,13 +52,20 @@ free_shader :: proc(shader: ^Shader) {
 	free(shader);
 }
 
-shader_set_current_technique :: proc(shader: ^Shader) {
-	panic("Not implemented");
+shader_set_current_technique :: proc(shader: ^Shader, name: cstring) {
+	techniques := mem.slice_ptr(shader.mojo_effect.techniques, cast(int)shader.mojo_effect.technique_count);
+	for i in 0..<len(techniques) {
+		if techniques[i].name == name {
+			shader.current_technique = cast(i32)i;
+			fna.set_effect_technique(fna_device, shader, &techniques[i]);
+			return;
+		}
+	}
 }
 
-shader_apply :: proc(shader: ^Shader) {
+shader_apply :: proc(shader: ^Shader, pass: u32 = 0) {
 	state_changes := fna.Mojoshader_Effect_State_Changes{};
-	fna.apply_effect(fna_device, shader, 0, &state_changes);
+	fna.apply_effect(fna_device, shader, pass, &state_changes);
 }
 
 
