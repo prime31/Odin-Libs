@@ -24,6 +24,8 @@ render :: proc() {
 	gfx.draw_tex(texture1, 10, 10);
 	gfx.draw_tex(texture2, 200, 200);
 	gfx.draw_tex(texture1, 50, 50);
+	gfx.draw_tex(texture1, 60, 60);
+	gfx.draw_tex(texture1, 70, 70);
 	gfx.end_pass();
 }
 
