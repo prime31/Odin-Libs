@@ -31,7 +31,7 @@ fna_init :: proc(fna_device: ^fna.Device) {
 	device = fna_device;
 	shader = gfx.new_shader("effects/VertexColorTexture.fxb");
 
-	vert_decl = gfx.vertex_decl_for_type(gfx.Vert_Pos_Tex_Col);
+	vert_decl = gfx.vertex_decl_for_type(gfx.Vertex);
 
 	create_context();
 	io := get_io();

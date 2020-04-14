@@ -23,7 +23,11 @@ mesh: ^gfx.Mesh;
 t:f32 = 0;
 
 main :: proc() {
-	engine.run(init, update, render);
+	engine.run({
+		init = init,
+		update = update,
+		render = render
+	});
 }
 
 init :: proc() {
@@ -57,17 +61,17 @@ draw_quad :: proc() {
 
 quad_prepper :: proc() {
 	texture = gfx.new_checkerboard_texture();
-	vert_decl := gfx.vertex_decl_for_type(gfx.Vert_Pos_Tex_Col);
+	vert_decl := gfx.vertex_decl_for_type(gfx.Vertex);
 
 	// buffers
-	vertices := [?]gfx.Vert_Pos_Tex_Col{
+	vertices := [?]gfx.Vertex{
 		{{220, 	20}, {1.0, 0.0}, 0xFF0099FF},
 		{{20, 	20}, {0.0, 0.0}, 0xFFFFFFFF},
 		{{20, 	220}, {0.0, 1.0}, 0xFFFFFFFF},
 		{{220, 	220}, {1.0, 1.0}, 0xFFFF99FF}
 	};
 
-	vbuff := gfx.new_vert_buffer_from_type(gfx.Vert_Pos_Tex_Col, len(vertices));
+	vbuff := gfx.new_vert_buffer_from_type(gfx.Vertex, len(vertices));
 	gfx.set_vertex_buffer_data(vbuff, &vertices);
 
 	indices := [?]i16{0, 1, 2, 2, 3, 0};
@@ -89,7 +93,7 @@ quad_prepper :: proc() {
 		vertices[i].pos.y += 200;
 	}
 
-	mesh = gfx.new_mesh(gfx.Vert_Pos_Tex_Col, 4, 6);
+	mesh = gfx.new_mesh(gfx.Vertex, 4, 6);
 	gfx.set_vertex_buffer_data(mesh.vert_buffer, &vertices);
 	gfx.set_index_buffer_data(mesh.index_buffer, &indices);
 }

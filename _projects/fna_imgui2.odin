@@ -166,17 +166,17 @@ draw_quad :: proc() {
 
 prepper :: proc() {
 	create_texture();
-	vert_decl := gfx.vertex_decl_for_type(gfx.Vert_Pos_Tex_Col);
+	vert_decl := gfx.vertex_decl_for_type(gfx.Vertex);
 
 	// buffers
-	vertices := [?]gfx.Vert_Pos_Tex_Col{
+	vertices := [?]gfx.Vertex{
 		{{+100.5, -100.5}, {1.0, 0.0}, 0xFF0099FF},
 		{{-200.5, -100.5}, {0.0, 0.0}, 0xFFFFFFFF},
 		{{-200.5, +100.5}, {0.0, 1.0}, 0xFFFFFFFF},
 		{{+100.5, +100.5}, {1.0, 1.0}, 0xFFFF99FF}
 	};
 
-	vbuff := gfx.new_vert_buffer_from_type(gfx.Vert_Pos_Tex_Col, len(vertices));
+	vbuff := gfx.new_vert_buffer_from_type(gfx.Vertex, len(vertices));
 	gfx.set_vertex_buffer_data(vbuff, &vertices);
 
 	indices := [?]i16{0, 1, 2, 2, 3, 0};

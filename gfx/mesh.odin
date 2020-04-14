@@ -13,12 +13,9 @@ Mesh :: struct {
 // used with constantly changing verts/indices. Stores the verts/indices internally and manages partial buffer
 // uploads for ease of use.
 Dynamic_Mesh :: struct(T: typeid) {
+	using mesh: Mesh,
 	verts: []T,
-	indices: []i16,
-	index_buffer: ^fna.Buffer,
-	vert_buffer: ^fna.Buffer,
-	vert_buffer_binding: fna.Vertex_Buffer_Binding,
-	vert_element_size: int
+	indices: []i16
 }
 
 

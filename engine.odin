@@ -29,9 +29,8 @@ Engine_Config :: struct {
 }
 
 
-// TODO: pass in config object
-run :: proc(init: proc(), update: proc(), render: proc() = nil) {
-	config := Engine_Config{};
+run :: proc(config: Engine_Config) {
+	config := config;
 	merge_default_config(&config);
 
 	// sdl.set_hint("FNA3D_FORCE_DRIVER", "OpenGL");
@@ -52,10 +51,10 @@ run :: proc(init: proc(), update: proc(), render: proc() = nil) {
 	};
 	gfx.init(&params);
 
-	init();
+	config.init();
 	imgui.impl_fna_init(gfx.fna_device, window.sdl_window);
 
-	run_loop(update, render);
+	run_loop(config.update, config.render);
 }
 
 @(private)
@@ -80,7 +79,7 @@ run_loop :: proc(update: proc(), render: proc()) {
 		fna.begin_frame(gfx.fna_device);
 		gfx.clear({1, 0, 0, 1}); // TODO: we should never auto clear anything
 
-		update();
+		if update != nil do update();
 		render();
 
 		gfx.commit();

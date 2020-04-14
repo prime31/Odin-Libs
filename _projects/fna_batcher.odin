@@ -10,7 +10,11 @@ texture2: gfx.Texture;
 rt: gfx.Render_Texture;
 
 main :: proc() {
-	engine.run(init, update, render);
+	engine.run({
+		init = init,
+		update = update,
+		render = render
+	});
 }
 
 init :: proc() {

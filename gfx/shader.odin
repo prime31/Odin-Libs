@@ -157,7 +157,7 @@ shader_get_mat32 :: proc(shader: ^Shader, name: string) -> maf.Mat32 {
 			assert(param.effect_value.type.rows == 2 && param.effect_value.type.columns == 3);
 
 			floats := mem.slice_ptr(param.effect_value.value.float, cast(int)param.effect_value.value_count);
-			return maf.Mat32{{floats[0], floats[4]}, {floats[1], floats[5]}, {floats[2], floats[6]}};
+			return maf.Mat32{floats[0], floats[4], floats[1], floats[5], floats[2], floats[6]};
 		}
 	}
 
@@ -173,12 +173,12 @@ shader_set_mat32 :: proc(shader: ^Shader, name: string, value: ^maf.Mat32) {
 			assert(param.effect_value.type.rows == 2 && param.effect_value.type.columns == 3);
 
 			dst := mem.slice_ptr(param.effect_value.value.float, cast(int)param.effect_value.value_count);
-			dst[0] = value[0][0];
-			dst[1] = value[1][0];
-			dst[2] = value[2][0];
-			dst[4] = value[0][1];
-			dst[5] = value[1][1];
-			dst[6] = value[2][1];
+			dst[0] = value[0];
+			dst[1] = value[2];
+			dst[2] = value[4];
+			dst[4] = value[1];
+			dst[5] = value[3];
+			dst[6] = value[5];
 			return;
 		}
 	}

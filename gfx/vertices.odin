@@ -5,6 +5,12 @@ import "core:runtime";
 import "core:intrinsics";
 import "shared:engine/libs/fna"
 
+// default, 2D vertex type
+Vertex :: struct {
+	pos: [2]f32,
+	uv: [2]f32,
+	col: u32
+};
 
 Vert_Pos_Col :: struct {
 	pos: [2]f32,
@@ -20,12 +26,6 @@ Vert_Pos_Col_Tex :: struct {
 	pos: [2]f32,
 	col: u32,
 	uv: [2]f32
-};
-
-Vert_Pos_Tex_Col :: struct {
-	pos: [2]f32,
-	uv: [2]f32,
-	col: u32
 };
 
 @(private)
@@ -86,7 +86,7 @@ vertex_decl_for_type :: proc(T: typeid) -> fna.Vertex_Declaration {
 		case Vert_Pos_Col: vert_decl = vertex_decl_for_type_usages(T, .Position, .Color);
 		case Vert_Pos_Tex: vert_decl = vertex_decl_for_type_usages(T, .Position, .Texture_Coordinate);
 		case Vert_Pos_Col_Tex: vert_decl = vertex_decl_for_type_usages(T, .Position, .Color, .Texture_Coordinate);
-		case Vert_Pos_Tex_Col: vert_decl = vertex_decl_for_type_usages(T, .Position, .Texture_Coordinate, .Color);
+		case Vertex: vert_decl = vertex_decl_for_type_usages(T, .Position, .Texture_Coordinate, .Color);
 		case: panic("Invalid built-in vertex type. use vertex_decl_for_type_usages for custom types.");
 	}
 

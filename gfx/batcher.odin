@@ -5,7 +5,7 @@ import "shared:engine/maf"
 import "core:fmt"
 
 Batcher :: struct {
-	mesh: ^Dynamic_Mesh(Vert_Pos_Tex_Col),
+	mesh: ^Dynamic_Mesh(Vertex),
 	shader: ^Shader,
 	draw_calls: [dynamic]Draw_Call,
 	draw_call_index: int,
@@ -23,7 +23,7 @@ Draw_Call :: struct {
 
 new_batcher :: proc(sprite_cnt: i32 = 1024) -> ^Batcher {
 	batcher := new(Batcher);
-	batcher.mesh = new_dynamic_mesh(Vert_Pos_Tex_Col, sprite_cnt * 4, sprite_cnt * 6, true);
+	batcher.mesh = new_dynamic_mesh(Vertex, sprite_cnt * 4, sprite_cnt * 6, true);
 	batcher.shader = new_shader("effects/SpriteEffect.fxb");
 	batcher.draw_calls = make([dynamic]Draw_Call, 10);
 
