@@ -11,8 +11,6 @@ Texture :: struct {
 }
 
 
-default_sampler_state :: fna.Sampler_State {filter = .Point, max_anisotropy = 4};
-
 @(private)
 tex_sampler_state_cache: map[^fna.Texture]fna.Sampler_State = make(map[^fna.Texture]fna.Sampler_State);
 @(private)

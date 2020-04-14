@@ -14,28 +14,26 @@ WindowEvents :: enum i32 {
 }
 
 
-// pub struct WindowConfig {
-// 	title string
-// 	width int
-// 	height int
-// 	resizable bool
-// 	fullscreen bool
-// 	vsync bool
-// 	highdpi bool
-// }
+Window_Config :: struct {
+	title: cstring,		// the window title as UTF-8 encoded string
+	width: i32,			// the preferred width of the window / canvas
+	height: i32,		// the preferred height of the window / canvas
+	resizable: bool,	// whether the window should be allowed to be resized
+	fullscreen: bool,	// whether the window should be created in fullscreen mode
+	high_dpi: bool,		// whether the backbuffer is full-resolution on HighDPI displays
+}
 
 sdl_window: ^sdl.Window;
 @(private)
 win_focused: bool;
 
-create :: proc(width, height: i32) {
-	// mut window_flags := C.SDL_WINDOW_OPENGL | C.SDL_WINDOW_MOUSE_FOCUS
-	// if config.resizable { window_flags = window_flags | C.SDL_WINDOW_RESIZABLE }
-	// if config.highdpi { window_flags = window_flags | C.SDL_WINDOW_ALLOW_HIGHDPI }
-	// if config.fullscreen { window_flags = window_flags | C.SDL_WINDOW_FULLSCREEN }
-
+create :: proc(config: ^Window_Config) {
 	flags := cast(sdl.Window_Flags)fna.prepare_window_attributes();
-	sdl_window = sdl.create_window("Odin FNA", i32(sdl.Window_Pos.Undefined), i32(sdl.Window_Pos.Undefined), width, height, flags);
+	if config.resizable do flags |= .Resizable;
+	if config.high_dpi do flags |= .Allow_High_DPI;
+	if config.fullscreen do flags |= .Fullscreen_Desktop;
+
+	sdl_window = sdl.create_window(cstring(config.title), i32(sdl.Window_Pos.Undefined), i32(sdl.Window_Pos.Undefined), config.width, config.height, flags);
 }
 
 swap :: proc(device: ^fna.Device) {

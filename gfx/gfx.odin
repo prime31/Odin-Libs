@@ -4,11 +4,12 @@ import "shared:engine/libs/fna"
 
 @(private)
 batcher: ^Batcher;
+default_sampler_state: fna.Sampler_State = {filter = .Point, max_anisotropy = 4};
 fna_device: ^fna.Device;
 
 init :: proc(params: ^fna.Presentation_Parameters) {
 	fna_device = fna.create_device(params, 0);
-	fna.set_presentation_interval(fna_device, .One);
+	set_presentation_interval(.One);
 	set_default_graphics_state();
 
 	vp := fna.Viewport{0, 0, params.back_buffer_width, params.back_buffer_height, -1, 1};
@@ -37,3 +38,11 @@ set_default_graphics_state :: proc() {
 	fna.set_depth_stencil_state(fna_device, &depth_stencil);
 }
 
+set_default_sampler_state :: proc(sampler_state: fna.Sampler_State) {
+	default_sampler_state = sampler_state;
+}
+
+
+set_presentation_interval :: proc(present_interval: fna.Present_Interval) {
+	fna.set_presentation_interval(fna_device, present_interval);
+}
