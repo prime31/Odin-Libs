@@ -69,7 +69,7 @@ batcher_flush :: proc(batcher: ^Batcher) {
 
 
 	// TODO: move this out of the batcher
-	transform := maf.mat32_ortho(640, 480);
+	transform := maf.mat32_ortho(cast(f32)viewport.w, cast(f32)viewport.h);
 	shader_set_mat32(batcher.shader, "TransformMatrix", &transform);
 	shader_apply(batcher.shader);
 

@@ -10,6 +10,10 @@ import "shared:engine/libs/sdl"
 import "shared:engine/libs/imgui"
 
 Engine_Config :: struct {
+	init: proc(),
+	update: proc(),
+	render: proc(),
+
 	// resolution_policy: gfx.Resolution_Policy,	// defines how the main render texture should be blitted to the backbuffer
 	design_width: i32,				// the width of the main offscreen render texture when the policy is not .default
 	design_height: i32,				// the height of the main offscreen render texture when the policy is not .default
@@ -34,7 +38,6 @@ run :: proc(init: proc(), update: proc(), render: proc() = nil) {
 	if sdl.init(sdl.Init_Flags.Everything) != 0 do fmt.panicf("SDL failed to initialize");
 	window.create(&config.win_config);
 
-	// TODO: do we need to store these?
 	params := fna.Presentation_Parameters{
 		back_buffer_width = config.win_config.width,
 		back_buffer_height = config.win_config.height,
@@ -74,9 +77,8 @@ run_loop :: proc(update: proc(), render: proc()) {
 
 		imgui.impl_fna_new_frame(window.sdl_window);
 
-		color := fna.Vec4 {1, 0, 0, 1};
 		fna.begin_frame(gfx.fna_device);
-		fna.clear(gfx.fna_device, fna.Clear_Options.Target, &color, 0, 0);
+		gfx.clear({1, 0, 0, 1}); // TODO: we should never auto clear anything
 
 		update();
 		render();

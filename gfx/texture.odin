@@ -10,17 +10,19 @@ Texture :: struct {
 	width, height: i32
 }
 
+Render_Texture :: struct {
+	using tex: Texture,
+	render_target_usage: fna.Render_Target_Usage,
+	depth_stencil_buffer: ^fna.Renderbuffer,
+	depth_stencil_format: fna.Depth_Format
+}
+
 
 @(private)
 tex_sampler_state_cache: map[^fna.Texture]fna.Sampler_State = make(map[^fna.Texture]fna.Sampler_State);
 @(private)
 bound_textures: [4]^fna.Texture;
 
-
-free_texture :: proc(texture: ^Texture) {
-	fna.add_dispose_texture(fna_device, texture);
-	delete_key(&tex_sampler_state_cache, texture.texture);
-}
 
 new_checkerboard_texture :: proc() -> Texture {
 	pixels := [?]u32 {0xFFFFFFFF, 0xFF000000, 0xFFFFFFFF, 0xFF000000,
@@ -42,13 +44,18 @@ new_checkerboard_texture :: proc() -> Texture {
 
 new_texture_from_data :: proc(data: ^$T, w, h: i32, sampler_state: fna.Sampler_State, format: fna.Surface_Format = .Color) -> Texture {
 	texture := Texture{
-		texture = fna.create_texture_2d(fna_device, .Color, w, h, 1, 0),
+		texture = fna.create_texture_2d(fna_device, format, w, h, 1, 0),
 		width = w,
 		height = h
 	};
-	fna.set_texture_data_2d(fna_device, texture, .Color, 0, 0, w, h, 0, data, w * h * size_of(data));
+	fna.set_texture_data_2d(fna_device, texture, format, 0, 0, w, h, 0, data, w * h * size_of(data));
 
 	return texture;
+}
+
+free_texture :: proc(texture: Texture) {
+	fna.add_dispose_texture(fna_device, texture);
+	delete_key(&tex_sampler_state_cache, texture.texture);
 }
 
 load_texture :: proc(file: string, sampler_state: fna.Sampler_State) -> Texture {
@@ -87,6 +94,31 @@ texture_bind :: proc(texture: ^fna.Texture, index: i32 = 0) {
 	fna.verify_sampler(fna_device, index, texture, &sampler_state);
 
 	bound_textures[index] = texture;
+}
+
+
+// Render_Texture
+new_render_texture :: proc(w, h: i32, sampler_state: fna.Sampler_State, format: fna.Surface_Format = .Color, depth_stencil_format: fna.Depth_Format = .None) -> Render_Texture {
+	render_texture := Render_Texture {
+		tex = Texture{
+			texture = fna.create_texture_2d(fna_device, format, w, h, 1, 1),
+			width = w,
+			height = h
+		},
+		render_target_usage = .Platform_Contents
+	};
+
+	render_texture.depth_stencil_format = depth_stencil_format;
+	if depth_stencil_format != .None {
+		render_texture.depth_stencil_buffer = fna.gen_depth_stencil_renderbuffer(fna_device, w, h, depth_stencil_format, 0);
+	}
+
+	return render_texture;
+}
+
+free_render_texture :: proc(render_texture: Render_Texture) {
+	if render_texture.depth_stencil_buffer != nil do fna.add_dispose_renderbuffer(fna_device, render_texture.depth_stencil_buffer);
+	free_texture(render_texture);
 }
 
 

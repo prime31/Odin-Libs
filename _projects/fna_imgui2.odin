@@ -58,7 +58,7 @@ main :: proc() {
 	};
 	fna.set_depth_stencil_state(device, &depth_stencil);
 
-	vp := fna.Viewport{0, 0, 640, 480, -1, 1};
+	vp := fna.Viewport{0, 0, 640, 480, 0, 1};
 	fna.set_viewport(device, &vp);
 
 

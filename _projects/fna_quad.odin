@@ -58,7 +58,7 @@ main :: proc() {
 	};
 	fna.apply_rasterizer_state(device, &rasterizer_state);
 
-	vp := fna.Viewport{0, 0, 640, 480, -1, 1};
+	vp := fna.Viewport{0, 0, 640, 480, 0, 1};
 	fna.set_viewport(device, &vp);
 
 	prepper();

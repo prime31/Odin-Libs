@@ -25,7 +25,8 @@ Render_Target_Usage :: enum i32 {
 Clear_Options :: enum i32 {
 	Target = 1,
 	Depth_Buffer = 2,
-	Stencil = 4
+	Stencil = 4,
+	All = Target | Depth_Buffer | Stencil
 }
 
 Primitive_Type :: enum i32 {
@@ -339,7 +340,9 @@ Presentation_Parameters :: struct {
 }
 
 Render_Target_Binding :: struct {
-	type: u8,
+	type: u8, // 2D = 0, Cube = 1
+	width: i32,
+	height: i32,
 	level_count: i32,
 	multi_sample_count: i32,
 	texture: ^Texture,
