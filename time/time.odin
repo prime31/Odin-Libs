@@ -8,7 +8,6 @@ Time :: struct {
 	prev_time: u32,
 	curr_time: u32,
 	fps_last_update: u32,
-	dt: f32,
 	fps: u32,
 	frame_count: u32
 }
@@ -18,11 +17,13 @@ time := Time{
 	frame_count = 1
 };
 
-tick :: proc() {
+
+@(private)
+update_fps :: proc() {
 	time.frame_count += 1;
 	time.fps_frames += 1;
 	time.prev_time = time.curr_time;
-	time.dt = 0.001 * f32(time.curr_time - time.prev_time);
+	time.curr_time = sdl.get_ticks();
 
 	time_since_last := time.curr_time - time.fps_last_update;
 	if time.curr_time > time.fps_last_update + 1000 {
@@ -32,19 +33,17 @@ tick :: proc() {
 	}
 }
 
-sleep :: proc(milliseconds: u32) { sdl.delay(milliseconds); }
+sleep :: proc(milliseconds: u32) do sdl.delay(milliseconds);
 
-dt :: proc() -> f32 { return time.dt; }
+frames :: proc() -> u32 do return time.frame_count;
 
-frames :: proc() -> u32 { return time.frame_count; }
+ticks :: proc() -> u32 do return sdl.get_ticks();
 
-ticks :: proc() -> u32 { return sdl.get_ticks(); }
+seconds :: proc() -> f32 do return f32(sdl.get_ticks()) / 1000.0;
 
-seconds :: proc() -> f32 { return f32(sdl.get_ticks()) / 1000.0; }
+fps :: proc() -> u32 do return time.fps;
 
-fps :: proc() -> u32 { return time.fps; }
-
-now :: proc() -> u64 { return sdl.get_performance_counter(); }
+now :: proc() -> u64 do return sdl.get_performance_counter();
 
 // returns the time in milliseconds since the last call
 laptime :: proc(last_time: ^u64) -> f64 {

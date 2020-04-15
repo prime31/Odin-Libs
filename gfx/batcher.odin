@@ -102,7 +102,7 @@ batcher_draw_tex :: proc(batcher: ^Batcher, texture: Texture, x, y: f32) {
 
 	// TODO: need to maintain a per-frame tally of the current base_vert that is updated after
 	// each flush then reset to 0 in batcher_end. We need this because we can flush more than once
-	// per frame.
+	// per frame in the case of our verts being full. We have to do a discard when we flush because of that.
 
 	base_vert := batcher.quad_cnt * 4;
 	batcher.quad_cnt += 1;

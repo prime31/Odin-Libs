@@ -16,7 +16,7 @@ fna_device: ^fna.Device;
 
 init :: proc(params: ^fna.Presentation_Parameters) {
 	presentation_params = params^;
-	fna_device = fna.create_device(params, 0);
+	fna_device = fna.create_device(&presentation_params, 0);
 	set_presentation_interval(.One);
 	set_default_graphics_state();
 

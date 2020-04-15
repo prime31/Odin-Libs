@@ -1,8 +1,9 @@
 package time
 
+import "core:fmt"
 import "core:runtime"
 import "core:math"
-import "core:fmt"
+import "shared:engine/utils"
 import "shared:engine/libs/sdl"
 
 // converted from Tyler Glaiel's: https://github.com/TylerGlaiel/FrameTimingControl/blob/master/frame_timer.cpp
@@ -10,7 +11,6 @@ import "shared:engine/libs/sdl"
 @(private)
 Timestep :: struct {
 	// these are loaded from Settings in production code
-	update_rate: f64,
 	update_multiplicity: int,
 	unlock_framerate: bool,
 
@@ -23,15 +23,18 @@ Timestep :: struct {
 	snap_frequencies: [5]u64,
 
 	prev_frame_time: u64,
-	frame_accumulator: u64
+	frame_accumulator: u64,
+
+	resync: bool,
+	time_averager: utils.Ring_Buffer(u64, 5)
 }
 
 @(private)
 timestep: Timestep;
 
+
 init :: proc(update_rate: f64 = 60, update_multiplicity: int = 1) {
 	timestep = Timestep{
-		update_rate = update_rate,
 		update_multiplicity = update_multiplicity,
 
 		fixed_deltatime = 1 / cast(f32)update_rate,
@@ -39,8 +42,11 @@ init :: proc(update_rate: f64 = 60, update_multiplicity: int = 1) {
 
 		vsync_maxerror = sdl.get_performance_frequency() / 5000,
 
-		prev_frame_time = sdl.get_performance_counter()
+		prev_frame_time = sdl.get_performance_counter(),
+		time_averager = utils.ring_buffer_make(u64, 5)
 	};
+
+	utils.ring_buffer_fill(&timestep.time_averager, timestep.desired_frametime);
 
 	time_60hz := u64(cast(f64)sdl.get_performance_frequency() / 60);
 	timestep.snap_frequencies[0] = time_60hz;		// 60fps
@@ -50,7 +56,14 @@ init :: proc(update_rate: f64 = 60, update_multiplicity: int = 1) {
 	timestep.snap_frequencies[4] = (time_60hz + 1) / 2; // 120fps //120hz, 240hz, or higher need to round up, so that adding 120hz twice guaranteed is at least the same as adding time_60hz once
 }
 
-tick :: proc(update: proc(f32)) {
+dt :: proc() -> f32 do return timestep.fixed_deltatime;
+
+// resyncs timestep effectively causing the timestep to not try to catch up. Call this after loading a level or heavy operation.
+resync :: proc() do timestep.resync = true;
+
+tick :: proc(update: proc()) {
+	update_fps();
+
 	// frame timer
     current_frame_time := sdl.get_performance_counter();
     delta_time := current_frame_time - timestep.prev_frame_time;
@@ -68,37 +81,31 @@ tick :: proc(update: proc(f32)) {
 		}
 	}
 
+	// delta time averaging
+	utils.ring_buffer_push(&timestep.time_averager, delta_time);
+	delta_time = 0;
+	for i in timestep.time_averager.data do delta_time += i;
+	delta_time /= len(timestep.time_averager.data);
+
 	// add to the accumulator
 	timestep.frame_accumulator += delta_time;
 
 	// spiral of death protection
-	if timestep.frame_accumulator > timestep.desired_frametime * 8 {
+	if timestep.frame_accumulator > timestep.desired_frametime * 8 do resync();
+
+	// timer resync if requested
+	if timestep.resync {
 		timestep.frame_accumulator = 0;
 		delta_time = timestep.desired_frametime;
+		timestep.resync = false;
 	}
 
 	// LOCKED FRAMERATE, NO INTERPOLATION
 	for timestep.frame_accumulator >= timestep.desired_frametime * cast(u64)timestep.update_multiplicity {
 		for i := 0; i < timestep.update_multiplicity; i += 1 {
-			update(timestep.fixed_deltatime);
+			update();
 			timestep.frame_accumulator -= timestep.desired_frametime;
 		}
 	}
 }
 
-
-main :: proc() {
-	sdl.init(cast(sdl.Init_Flags)0);
-	init();
-
-	tick(proc(dt:f32){
-		fmt.println("dt", dt);
-	});
-	tick(proc(dt:f32){
-		fmt.println("dt", dt);
-	});
-	tick(proc(dt:f32){
-		fmt.println("dt", dt);
-	});
-	fmt.println(timestep);
-}
