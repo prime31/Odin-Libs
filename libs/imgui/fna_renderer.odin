@@ -50,7 +50,7 @@ fna_init :: proc(fna_device: ^fna.Device) {
 	// font_texture = fna.create_texture_2d(device, .Color, width, height, 1, 0);
 	// fna.set_texture_data_2d(device, font_texture, .Color, 0, 0, width, height, 0, pixels, width * height * size_of(pixels));
 
-	font_atlas_set_text_id(io.fonts, font_texture.texture);
+	font_atlas_set_text_id(io.fonts, font_texture.fna_texture);
 	font_atlas_clear_tex_data(io.fonts);
 }
 

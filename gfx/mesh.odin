@@ -68,16 +68,16 @@ free_dynamic_mesh :: proc(mesh: ^$T/Dynamic_Mesh) {
 	free(mesh);
 }
 
-// Dont use .None for dynamic vert buffers: https://github.com/FNA-XNA/FNA3D/blob/master/include/FNA3D.h#L1115-L1140
-dynamic_mesh_update_all_verts :: proc(mesh: ^$T/Dynamic_Mesh, options: fna.Set_Data_Options = .Discard) {
+// Try not to use .None for dynamic vert buffers
+dynamic_mesh_update_all_verts :: proc(mesh: ^$T/Dynamic_Mesh, options: fna.Set_Data_Options = .None) {
 	set_vertex_buffer_data(mesh.vert_buffer, &mesh.verts, 0, options);
 }
 
-// uploads to the GPU the slide from start to end
-dynamic_mesh_append_vert_slice :: proc(mesh: ^$T/Dynamic_Mesh, start_index: i32, end_index: i32, options: fna.Set_Data_Options = .Discard) {
+// uploads to the GPU the slice from start to end
+dynamic_mesh_append_vert_slice :: proc(mesh: ^$T/Dynamic_Mesh, start_index: i32, num_verts: i32, options: fna.Set_Data_Options = .None) {
 	// cheat a bit here and use the Vertex_Buffer_Binding data to get the element size of our verts
 	offset_in_bytes := start_index * mesh.vert_buffer_binding.vertex_declaration.vertex_stride;
-	verts := batcher.mesh.verts[start_index:end_index];
+	verts := batcher.mesh.verts[start_index:start_index + num_verts];
 
 	set_vertex_buffer_data(mesh.vert_buffer, &verts, offset_in_bytes, options);
 }

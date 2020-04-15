@@ -66,7 +66,7 @@ set_presentation_interval :: proc(present_interval: fna.Present_Interval) {
 set_render_texture :: proc(render_texture: ^Render_Texture) {
 	// early out if we have nothing to change
 	if render_target_bindings.texture == nil && render_texture == nil do return;
-	if render_texture != nil && render_target_bindings.texture == render_texture.texture do return;
+	if render_texture != nil && render_target_bindings.texture == render_texture.fna_texture do return;
 
 	new_width, new_height: i32;
 	clear_target: fna.Render_Target_Usage;

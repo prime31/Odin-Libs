@@ -6,7 +6,7 @@ import "core:fmt"
 import "shared:engine/libs/fna"
 
 Texture :: struct {
-	using texture: ^fna.Texture,
+	using fna_texture: ^fna.Texture,
 	width, height: i32
 }
 
@@ -36,7 +36,7 @@ new_checkerboard_texture :: proc() -> Texture {
 	tex_sampler_state_cache[texture] = default_sampler_state;
 
 	return Texture{
-		texture = texture,
+		fna_texture = texture,
 		width = 4,
 		height = 4
 	};
@@ -44,7 +44,7 @@ new_checkerboard_texture :: proc() -> Texture {
 
 new_texture_from_data :: proc(data: ^$T, w, h: i32, sampler_state: fna.Sampler_State, format: fna.Surface_Format = .Color) -> Texture {
 	texture := Texture{
-		texture = fna.create_texture_2d(fna_device, format, w, h, 1, 0),
+		fna_texture = fna.create_texture_2d(fna_device, format, w, h, 1, 0),
 		width = w,
 		height = h
 	};
@@ -55,7 +55,7 @@ new_texture_from_data :: proc(data: ^$T, w, h: i32, sampler_state: fna.Sampler_S
 
 free_texture :: proc(texture: Texture) {
 	fna.add_dispose_texture(fna_device, texture);
-	delete_key(&tex_sampler_state_cache, texture.texture);
+	delete_key(&tex_sampler_state_cache, texture.fna_texture);
 }
 
 load_texture :: proc(file: string, sampler_state: fna.Sampler_State) -> Texture {
@@ -73,7 +73,7 @@ load_texture :: proc(file: string, sampler_state: fna.Sampler_State) -> Texture 
 	tex_sampler_state_cache[texture] = sampler_state;
 
 	return Texture{
-		texture = texture,
+		fna_texture = texture,
 		width = width,
 		height = height
 	};
@@ -101,7 +101,7 @@ texture_bind :: proc(texture: ^fna.Texture, index: i32 = 0) {
 new_render_texture :: proc(w, h: i32, sampler_state: fna.Sampler_State, format: fna.Surface_Format = .Color, depth_stencil_format: fna.Depth_Format = .None) -> Render_Texture {
 	render_texture := Render_Texture {
 		tex = Texture{
-			texture = fna.create_texture_2d(fna_device, format, w, h, 1, 1),
+			fna_texture = fna.create_texture_2d(fna_device, format, w, h, 1, 1),
 			width = w,
 			height = h
 		},

@@ -11,7 +11,7 @@ end_pass :: proc() {
 
 commit :: proc() {
 	// if we havent yet blitted to the screen do so now
-	batcher_end(batcher);
+	batcher_end_frame(batcher);
 }
 
 draw_tex :: proc(texture: Texture, x, y: f32) {
