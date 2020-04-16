@@ -25,21 +25,22 @@ Draw_Call :: struct {
 
 new_batcher :: proc(max_sprites: i32 = 15) -> ^Batcher {
 	batcher := new(Batcher);
-	batcher.mesh = new_dynamic_mesh(Vertex, max_sprites * 4, max_sprites * 6, true);
+	batcher.mesh = new_dynamic_mesh(Vertex, max_sprites * 4, max_sprites * 6);
 	batcher.shader = new_shader("effects/SpriteEffect.fxb");
 	batcher.draw_calls = make([dynamic]Draw_Call, 10);
 
+	indices := make([]i16, max_sprites * 6, context.temp_allocator);
 	for i in 0..<max_sprites {
 		// TODO: make this: 0, 1, 2, 0, 2, 3 and match vert assignment below
-		batcher.mesh.indices[i * 3 * 2 + 0] = i16(i) * 4 + 0;
-		batcher.mesh.indices[i * 3 * 2 + 1] = i16(i) * 4 + 1;
-		batcher.mesh.indices[i * 3 * 2 + 2] = i16(i) * 4 + 2;
-		batcher.mesh.indices[i * 3 * 2 + 3] = i16(i) * 4 + 2;
-		batcher.mesh.indices[i * 3 * 2 + 4] = i16(i) * 4 + 3;
-		batcher.mesh.indices[i * 3 * 2 + 5] = i16(i) * 4 + 0;
+		indices[i * 3 * 2 + 0] = i16(i) * 4 + 0;
+		indices[i * 3 * 2 + 1] = i16(i) * 4 + 1;
+		indices[i * 3 * 2 + 2] = i16(i) * 4 + 2;
+		indices[i * 3 * 2 + 3] = i16(i) * 4 + 0;
+		indices[i * 3 * 2 + 4] = i16(i) * 4 + 2;
+		indices[i * 3 * 2 + 5] = i16(i) * 4 + 3;
 	}
 
-	dynamic_mesh_update_indices(batcher.mesh);
+	set_index_buffer_data(batcher.mesh.index_buffer, &indices, 0);
 
 	return batcher;
 }
@@ -120,23 +121,23 @@ batcher_draw_tex :: proc(batcher: ^Batcher, texture: Texture, x, y: f32) {
 	batcher.draw_calls[batcher.draw_call_index].vert_count += 4;
 	batcher.vert_count += 4;
 
-	batcher.mesh.verts[batcher.vert_index].pos = {x + cast(f32)texture.width, y};
-	batcher.mesh.verts[batcher.vert_index].uv = {1, 0};
-	batcher.mesh.verts[batcher.vert_index].col = 0xFFFFFFFF;
-	batcher.vert_index += 1;
-
 	batcher.mesh.verts[batcher.vert_index].pos = {x, y};
 	batcher.mesh.verts[batcher.vert_index].uv = {0, 0};
 	batcher.mesh.verts[batcher.vert_index].col = 0xFFFFFFFF;
 	batcher.vert_index += 1;
 
-	batcher.mesh.verts[batcher.vert_index].pos = {x, y + cast(f32)texture.height};
-	batcher.mesh.verts[batcher.vert_index].uv = {0, 1};
+	batcher.mesh.verts[batcher.vert_index].pos = {x + cast(f32)texture.width, y};
+	batcher.mesh.verts[batcher.vert_index].uv = {1, 0};
 	batcher.mesh.verts[batcher.vert_index].col = 0xFFFFFFFF;
 	batcher.vert_index += 1;
 
 	batcher.mesh.verts[batcher.vert_index].pos = {x + cast(f32)texture.width, y + cast(f32)texture.height};
 	batcher.mesh.verts[batcher.vert_index].uv = {1, 1};
+	batcher.mesh.verts[batcher.vert_index].col = 0xFFFFFFFF;
+	batcher.vert_index += 1;
+
+	batcher.mesh.verts[batcher.vert_index].pos = {x, y + cast(f32)texture.height};
+	batcher.mesh.verts[batcher.vert_index].uv = {0, 1};
 	batcher.mesh.verts[batcher.vert_index].col = 0xFFFFFFFF;
 	batcher.vert_index += 1;
 }

@@ -43,7 +43,7 @@ Parser :: struct {
 parser :: proc(strict: bool = false) -> Parser {
 	return Parser{
 		strict = strict,
-		tokens = make([dynamic]Token, 0, 1000, context.temp_allocator) // TODO: necessary to make() this manually? should we use the temp allocator?
+		tokens = make([dynamic]Token, 0, 1000, context.temp_allocator)
 	};
 }
 
