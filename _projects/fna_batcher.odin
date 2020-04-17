@@ -1,5 +1,6 @@
 package main
 
+import "shared:engine/time"
 import "core:fmt"
 import "shared:engine"
 import "shared:engine/gfx"
