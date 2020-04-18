@@ -15,6 +15,26 @@ Mat32 :: distinct [6]f32;
 MAT32_IDENTITY :: Mat32{1, 0, 0, 1, 0, 0};
 
 
+mat32_make :: proc(x: f32, y: f32, sx: f32 = 1, sy: f32 = 1, ox: f32 = 0, oy: f32 = 0) -> Mat32 {
+    mat := MAT32_IDENTITY;
+
+    // matrix multiplication carried out on paper:
+    // |1    x| |c -s  | |sx     | |1   -ox|
+    // |  1  y| |s  c  | |   sy  | |  1 -oy|
+    //   move    rotate    scale     origin
+    mat[0] = sx;
+    mat[3] = sy;
+    mat[4] = x - ox * mat[0];
+    mat[5] = y - oy * mat[3];
+    return mat;
+}
+
+mat32_make_transform :: proc(x, y, angle, sx, sy, ox, oy: f32) -> Mat32 {
+    mat := MAT32_IDENTITY;
+    mat32_set_transform(&mat, x, y, angle, sx, sy, ox, oy);
+    return mat;
+}
+
 mat32_ortho :: proc(width, height: f32) -> Mat32 {
 	result := Mat32{};
     result[0] = 2 / width;
@@ -88,6 +108,17 @@ mat32_transform_vec2_arr :: proc(m: ^Mat32, dst: []$T, src: []Vec2) {
     for i in 0..<len(dst) {
         dst[i].pos.x = src[i].x * m[0] + src[i].y * m[2] + m[4];
         dst[i].pos.y = src[i].x * m[1] + src[i].y * m[3] + m[5];
+    }
+}
+
+// transforms the positions in Quad and copies them to dst along with the uvs and color. Note that $T is basically just a Vertex
+// type but we cant include gfx here (circular dependencies) so its generic instead.
+mat32_transform_quad :: proc(m: ^Mat32, dst: []$T, quad: ^Quad, color: Color) {
+    for i in 0..<len(dst) {
+        dst[i].pos.x = quad.positions[i].x * m[0] + quad.positions[i].y * m[2] + m[4];
+        dst[i].pos.y = quad.positions[i].x * m[1] + quad.positions[i].y * m[3] + m[5];
+        dst[i].uv = quad.uvs[i];
+        dst[i].col = color.packed;
     }
 }
 

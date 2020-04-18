@@ -3,29 +3,30 @@ package gfx
 import "core:fmt";
 import "core:runtime";
 import "core:intrinsics";
+import "shared:engine/maf"
 import "shared:engine/libs/fna"
 
 // default, 2D vertex type
 Vertex :: struct {
-	pos: [2]f32,
-	uv: [2]f32,
+	pos: maf.Vec2,
+	uv: maf.Vec2,
 	col: u32
 };
 
 Vert_Pos_Col :: struct {
-	pos: [2]f32,
+	pos: maf.Vec2,
 	col: u32
 };
 
 Vert_Pos_Tex :: struct {
-	pos: [2]f32,
-	uv: [2]f32
+	pos: maf.Vec2,
+	uv: maf.Vec2
 };
 
 Vert_Pos_Col_Tex :: struct {
-	pos: [2]f32,
+	pos: maf.Vec2,
 	col: u32,
-	uv: [2]f32
+	uv: maf.Vec2
 };
 
 @(private)
