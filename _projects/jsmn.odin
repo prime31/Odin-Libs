@@ -20,7 +20,7 @@ main :: proc() {
 	err := jsmn.parse(&parser, data);
 
 	elapsed := time.laptime(&timer);
-	fmt.println("Elapsed parse time: ", elapsed / 50);
+	fmt.println("Elapsed parse time: ", elapsed);
 	fmt.println("done. Result: ", err);
 
 

@@ -57,3 +57,7 @@ laptime :: proc(last_time: ^u64) -> f64 {
 	return dt;
 }
 
+to_seconds :: proc(perf_counter_time: u64) -> f64 do return cast(f64)(perf_counter_time) / cast(f64)sdl.get_performance_frequency();
+
+to_ms :: proc(perf_counter_time: u64) -> f64 do return cast(f64)(perf_counter_time * 1000.0) / cast(f64)sdl.get_performance_frequency();
+

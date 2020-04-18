@@ -9,6 +9,9 @@ import "shared:engine/libs/sdl"
 // converted from Tyler Glaiel's: https://github.com/TylerGlaiel/FrameTimingControl/blob/master/frame_timer.cpp
 
 @(private)
+TOTAL_DT_SAMPLES_FOR_AVG :: 5;
+
+@(private)
 Timestep :: struct {
 	// these are loaded from Settings in production code
 	update_multiplicity: int,
@@ -26,7 +29,8 @@ Timestep :: struct {
 	frame_accumulator: u64,
 
 	resync: bool,
-	time_averager: utils.Ring_Buffer(u64, 5)
+	time_averager: utils.Ring_Buffer(u64, TOTAL_DT_SAMPLES_FOR_AVG),
+	total_delta_times: u64
 }
 
 @(private)
@@ -43,10 +47,11 @@ init :: proc(update_rate: f64 = 60, update_multiplicity: int = 1) {
 		vsync_maxerror = sdl.get_performance_frequency() / 5000,
 
 		prev_frame_time = sdl.get_performance_counter(),
-		time_averager = utils.ring_buffer_make(u64, 5)
+		time_averager = utils.ring_buffer_make(u64, TOTAL_DT_SAMPLES_FOR_AVG)
 	};
 
 	utils.ring_buffer_fill(&timestep.time_averager, timestep.desired_frametime);
+	timestep.total_delta_times = timestep.desired_frametime * TOTAL_DT_SAMPLES_FOR_AVG;
 
 	time_60hz := u64(cast(f64)sdl.get_performance_frequency() / 60);
 	timestep.snap_frequencies[0] = time_60hz;		// 60fps
@@ -82,10 +87,10 @@ tick :: proc(update: proc()) {
 	}
 
 	// delta time averaging
+	timestep.total_delta_times -= utils.ring_buffer_pop(&timestep.time_averager);
+	timestep.total_delta_times += delta_time;
 	utils.ring_buffer_push(&timestep.time_averager, delta_time);
-	delta_time = 0;
-	for i in timestep.time_averager.data do delta_time += i;
-	delta_time /= len(timestep.time_averager.data);
+	delta_time = timestep.total_delta_times / TOTAL_DT_SAMPLES_FOR_AVG;
 
 	// add to the accumulator
 	timestep.frame_accumulator += delta_time;
