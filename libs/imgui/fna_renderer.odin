@@ -76,12 +76,18 @@ fna_render :: proc() {
 	vert_buffer_binding = fna.Vertex_Buffer_Binding{vert_buffer, vert_decl, 0, 0};
 
 
+	rasterizer_state := fna.Rasterizer_State{
+		scissor_test_enable = 1
+	};
+	fna.apply_rasterizer_state(device, &rasterizer_state);
+
+
 	new_list := mem.slice_ptr(draw_data.cmd_lists, int(draw_data.cmd_lists_count));
 	for list in new_list {
 		fna.set_vertex_buffer_data(device, vert_buffer, 0, list.vtx_buffer.data, list.vtx_buffer.size, size_of(DrawVert), size_of(DrawVert), .None);
 		fna.set_index_buffer_data(device, index_buffer, 0, list.idx_buffer.data, list.idx_buffer.size * size_of(DrawIdx), .None);
 
-		pos := draw_data.display_pos;
+		clip_off := draw_data.display_pos;
 		cmds := mem.slice_ptr(list.cmd_buffer.data, int(list.cmd_buffer.size));
 		for cmd, idx in cmds {
 			if cmd.user_callback != nil {
@@ -93,10 +99,10 @@ fna_render :: proc() {
 				}
 			} else {
 				clip_rect := fna.Rect{
-					cast(i32)cmd.clip_rect.x,
-					cast(i32)cmd.clip_rect.y,
-					cast(i32)(cmd.clip_rect.z - cmd.clip_rect.x),
-					cast(i32)(cmd.clip_rect.w - cmd.clip_rect.y)
+					i32(cmd.clip_rect.x - clip_off.x),
+					i32(cmd.clip_rect.y - clip_off.y),
+					cast(i32)(cmd.clip_rect.z - clip_off.x - cmd.clip_rect.x),
+					cast(i32)(cmd.clip_rect.w - clip_off.y - cmd.clip_rect.y)
 				};
 
 				if clip_rect.x < width && clip_rect.y < height && clip_rect.h >= 0 && clip_rect.w >= 0 {

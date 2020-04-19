@@ -35,10 +35,7 @@ set_default_graphics_state :: proc() {
 	};
 	fna.set_blend_state(fna_device, &blend);
 
-	rasterizer_state := fna.Rasterizer_State{
-		fill_mode = .Solid,
-		cull_mode = .None
-	};
+	rasterizer_state := fna.Rasterizer_State{};
 	fna.apply_rasterizer_state(fna_device, &rasterizer_state);
 
 	depth_stencil := fna.Depth_Stencil_State{};
