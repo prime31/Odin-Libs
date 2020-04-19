@@ -36,7 +36,7 @@ fna_init :: proc(fna_device: ^fna.Device) {
 	create_context();
 	io := get_io();
 	io.config_flags |= .DockingEnable;
-	io.config_flags |= .ViewportsEnable;
+	// io.config_flags |= .ViewportsEnable;
 
 	style_colors_dark(get_style());
 

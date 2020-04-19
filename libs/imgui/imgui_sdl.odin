@@ -58,7 +58,7 @@ sdl_init :: proc(window: ^sdl.Window) {
 
     // TODO: ImGui_ImplSDL2_InitPlatformInterface
     if int(io.config_flags & .ViewportsEnable) != 0 && int(io.backend_flags & .PlatformHasViewports) != 0 {
-    	// fmt.println("------- viewports requested but not yet implemented");
+    	init_platform_interface(window);
     }
 }
 
@@ -110,7 +110,7 @@ sdl_new_frame :: proc(window: ^sdl.Window, drawable_width: i32, drawable_height:
 
 	if int(io.config_flags & .ViewportsEnable) != 0 {
 		// TODO: viewports
-		// fmt.println("---- viewports not implemented");
+		fmt.println("---- viewports not implemented");
 	} else {
 		if sdl.get_window_flags(window) | cast(u32)sdl.Window_Flags.Input_Focus != 0 {
 			window_x, window_y: i32;
@@ -170,8 +170,13 @@ sdl_handle_event :: proc(evt: ^sdl.Event) -> bool {
 			return get_io().want_capture_keyboard;
 		}
 		case .Window_Event: {
-			// TODO: viewport support and return true
-			return false;
+			// TODO: should this return true?
+			if evt.window.event == .Close || evt.window.event == .Moved || evt.window.event == .Resized {
+				viewport := find_viewport_by_platform_handle(sdl.get_window_fromid(evt.window.window_id));
+				if evt.window.event == .Close do viewport.platform_request_close = true;
+				if evt.window.event == .Moved do viewport.platform_request_move = true;
+				if evt.window.event == .Resized do viewport.platform_request_resize = true;
+			}
 		}
 	}
 	return false;

@@ -680,13 +680,14 @@ foreign cimgui {
     // Viewports
     @(link_name = "igUpdatePlatformWindows") update_platform_windows :: proc() ---;
     @(link_name = "igRenderPlatformWindowsDefault") render_platform_windows_default :: proc(platform_arg: rawptr = nil, renderer_arg: rawptr = nil) ---;
+    @(link_name = "igGetPlatformIO") get_platform_io :: proc() -> ^Platform_IO ---;
     @(link_name = "igGetMainViewport") get_main_viewport :: proc() -> ^Viewport ---;
     @(link_name = "igGetWindowViewport") get_window_viewport :: proc() -> ^Viewport ---;
     @(link_name = "igSetNextWindowViewport") set_next_window_viewport :: proc(viewport_id: u32) ---;
     @(link_name = "igDockSpaceOverViewport") dock_space_over_viewport :: proc(viewport: ^Viewport, flags: i32, window_class: ^Window_Class) -> u32 ---;
     @(link_name = "igGetBackgroundDrawListViewportPtr") get_background_draw_list_viewport_ptr :: proc(viewport: ^Viewport) -> ^DrawList ---;
     @(link_name = "igGetForegroundDrawListViewportPtr") get_foreground_draw_list_viewport_ptr :: proc(viewport: ^Viewport) -> ^DrawList ---;
-    @(link_name = "igFindViewportByID") find_viewport_by_i_d :: proc(id: u32) -> ^Viewport ---;
+    @(link_name = "igFindViewportByID") find_viewport_by_id :: proc(id: u32) -> ^Viewport ---;
     @(link_name = "igFindViewportByPlatformHandle") find_viewport_by_platform_handle :: proc(platform_handle: rawptr) -> ^Viewport ---;
     @(link_name = "ImGuiViewport_ImGuiViewport") viewport_viewport :: proc() -> ^Viewport ---;
     @(link_name = "ImGuiViewport_destroy") viewport_destroy :: proc(self: ^Viewport) ---;

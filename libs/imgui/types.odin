@@ -427,6 +427,25 @@ Draw_Data_Builder :: struct {
 	layers: [2]ImVector(DrawList)
 }
 
+Platform_IO :: struct {
+	create_window: proc "c" (vp: Viewport),
+	destroy_window: proc "c" (vp: Viewport),
+	show_window: proc "c" (vp: Viewport),
+	set_window_position: proc "c" (vp: Viewport, pos: Vec2),
+	get_window_position: proc "c" (vp: Viewport) -> Vec2,
+	set_window_size: proc "c" (vp: Viewport, pos: Vec2),
+	get_window_size: proc "c" (vp: Viewport) -> Vec2,
+	set_window_focus: proc "c" (vp: Viewport),
+	get_window_focus: proc "c" (vp: Viewport) -> bool,
+	get_window_minimized: proc "c" (vp: Viewport) -> bool,
+	set_window_title: proc "c" (vp: Viewport, str: cstring),
+	set_window_alpha: proc "c" (vp: Viewport, alpha: f32),
+	update_window: proc "c" (vp: Viewport),
+	render_window: proc "c" (vp: Viewport, render_arg: rawptr),
+	swap_buffers: proc "c" (vp: Viewport, render_arg: rawptr)
+	// ommitted optional fields
+}
+
 Viewport_P :: struct {
 	_imguiviewport: Viewport,
 	idx: i32,
