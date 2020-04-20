@@ -33,6 +33,8 @@ init :: proc(params: ^fna.Presentation_Parameters) {
 	default_fontbook = new_fontbook(256, 256);
 	fontbook_add_font_mem(default_fontbook, default_font_bytes, false);
 	fontbook_set_size(default_fontbook, 10);
+
+	debug_init();
 }
 
 @(private)

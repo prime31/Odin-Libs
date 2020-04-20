@@ -1,20 +1,23 @@
 package gfx
 
+import "core:strings"
 import "shared:engine/libs/fna"
 import "core:fmt"
 import "core:math"
 import "shared:engine/maf"
 import "shared:engine/libs/fontstash"
 
-@(private)
+@private
 quad: maf.Quad;
+@private
+_debug_render_enabled: bool = true;
 
 
 begin_pass :: proc() {}
 
 end_pass :: proc() {
 	batcher_flush(batcher);
-	// do debug render if enabled
+	if _debug_render_enabled do debug_render();
 }
 
 commit :: proc() {
@@ -45,13 +48,15 @@ draw_tex_viewport :: proc(texture: Texture, viewport: maf.Rect, mat: ^maf.Mat32,
 	batcher_draw(batcher, texture, &quad, mat, color);
 }
 
-draw_text :: proc(str: cstring, fontbook: ^Font_Book = nil) {
+draw_text :: proc(str: string, fontbook: ^Font_Book = nil) {
+	cstr := strings.clone_to_cstring(str, context.temp_allocator);
+
 	fontbook := fontbook != nil ? fontbook : default_fontbook;
 	matrix := maf.mat32_make_transform(20, 40, 0, 4, 4, 0, 0);
 	fontstash.set_align(fontbook.stash, cast(i32)fontstash.Align.Left);
 
 	iter := fontstash.Text_Iter{};
-	if fontstash.text_iter_init(fontbook.stash, &iter, 0, 0, str, nil) == 0 do fmt.panicf("text_iter_init failed");
+	if fontstash.text_iter_init(fontbook.stash, &iter, 0, 0, cstr, nil) == 0 do fmt.panicf("text_iter_init failed");
 
 	fons_quad := fontstash.Quad{};
 	for fontstash.text_iter_next(fontbook.stash, &iter, &fons_quad) == 1 {
