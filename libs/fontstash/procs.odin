@@ -12,7 +12,7 @@ foreign fs {
     delete_internal :: proc(ctx: ^Context) ---;
 
     @(link_name = "fonsSetErrorCallback")
-    set_error_callback :: proc(ctx: ^Context, unamed0: #type proc "c" (uptr: rawptr, error, val: i32), uptr: rawptr) ---;
+    set_error_callback :: proc(ctx: ^Context, callback: #type proc "c" (uptr: rawptr, error, val: i32), uptr: rawptr) ---;
 
     @(link_name = "fonsGetAtlasSize")
     get_atlas_size :: proc(ctx: ^Context, width: ^i32, height: ^i32) ---;
@@ -28,7 +28,7 @@ foreign fs {
     get_font_by_name :: proc(ctx: ^Context, name: cstring) -> i32 ---;
 
     @(link_name = "fonsAddFontMem")
-    add_font_mem :: proc(ctx: ^Context, name: cstring, data: rawptr, dataSize: i32, freeData: i32) -> i32 ---;
+    add_font_mem :: proc(ctx: ^Context, name: cstring, data: rawptr, data_size: i32, free_data: i32) -> i32 ---;
 
     @(link_name = "fonsAddFallbackFont")
     add_fallback_font :: proc(stash: ^Context, base: i32, fallback: i32) -> i32 ---;

@@ -1,22 +1,27 @@
-package fonts
+package gfx
 
 import "core:os"
 import "core:mem"
 import "core:fmt"
-import "shared:engine/gfx"
 import "shared:engine/libs/fna"
 import "shared:engine/libs/fontstash"
 
 // controls texture type. If true, texture is 4x larger but we can use our standard shader to render
 // text. If false, the tex is r8 a special shader is required to render it.
+@private
 CONVERT_FONT_TEX_TO_RGBA :: true;
+
+@private
+MAX_FONTS_PER_FONTBOOK :: 5;
+
 
 Font_Book :: struct {
 	using stash: ^fontstash.Context,
 	texture: ^fna.Texture,
 	tex_filter: fna.Texture_Filter,
 	width: i32,
-	height: i32
+	height: i32,
+	font_data: [5]rawptr
 }
 
 Font :: distinct i32;
@@ -36,8 +41,7 @@ new_fontbook :: proc(width, height: i32, tex_filter: fna.Texture_Filter = .Point
 		render_create = fons_render_create,
 		render_resize = fons_render_resize,
 		render_update = fons_render_update,
-		render_draw = fons_render_draw,
-		render_delete = fons_render_delete
+		render_draw = fons_render_draw
 	};
 
 	fb.stash = fontstash.create_internal(&params);
@@ -46,19 +50,23 @@ new_fontbook :: proc(width, height: i32, tex_filter: fna.Texture_Filter = .Point
 }
 
 free_fontbook :: proc(fontbook: ^Font_Book) {
-    if fontbook.texture != nil do fna.add_dispose_texture(gfx.fna_device, fontbook.texture);
+	for i in 0..<MAX_FONTS_PER_FONTBOOK {
+		if fontbook.font_data[i] != nil do free(fontbook.font_data[i]);
+	}
+
+	fontstash.delete_internal(fontbook);
+    if fontbook.texture != nil do fna.add_dispose_texture(fna_device, fontbook.texture);
 	free(fontbook);
 }
 
 // callbacks
 @(private)
 fons_render_create :: proc "c" (uptr: rawptr, width, height: i32) -> i32 {
-	fmt.println("fons_render_create", width, height);
 	fb := cast(^Font_Book)uptr;
 
     // create or re-create font atlas texture
     if fb.texture != nil {
-    	fna.add_dispose_texture(gfx.fna_device, fb.texture);
+    	fna.add_dispose_texture(fna_device, fb.texture);
         fb.texture = nil;
     }
 
@@ -72,20 +80,16 @@ fons_render_create :: proc "c" (uptr: rawptr, width, height: i32) -> i32 {
     	filter = fb.tex_filter
     };
 
-    fb.texture = gfx.new_texture(width, height, sampler_state, CONVERT_FONT_TEX_TO_RGBA ? .Color : .Alpha8);
+    fb.texture = new_texture(width, height, sampler_state, CONVERT_FONT_TEX_TO_RGBA ? .Color : .Alpha8);
 
 	return 1;
 }
 
 @(private)
-fons_render_resize :: proc "c" (uptr: rawptr, width: i32, height: i32) -> i32 {
-	fmt.println("fons_render_resize");
-	return fons_render_create(uptr, width, height);
-}
+fons_render_resize :: proc "c" (uptr: rawptr, width: i32, height: i32) -> i32 do return fons_render_create(uptr, width, height);
 
 @(private)
 fons_render_update :: proc "c" (uptr: rawptr, rect: ^i32, data: ^byte) {
-	fmt.println("fons_render_update", mem.slice_ptr(rect, 4));
 	fb := cast(^Font_Book)uptr;
 
 	// TODO: only update the rect that changed
@@ -101,9 +105,9 @@ fons_render_update :: proc "c" (uptr: rawptr, rect: ^i32, data: ^byte) {
 			pixels[i * 4 + 3] = source[i];
 		}
 
-		fna.set_texture_data_2d(gfx.fna_device, fb.texture, .Color, 0, 0, fb.width, fb.height, 0, &pixels[0], cast(i32)tex_area * 4);
+		fna.set_texture_data_2d(fna_device, fb.texture, .Color, 0, 0, fb.width, fb.height, 0, &pixels[0], cast(i32)tex_area * 4);
 	} else {
-		fna.set_texture_data_2d(gfx.fna_device, fb.texture, .Alpha8, 0, 0, fb.width, fb.height, 0, fb.stash.tex_data, fb.width * fb.height);
+		fna.set_texture_data_2d(fna_device, fb.texture, .Alpha8, 0, 0, fb.width, fb.height, 0, fb.stash.tex_data, fb.width * fb.height);
 	}
 }
 
@@ -112,21 +116,26 @@ fons_render_draw :: proc "c" (uptr: rawptr, verts: ^f32, tcoords: ^f32, colors: 
 	fmt.println("fons_render_draw", verts, tcoords, colors, nverts);
 }
 
-@(private)
-fons_render_delete :: proc "c" (uptr: rawptr) {
-	fmt.println("fons_render_delete");
-	fb := cast(^Font_Book)uptr;
-	free_fontbook(fb);
-}
-
 fontbook_add_font :: proc(fontbook: ^Font_Book, file: cstring) -> Font {
 	data, success := os.read_entire_file(cast(string)file);
 	if !success do panic("could not open font file");
 
-	return cast(Font)fontstash.add_font_mem(fontbook.stash, file, &data[0], cast(i32)len(data), 1);
+	// tuck away the ptr to the font so we can free it later
+	for i in 0..<MAX_FONTS_PER_FONTBOOK {
+		if fontbook.font_data[i] == nil {
+			fontbook.font_data[i] = cast(rawptr)&data[0];
+			break;
+		}
+	}
+
+	return cast(Font)fontstash.add_font_mem(fontbook.stash, file, &data[0], cast(i32)len(data), 0);
 }
 
-get_font_by_name :: proc(fontbook: ^Font_Book, name: cstring) -> Font {
+fontbook_add_font_mem :: proc(fontbook: ^Font_Book, data: []byte, free_data: bool) -> Font {
+	return cast(Font)fontstash.add_font_mem(fontbook.stash, "", &data[0], cast(i32)len(data), free_data ? 1 : 0);
+}
+
+fontbook_get_font_by_name :: proc(fontbook: ^Font_Book, name: cstring) -> Font {
 	return cast(Font)fontstash.get_font_by_name(fontbook.stash, name);
 }
 
@@ -169,6 +178,8 @@ fontbook_set_font :: proc(fontbook: ^Font_Book, font: Font) {
 	fontstash.set_font(fontbook.stash, cast(i32)font);
 }
 
+// this method uses the callback system to render. We use the iter system for more control
+@(private)
 fontbook_draw_text :: proc(fontbook: ^Font_Book, str: cstring) {
 	fontstash.draw_text(fontbook, 0, 0, str, nil);
 }

@@ -45,16 +45,17 @@ draw_tex_viewport :: proc(texture: Texture, viewport: maf.Rect, mat: ^maf.Mat32,
 	batcher_draw(batcher, texture, &quad, mat, color);
 }
 
-draw_text :: proc(str: cstring, stash: ^fontstash.Context, texture: ^fna.Texture) {
+draw_text :: proc(str: cstring, fontbook: ^Font_Book = nil) {
+	fontbook := fontbook != nil ? fontbook : default_fontbook;
 	matrix := maf.mat32_make_transform(20, 40, 0, 4, 4, 0, 0);
-	fontstash.set_align(stash, cast(i32)fontstash.Align.Left);
+	fontstash.set_align(fontbook.stash, cast(i32)fontstash.Align.Left);
 
 	iter := fontstash.Text_Iter{};
-	if fontstash.text_iter_init(stash, &iter, 0, 0, str, nil) == 0 do fmt.panicf("text_iter_init failed");
+	if fontstash.text_iter_init(fontbook.stash, &iter, 0, 0, str, nil) == 0 do fmt.panicf("text_iter_init failed");
 
 	fons_quad := fontstash.Quad{};
-	for fontstash.text_iter_next(stash, &iter, &fons_quad) == 1 {
-		// TODO: maybe make the transform_vec2_arr generic and just use a local fixed array for positions and tex coords?
+	for fontstash.text_iter_next(fontbook.stash, &iter, &fons_quad) == 1 {
+		// TODO: maybe make the transform_vec2_arr generic and just use a local fixed array for positions and tex coords and do this in batcher?
 		quad.positions[0] = {fons_quad.x0, fons_quad.y0};
 		quad.positions[1] = {fons_quad.x1, fons_quad.y0};
 		quad.positions[2] = {fons_quad.x1, fons_quad.y1};
@@ -65,6 +66,6 @@ draw_text :: proc(str: cstring, stash: ^fontstash.Context, texture: ^fna.Texture
 		quad.uvs[2] = {fons_quad.s1, fons_quad.t1};
 		quad.uvs[3] = {fons_quad.s0, fons_quad.t1};
 
-		batcher_draw(batcher, texture, &quad, &matrix);
+		batcher_draw(batcher, fontbook.texture, &quad, &matrix);
 	}
 }

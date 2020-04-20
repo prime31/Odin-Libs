@@ -3,12 +3,18 @@ package gfx
 import "core:fmt"
 import "shared:engine/libs/fna"
 
+
+// TODO: wrap these all up in a single struct
 @(private)
 render_target_bindings: fna.Render_Target_Binding;
 @(private)
 presentation_params: fna.Presentation_Parameters;
 @(private)
 batcher: ^Batcher;
+@(private)
+default_fontbook: ^Font_Book;
+@(private)
+default_font_bytes := #load("ProggyTiny.ttf");
 @(private)
 viewport: fna.Viewport;
 default_sampler_state: fna.Sampler_State = {filter = .Point, max_anisotropy = 4};
@@ -23,6 +29,10 @@ init :: proc(params: ^fna.Presentation_Parameters) {
 	set_viewport({0, 0, params.back_buffer_width, params.back_buffer_height, 0, 1});
 
 	batcher = new_batcher();
+
+	default_fontbook = new_fontbook(256, 256);
+	fontbook_add_font_mem(default_fontbook, default_font_bytes, false);
+	fontbook_set_size(default_fontbook, 10);
 }
 
 @(private)
