@@ -1355,6 +1355,8 @@ FONS_DEF int fonsTextIterInit(FONScontext* stash, FONStextIter* iter,
 	iter->codepoint = 0;
 	iter->prevGlyphIndex = -1;
 
+	fons__flush(stash);
+
 	return 1;
 }
 
