@@ -42,14 +42,19 @@ new_checkerboard_texture :: proc() -> Texture {
 	};
 }
 
-new_texture_from_data :: proc(data: ^$T, w, h: i32, sampler_state: fna.Sampler_State, format: fna.Surface_Format = .Color) -> Texture {
+new_texture :: proc(w, h: i32, sampler_state: fna.Sampler_State, format: fna.Surface_Format = .Color) -> Texture {
 	texture := Texture{
 		fna_texture = fna.create_texture_2d(fna_device, format, w, h, 1, 0),
 		width = w,
 		height = h
 	};
-	fna.set_texture_data_2d(fna_device, texture, format, 0, 0, w, h, 0, data, w * h * size_of(data));
+	tex_sampler_state_cache[texture] = sampler_state;
+	return texture;
+}
 
+new_texture_from_data :: proc(data: ^$T, w, h: i32, sampler_state: fna.Sampler_State, format: fna.Surface_Format = .Color) -> Texture {
+	texture := new_texture(w, h, sampler_state, format);
+	fna.set_texture_data_2d(fna_device, texture, format, 0, 0, w, h, 0, data, w * h * size_of(data));
 	return texture;
 }
 

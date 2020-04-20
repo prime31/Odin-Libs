@@ -1,5 +1,6 @@
 package main
 
+import "shared:engine/fonts"
 import "shared:engine/libs/imgui"
 import "shared:engine/maf"
 import "shared:engine/time"
@@ -12,6 +13,8 @@ texture1: gfx.Texture;
 texture2: gfx.Texture;
 rt: gfx.Render_Texture;
 float: f32;
+font: ^fonts.Font_Book;
+proggy_tiny: fonts.Font;
 
 main :: proc() {
 	engine.run({
@@ -25,10 +28,26 @@ init :: proc() {
 	texture1 = gfx.new_checkerboard_texture();
 	texture2 = gfx.load_texture("assets/angular.png", {filter = .Linear});
 	rt = gfx.new_render_texture(50, 50, gfx.default_sampler_state);
+
+	font = fonts.new_fontbook(256, 256);
+	proggy_tiny = fonts.fontbook_add_font(font, "assets/ProggyTiny.ttf");
+	fonts.fontbook_set_font(font, proggy_tiny);
+	fonts.fontbook_set_size(font, 10);
 }
 
 update :: proc() {
-	imgui.slider_float("floater", &float, -5, 5);
+	// imgui.slider_float("floater", &float, -5, 5);
+
+
+	// imgui.begin_group();
+	// imgui.drag_float("fart", &float);
+	// imgui.end_group();
+
+	// imgui.show_demo_window();
+
+	// imgui.begin_group();
+	// imgui.drag_float("fart", &float);
+	// imgui.end_group();
 }
 
 render :: proc() {
@@ -38,6 +57,7 @@ render :: proc() {
 	gfx.draw_tex(texture1, 50, 50);
 	gfx.draw_tex_rot_scale(texture1, 60, 360, float, 8);
 	gfx.draw_tex(texture1, 70, 70);
+	gfx.draw_text("fart in my face", font, font.texture);
 	gfx.end_pass();
 
 	gfx.begin_pass();
