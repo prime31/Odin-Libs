@@ -20,7 +20,7 @@ viewport: fna.Viewport;
 default_sampler_state: fna.Sampler_State = {filter = .Point, max_anisotropy = 4};
 fna_device: ^fna.Device;
 
-init :: proc(params: ^fna.Presentation_Parameters) {
+init :: proc(params: ^fna.Presentation_Parameters, disable_debug_render: bool) {
 	presentation_params = params^;
 	fna_device = fna.create_device(&presentation_params, 0);
 	set_presentation_interval(.One);
@@ -34,6 +34,7 @@ init :: proc(params: ^fna.Presentation_Parameters) {
 	fontbook_add_font_mem(default_fontbook, default_font_bytes, false);
 	fontbook_set_size(default_fontbook, 10);
 
+	_debug_render_enabled = !disable_debug_render;
 	debug_init();
 }
 

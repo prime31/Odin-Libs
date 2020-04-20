@@ -25,6 +25,7 @@ Engine_Config :: struct {
 	max_tris: i32,					// max number of triangles allowed to be rendered per frame (shapes and lines)
 
 	win_config: window.Window_Config,	// window configuration
+	disable_debug_render: bool,		// when true, debug rendering will be disabled
 
 	imgui_disabled: bool,			// whether imgui should be disabled
 	imgui_viewports: bool,			// whether imgui viewports should be enabled
@@ -52,7 +53,7 @@ run :: proc(config: Engine_Config) {
 		display_orientation = fna.Display_Orientation.Default,
 		render_target_usage = fna.Render_Target_Usage.Platform_Contents
 	};
-	gfx.init(&params);
+	gfx.init(&params, config.disable_debug_render);
 	time.init(config.update_rate, config.update_multiplicity);
 
 	config.init();

@@ -13,6 +13,10 @@ quad: maf.Quad;
 _debug_render_enabled: bool = true;
 
 
+debug_render_enabled :: proc(enabled: bool) {
+	_debug_render_enabled = enabled;
+}
+
 begin_pass :: proc() {}
 
 end_pass :: proc() {
