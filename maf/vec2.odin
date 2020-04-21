@@ -20,3 +20,5 @@ vec2_distance_sq :: proc(vec1, vec2: Vec2) -> f32 {
 
 vec2_distance :: proc(vec1, vec2: Vec2) -> f32 do return math.sqrt(vec2_distance_sq(vec1, vec2));
 
+vec2_perpindicular :: proc(first, second: Vec2) -> Vec2 do return {-1 * (second.y - first.y), second.x - first.x};
+

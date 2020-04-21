@@ -32,16 +32,14 @@ commit :: proc() {
 }
 
 draw_tex :: proc(texture: Texture, x, y: f32) {
-	maf.quad_set_image_dimensions(&quad, texture.width, texture.height);
-	maf.quad_set_viewport(&quad, 0, 0, cast(f32)texture.width, cast(f32)texture.height);
+	maf.quad_set_fill(&quad, texture.width, texture.height);
 
 	mat := maf.mat32_make(x, y);
 	batcher_draw(batcher, texture, &quad, &mat);
 }
 
 draw_tex_rot_scale :: proc(texture: Texture, x, y, angle: f32, scale: f32 = 1) {
-	maf.quad_set_image_dimensions(&quad, texture.width, texture.height);
-	maf.quad_set_viewport(&quad, 0, 0, cast(f32)texture.width, cast(f32)texture.height);
+	maf.quad_set_fill(&quad, texture.width, texture.height);
 
 	mat := maf.mat32_make_transform(x, y, angle, scale, scale, 0, 0);
 	batcher_draw(batcher, texture, &quad, &mat);
@@ -81,13 +79,32 @@ draw_text :: proc(str: string, fontbook: ^Font_Book = nil) {
 	}
 }
 
-draw_line :: proc(start, end: maf.Vec2, width: f32 = 1, color: maf.Color = maf.COL_WHITE) {
+draw_line :: proc(start, end: maf.Vec2, thickness: f32 = 1, color: maf.Color = maf.COL_WHITE) {
+	maf.quad_set_fill(&quad, _white_tex.width, _white_tex.height);
+
 	angle := maf.vec2_angle_between(start, end);
 	length := maf.vec2_distance(start, end);
 
-	maf.quad_set_image_dimensions(&quad, _white_tex.width, _white_tex.height);
-	maf.quad_set_viewport(&quad, 0, 0, cast(f32)_white_tex.width, cast(f32)_white_tex.height);
-
-	mat := maf.mat32_make_transform(start.x, start.y, angle, length, width, 0, 0.5 * cast(f32)_white_tex.height);
+	mat := maf.mat32_make_transform(start.x, start.y, angle, length, thickness, 0, 0.5 * cast(f32)_white_tex.height);
 	batcher_draw(batcher, _white_tex, &quad, &mat, color);
+}
+
+draw_circle :: proc(center: maf.Vec2, radius: f32, thickness: f32 = 1, color: maf.Color = maf.COL_WHITE, resolution: int = 12) {
+	maf.quad_set_fill(&quad, _white_tex.width, _white_tex.height);
+
+	last := maf.Vec2{1, 0} * radius;
+	last_p := maf.vec2_orthogonal(last);
+
+	for i in 1..<resolution {
+		at := maf.angle_to_vec(cast(f32)i * maf.PI_OVER_2 / cast(f32)resolution, radius);
+		at_p := maf.vec2_orthogonal(at);
+
+		draw_line(center + last, center + at, thickness, color);
+		draw_line(center - last, center - at, thickness, color);
+		draw_line(center + last_p, center + at_p, thickness, color);
+		draw_line(center - last_p, center - at_p, thickness, color);
+
+		last = at;
+		last_p = at_p;
+	}
 }

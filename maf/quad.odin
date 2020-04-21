@@ -16,6 +16,13 @@ quad :: proc(x, y, width, height: f32, img_width, img_height: i32) -> Quad {
 	return q;
 }
 
+// sets the Quad to be the full size of the texture
+quad_set_fill :: proc(quad: ^Quad, img_width, img_height: i32) {
+	quad.img_width = img_width;
+	quad.img_height = img_height;
+	quad_set_viewport(quad, 0, 0, cast(f32)img_width, cast(f32)img_height);
+}
+
 quad_set_image_dimensions :: proc(quad: ^Quad, img_width, img_height: i32) {
 	quad.img_width = img_width;
 	quad.img_height = img_height;
