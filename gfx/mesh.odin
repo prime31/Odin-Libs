@@ -39,7 +39,6 @@ mesh_draw :: proc(mesh: ^Mesh, num_vertices: i32) {
 	primitive_count := num_vertices / 2; // assuming Triangle_List
 	fna.apply_vertex_buffer_bindings(fna_device, &mesh.vert_buffer_binding, 1, 0, 0); // last 2 params: bindings_updated: u8, base_vertex: i32
 	fna.draw_indexed_primitives(fna_device, .Triangle_List, 0, 0, num_vertices, 0, primitive_count, mesh.index_buffer, ._16_Bit);
-	//(device: ^Device, primitive_type: Primitive_Type, base_vertex: i32, min_vertex_index: i32, num_vertices: i32, start_index: i32, primitive_count: i32, indices: ^Buffer, index_element_size: Index_Element_Size) ---;
 }
 
 

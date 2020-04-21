@@ -11,6 +11,8 @@ import "shared:engine/libs/fontstash"
 quad: maf.Quad;
 @private
 _debug_render_enabled: bool = true;
+@private
+_white_tex: Texture;
 
 
 debug_render_enabled :: proc(enabled: bool) {
@@ -77,4 +79,15 @@ draw_text :: proc(str: string, fontbook: ^Font_Book = nil) {
 
 		batcher_draw(batcher, fontbook.texture, &quad, &matrix);
 	}
+}
+
+draw_line :: proc(start, end: maf.Vec2, width: f32 = 1, color: maf.Color = maf.COL_WHITE) {
+	angle := maf.vec2_angle_between(start, end);
+	length := maf.vec2_distance(start, end);
+
+	maf.quad_set_image_dimensions(&quad, _white_tex.width, _white_tex.height);
+	maf.quad_set_viewport(&quad, 0, 0, cast(f32)_white_tex.width, cast(f32)_white_tex.height);
+
+	mat := maf.mat32_make_transform(start.x, start.y, angle, length, width, 0, 0.5 * cast(f32)_white_tex.height);
+	batcher_draw(batcher, _white_tex, &quad, &mat, color);
 }

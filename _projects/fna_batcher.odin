@@ -50,6 +50,10 @@ render :: proc() {
 	gfx.draw_tex_rot_scale(texture1, 60, 360, float, 8);
 	gfx.draw_tex(texture1, 70, 70);
 	gfx.draw_text("fart in my face");
+
+	gfx.draw_line({20,20}, {500, 300});
+	gfx.draw_line({20,20}, {500, 0});
+	gfx.draw_line({30,10}, {50, 450}, 4);
 	gfx.end_pass();
 
 	gfx.begin_pass();
