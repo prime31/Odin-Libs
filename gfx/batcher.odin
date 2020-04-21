@@ -59,7 +59,7 @@ batcher_end_frame :: proc(batcher: ^Batcher) {
 }
 
 batcher_flush :: proc(batcher: ^Batcher, discard_buffer: bool = false) {
-	if batcher.draw_call_index < 0 do return;
+	if batcher.vert_count == 0 do return;
 
 	// if we ran out of space and dont support no_overwrite we have to discard the buffer
 	// TODO: we can lose data on Metal with No_Overwrite. FNA3D bug or our bug?
