@@ -133,3 +133,8 @@ draw_hollow_rect :: proc(position: maf.Vec2, width, height: f32, color: maf.Colo
 	draw_line(br, bl, thickness, color);
 	draw_line(bl, position, thickness, color);
 }
+
+draw_polygon :: proc(verts: []maf.Vec2, color: maf.Color = maf.COL_WHITE, thickness: f32 = 1) {
+	for i in 0..<len(verts) - 1 do draw_line(verts[i], verts[i + 1], thickness, color);
+	draw_line(verts[len(verts) - 1], verts[0], thickness, color);
+}

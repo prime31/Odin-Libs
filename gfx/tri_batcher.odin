@@ -138,26 +138,13 @@ tribatch_draw_circle :: proc(batcher: ^Tringle_Batcher, center: maf.Vec2, radius
 	}
 }
 
-// pub fn (tb mut TriangleBatch) draw_circle(radius f32, segments int, config DrawConfig) {
-// 	if !tb.ensure_capacity(segments) { return }
+tribatch_draw_polygon :: proc(batcher: ^Tringle_Batcher, verts: []maf.Vec2, color: maf.Color = maf.COL_WHITE) {
+	tribatch_ensure_capacity(batcher, i32(len(verts) / 2) + 1);
 
-// 	center := math.Vec2{}
-// 	increment := math.pi * 2.0 / segments
-// 	mut theta := 0.0
+	center := verts[0];
+	for i in 1..<len(verts) do center += verts[i];
+	center /= cast(f32)len(verts);
 
-// 	mut sin_cos := math.Vec2{math.cos(theta), math.sin(theta)}
-// 	v0 := center + sin_cos.scale(radius)
-// 	theta += increment
-
-// 	for _ in 1..segments - 1 {
-// 		sin_cos = math.Vec2{math.cos(theta), math.sin(theta)}
-// 		v1 := center + sin_cos.scale(radius)
-
-// 		sin_cos = math.Vec2{math.cos(theta + increment), math.sin(theta + increment)}
-// 		v2 := center + sin_cos.scale(radius)
-
-// 		tb.draw_triangle(v0.x, v0.y, v1.x, v1.y, v2.x, v2.y, config)
-
-// 		theta += increment
-// 	}
-// }
+	for i in 0..<len(verts) - 1 do tribatch_draw_triangle(batcher, center, verts[i], verts[i + 1], color);
+	tribatch_draw_triangle(batcher, center, verts[len(verts) - 1], verts[0], color);
+}
