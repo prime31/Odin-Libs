@@ -9,6 +9,7 @@ import "shared:engine/gfx"
 
 
 tri_batch: ^gfx.Tringle_Batcher;
+once: bool;
 
 main :: proc() {
 	engine.run({
@@ -19,7 +20,8 @@ main :: proc() {
 }
 
 init :: proc() {
-	tri_batch = gfx.new_tribatcher();
+	tri_batch = gfx.new_tribatch();
+	once = true;
 }
 
 update :: proc() {}
@@ -33,11 +35,15 @@ render :: proc() {
 	gfx.draw_circle({80, 230}, 50);
 	gfx.draw_circle({180, 230}, 25, 4, maf.COL_BLACK, 6);
 	gfx.draw_point({230, 130}, 4);
+	gfx.draw_rect({50, 5}, 40, 20);
+	gfx.draw_hollow_rect({150, 5}, 40, 20);
 	gfx.end_pass();
 
 	gfx.begin_pass();
-	gfx.tribatcher_draw_triangle(tri_batch, {50, 50}, {150, 150}, {0, 150});
-	gfx.tribatcher_end_frame(tri_batch);
+	gfx.tribatch_draw_triangle(tri_batch, {50, 50}, {150, 150}, {0, 150});
+	gfx.tribatch_draw_triangle(tri_batch, {250, 50}, {350, 150}, {200, 150}, maf.COL_BLACK);
+	gfx.tribatch_end_frame(tri_batch);
+	gfx.tribatch_draw_circle(tri_batch, {300, 300}, 50);
 	gfx.end_pass();
 }
 

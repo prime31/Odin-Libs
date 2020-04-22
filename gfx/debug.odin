@@ -17,7 +17,9 @@ Draw_Item :: struct #raw_union {
 Type :: enum {
 	Point,
 	Line,
+	Rect,
 	Hollow_Rect,
+	Circle,
 	Hollow_Circle,
 	Text
 }
@@ -25,8 +27,7 @@ Type :: enum {
 @(private="file")
 Point :: struct {
 	type: Type,
-	x: f32,
-	y: f32,
+	pos: maf.Vec2,
 	size: f32,
 	color: maf.Color
 }
@@ -34,10 +35,8 @@ Point :: struct {
 @(private="file")
 Line :: struct {
 	type: Type,
-	x1: f32,
-	y1: f32,
-	x2: f32,
-	y2: f32,
+	pt1: maf.Vec2,
+	pt2: maf.Vec2,
 	thickness: f32,
 	color: maf.Color
 }
@@ -45,8 +44,7 @@ Line :: struct {
 @(private="file")
 Rect :: struct {
 	type: Type,
-	x: f32,
-	y: f32,
+	pos: maf.Vec2,
 	w: f32,
 	h: f32,
 	thickness: f32,
@@ -56,8 +54,7 @@ Rect :: struct {
 @(private="file")
 Circle :: struct {
 	type: Type,
-	x: f32,
-	y: f32,
+	center: maf.Vec2,
 	r: f32,
 	color: maf.Color
 }
@@ -65,9 +62,8 @@ Circle :: struct {
 @(private="file")
 Text :: struct {
 	type: Type,
+	pos: maf.Vec2,
 	text: string,
-	x: f32,
-	y: f32,
 	color: maf.Color
 }
 
@@ -83,55 +79,57 @@ debug_init :: proc() {
 debug_render :: proc() {
 	for item in _debug_items {
 		switch item.type {
-			case .Point: {}
-			case .Line: {}
-			case .Hollow_Rect: {}
-			case .Hollow_Circle: {}
+			case .Point: draw_point(item.point.pos, item.point.size, item.point.color);
+			case .Line: draw_line(item.line.pt1, item.line.pt2, item.line.thickness, item.line.color);
+			case .Rect: draw_rect(item.rect.pos, item.rect.w, item.rect.h, item.rect.color);
+			case .Hollow_Rect: draw_hollow_rect(item.rect.pos, item.rect.w, item.rect.h, item.rect.color);
+			case .Circle: unimplemented();
+			case .Hollow_Circle: draw_circle(item.circle.center, item.circle.r, 1, item.circle.color);
 			case .Text: draw_text(item.text.text);
 		}
 	}
 	clear_dynamic_array(&_debug_items);
 }
 
-debug_draw_point :: proc(x, y, size: f32, color: maf.Color = maf.COL_WHITE) {
+debug_draw_point :: proc(pos: maf.Vec2, size: f32, color: maf.Color = maf.COL_WHITE) {
 	tmp := Draw_Item{};
-	tmp.point = {.Point, x, y, size, color};
+	tmp.point = {.Point, pos, size, color};
 	append(&_debug_items, tmp);
 }
 
-debug_draw_line :: proc(x1, y1, x2, y2, thickness: f32, color: maf.Color = maf.COL_WHITE) {
+debug_draw_line :: proc(pt1, pt2: maf.Vec2, thickness: f32, color: maf.Color = maf.COL_WHITE) {
 	tmp := Draw_Item{};
-	tmp.line = {.Line, x1, y1, x2, y2, thickness, color};
+	tmp.line = {.Line, pt1, pt2, thickness, color};
 	append(&_debug_items, tmp);
 }
 
 debug_draw_line_vec :: proc(pt1, pt2: maf.Vec2, thickness: f32, color: maf.Color = maf.COL_WHITE) {
 	tmp := Draw_Item{};
-	tmp.line = {.Line, pt1.x, pt1.y, pt2.x, pt2.y, thickness, color};
+	tmp.line = {.Line, pt1, pt2, thickness, color};
 	append(&_debug_items, tmp);
 }
 
-debug_draw_hollow_rect :: proc(x, y, width, height, thickness: f32, color: maf.Color = maf.COL_WHITE) {
+debug_draw_rect :: proc(pos: maf.Vec2, width, height, thickness: f32, color: maf.Color = maf.COL_WHITE) {
 	tmp := Draw_Item{};
-	tmp.rect = {.Hollow_Rect, x, y, width, height, thickness, color};
+	tmp.rect = {.Rect, pos, width, height, thickness, color};
 	append(&_debug_items, tmp);
 }
 
-debug_draw_hollow_circle :: proc(x, y, radius: f32, color: maf.Color = maf.COL_WHITE) {
+debug_draw_hollow_rect :: proc(pos: maf.Vec2, width, height, thickness: f32, color: maf.Color = maf.COL_WHITE) {
 	tmp := Draw_Item{};
-	tmp.circle = {.Hollow_Circle, x, y, radius, color};
+	tmp.rect = {.Hollow_Rect, pos, width, height, thickness, color};
 	append(&_debug_items, tmp);
 }
 
-debug_draw_hollow_circle_vec :: proc(pos: maf.Vec2, radius: f32, color: maf.Color = maf.COL_WHITE) {
+debug_draw_hollow_circle :: proc(center: maf.Vec2, radius: f32, color: maf.Color = maf.COL_WHITE) {
 	tmp := Draw_Item{};
-	tmp.circle = {.Hollow_Circle, pos.x, pos.y, radius, color};
+	tmp.circle = {.Hollow_Circle, center, radius, color};
 	append(&_debug_items, tmp);
 }
 
-debug_draw_text :: proc(text: string, x, y: f32, color: maf.Color = maf.COL_WHITE) {
+debug_draw_text :: proc(text: string, center: maf.Vec2, color: maf.Color = maf.COL_WHITE) {
 	tmp := Draw_Item{};
-	tmp.text = {.Text, strings.clone(text, context.temp_allocator), x, y, color};
+	tmp.text = {.Text, center, strings.clone(text, context.temp_allocator), color};
 	append(&_debug_items, tmp);
 }
 

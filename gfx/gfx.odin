@@ -10,7 +10,7 @@ render_target_bindings: fna.Render_Target_Binding;
 @(private)
 presentation_params: fna.Presentation_Parameters;
 @(private)
-batcher: ^Batcher;
+_batcher: ^Batcher;
 @(private)
 default_fontbook: ^Font_Book;
 @(private)
@@ -28,7 +28,7 @@ init :: proc(params: ^fna.Presentation_Parameters, disable_debug_render: bool) {
 
 	set_viewport({0, 0, params.back_buffer_width, params.back_buffer_height, 0, 1});
 
-	batcher = new_batcher();
+	_batcher = new_batcher();
 
 	pixels := [?]u32 {0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF};
 	_white_tex = new_texture_from_data(&pixels[0], 2, 2, default_sampler_state);
