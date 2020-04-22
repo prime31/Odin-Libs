@@ -29,7 +29,7 @@ mat32_make :: proc(x: f32, y: f32, sx: f32 = 1, sy: f32 = 1, ox: f32 = 0, oy: f3
     return mat;
 }
 
-mat32_make_transform :: proc(x, y, angle, sx, sy, ox, oy: f32) -> Mat32 {
+mat32_make_transform :: proc(x, y, angle: f32, sx: f32 = 1, sy: f32 = 1, ox: f32 = 0, oy: f32 = 0) -> Mat32 {
     mat := MAT32_IDENTITY;
     mat32_set_transform(&mat, x, y, angle, sx, sy, ox, oy);
     return mat;

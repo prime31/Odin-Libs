@@ -30,7 +30,7 @@ init :: proc(params: ^fna.Presentation_Parameters, disable_debug_render: bool) {
 
 	batcher = new_batcher();
 
-	pixels := [?]u32 {0xFFFFFFFF, 0xFF000000, 0xFFFFFFFF, 0xFF000000};
+	pixels := [?]u32 {0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF};
 	_white_tex = new_texture_from_data(&pixels[0], 2, 2, default_sampler_state);
 
 	default_fontbook = new_fontbook(256, 256);

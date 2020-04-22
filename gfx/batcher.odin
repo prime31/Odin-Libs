@@ -23,7 +23,7 @@ Draw_Call :: struct {
 }
 
 
-new_batcher :: proc(max_sprites: i32 = 15) -> ^Batcher {
+new_batcher :: proc(max_sprites: i32 = 1024) -> ^Batcher {
 	batcher := new(Batcher);
 	batcher.mesh = new_dynamic_mesh(Vertex, max_sprites * 4, max_sprites * 6);
 	batcher.shader = new_shader("effects/SpriteEffect.fxb");

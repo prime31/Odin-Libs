@@ -80,12 +80,12 @@ draw_text :: proc(str: string, fontbook: ^Font_Book = nil) {
 }
 
 draw_line :: proc(start, end: maf.Vec2, thickness: f32 = 1, color: maf.Color = maf.COL_WHITE) {
-	maf.quad_set_fill(&quad, _white_tex.width, _white_tex.height);
+	maf.quad_set_fill(&quad, 1, 1);
 
 	angle := maf.vec2_angle_between(start, end);
 	length := maf.vec2_distance(start, end);
 
-	mat := maf.mat32_make_transform(start.x, start.y, angle, length, thickness, 0, 0.5 * cast(f32)_white_tex.height);
+	mat := maf.mat32_make_transform(start.x, start.y, angle, length, thickness, 0, 0);
 	batcher_draw(batcher, _white_tex, &quad, &mat, color);
 }
 
@@ -107,4 +107,12 @@ draw_circle :: proc(center: maf.Vec2, radius: f32, thickness: f32 = 1, color: ma
 		last = at;
 		last_p = at_p;
 	}
+}
+
+draw_point :: proc(position: maf.Vec2, size: f32 = 1, color: maf.Color = maf.COL_WHITE) {
+	maf.quad_set_fill(&quad, cast(i32)size, cast(i32)size);
+
+	offset := size == 1 ? 0 : size * 0.5;
+	mat := maf.mat32_make_transform(position.x, position.y, 0, 1, 1, offset, offset);
+	batcher_draw(batcher, _white_tex, &quad, &mat, color);
 }
