@@ -5,7 +5,7 @@ import "shared:engine/libs/fna"
 import "shared:engine/maf"
 import "core:fmt"
 
-Tringle_Batcher :: struct {
+Tringle_Batch :: struct {
 	mesh: ^Dynamic_Mesh(Vertex),
 	draw_calls: [dynamic]i32,
 	draw_call_index: int,
@@ -16,8 +16,8 @@ Tringle_Batcher :: struct {
 	discard_next: bool	// flag for dealing with the Metal issue where we have to discard our buffer 2 times
 }
 
-new_tribatch :: proc(max_tris: i32 = 150) -> ^Tringle_Batcher {
-	batcher := new(Tringle_Batcher);
+new_tribatch :: proc(max_tris: i32 = 150) -> ^Tringle_Batch {
+	batcher := new(Tringle_Batch);
 	batcher.mesh = new_dynamic_mesh(Vertex, max_tris * 3, max_tris * 3);
 	batcher.draw_calls = make([dynamic]i32, 10);
 
@@ -35,21 +35,21 @@ new_tribatch :: proc(max_tris: i32 = 150) -> ^Tringle_Batcher {
 	return batcher;
 }
 
-free_tribatch :: proc(batcher: ^Tringle_Batcher) {
+free_tribatch :: proc(batcher: ^Tringle_Batch) {
 	free_dynamic_mesh(batcher.mesh);
 	delete(batcher.draw_calls);
 	free(batcher);
 }
 
 // called at the end of the frame when all drawing is complete. Flushes the batch and resets local state.
-tribatch_end_frame :: proc(batcher: ^Tringle_Batcher) {
+tribatch_end_frame :: proc(batcher: ^Tringle_Batch) {
 	tribatch_flush(batcher);
 	batcher.vert_index = 0;
 	batcher.vert_count = 0;
 	batcher.buffer_offset = 0;
 }
 
-tribatch_flush :: proc(batcher: ^Tringle_Batcher, discard_buffer: bool = false) {
+tribatch_flush :: proc(batcher: ^Tringle_Batch, discard_buffer: bool = false) {
 	if batcher.vert_count == 0 do return;
 
 	// if we ran out of space and dont support no_overwrite we have to discard the buffer
@@ -73,7 +73,7 @@ tribatch_flush :: proc(batcher: ^Tringle_Batcher, discard_buffer: bool = false) 
 
 // ensures the vert buffer has enough space and manages the draw call command buffer when textures change
 @(private)
-tribatch_ensure_capacity :: proc(batcher: ^Tringle_Batcher, count: i32 = 3) {
+tribatch_ensure_capacity :: proc(batcher: ^Tringle_Batch, count: i32 = 3) {
 	// if we run out of buffer we have to flush the batch and possibly discard the whole buffer
 	if batcher.vert_index + count > cast(i32)len(batcher.mesh.verts) {
 		if batcher.draw_call_index < 0 do dynamic_mesh_append_vert_slice(batcher.mesh, 0, 1, .Discard);
@@ -97,7 +97,7 @@ tribatch_ensure_capacity :: proc(batcher: ^Tringle_Batcher, count: i32 = 3) {
 	}
 }
 
-tribatch_draw_triangle :: proc(batcher: ^Tringle_Batcher, pt1, pt2, pt3: maf.Vec2, color: maf.Color = maf.COL_WHITE) {
+tribatch_draw_triangle :: proc(batcher: ^Tringle_Batch, pt1, pt2, pt3: maf.Vec2, color: maf.Color = maf.COL_WHITE) {
 	tribatch_ensure_capacity(batcher);
 
 	// copy the quad positions, uvs and color into vertex array transforming them with the matrix after we do it
@@ -116,7 +116,7 @@ tribatch_draw_triangle :: proc(batcher: ^Tringle_Batcher, pt1, pt2, pt3: maf.Vec
 	batcher.vert_index += 3;
 }
 
-tribatch_draw_circle :: proc(batcher: ^Tringle_Batcher, center: maf.Vec2, radius: f32, color: maf.Color = maf.COL_WHITE, resolution: i32 = 12) {
+tribatch_draw_circle :: proc(batcher: ^Tringle_Batch, center: maf.Vec2, radius: f32, color: maf.Color = maf.COL_WHITE, resolution: i32 = 12) {
 	tribatch_ensure_capacity(batcher, resolution);
 
 	increment := maf.PI * 2 / cast(f32)resolution;
@@ -138,7 +138,7 @@ tribatch_draw_circle :: proc(batcher: ^Tringle_Batcher, center: maf.Vec2, radius
 	}
 }
 
-tribatch_draw_polygon :: proc(batcher: ^Tringle_Batcher, verts: []maf.Vec2, color: maf.Color = maf.COL_WHITE) {
+tribatch_draw_polygon :: proc(batcher: ^Tringle_Batch, verts: []maf.Vec2, color: maf.Color = maf.COL_WHITE) {
 	tribatch_ensure_capacity(batcher, i32(len(verts) / 2) + 1);
 
 	center := verts[0];

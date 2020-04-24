@@ -8,7 +8,7 @@ import "shared:engine"
 import "shared:engine/gfx"
 
 
-tri_batch: ^gfx.Tringle_Batcher;
+tri_batch: ^gfx.Tringle_Batch;
 
 main :: proc() {
 	engine.run({
