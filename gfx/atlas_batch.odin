@@ -8,12 +8,13 @@ Atlas_Batch :: struct {
 	mesh: ^Dynamic_Mesh(Vertex),
 	sprite_count: i32,
 	max_sprites: i32,
-	texture: Texture
+	texture: Texture,
+	buffer_dirty: bool
 }
 
 new_atlasbatch :: proc(texture: Texture, max_sprites: i32 = 256) -> ^Atlas_Batch {
 	batcher := new(Atlas_Batch);
-	batcher.mesh = new_dynamic_mesh(Vertex, max_sprites * 4, max_sprites * 6);
+	batcher.mesh = new_dynamicmesh(Vertex, max_sprites * 4, max_sprites * 6);
 	batcher.max_sprites = max_sprites;
 	batcher.texture = texture;
 
@@ -33,7 +34,7 @@ new_atlasbatch :: proc(texture: Texture, max_sprites: i32 = 256) -> ^Atlas_Batch
 }
 
 free_atlasbatch :: proc(batch: ^Atlas_Batch) {
-	free_dynamic_mesh(batch.mesh);
+	free_dynamicmesh(batch.mesh);
 	free(batch);
 }
 
@@ -46,13 +47,45 @@ atlasbatch_ensure_capacity :: proc(batch: ^Atlas_Batch) -> bool {
 	return true;
 }
 
-atlasbatch_draw :: proc(batch: ^Atlas_Batch, texture: ^fna.Texture, quad: ^maf.Quad, mat: ^maf.Mat32, color: maf.Color = maf.COL_WHITE) -> i32 {
+atlasbatch_set :: proc(batch: ^Atlas_Batch, index: i32, quad: ^maf.Quad, mat: ^maf.Mat32, color: maf.Color = maf.COL_WHITE) {
+	// copy the quad positions, uvs and color into vertex array transforming them with the matrix as we do it
+	vert_index := index * 4;
+
+	mat := mat;
+	if mat == nil {
+		matrix := maf.MAT32_IDENTITY;
+		mat = &matrix;
+	}
+
+	maf.mat32_transform_quad(mat, batch.mesh.verts[vert_index:vert_index + 4], quad, color);
+	batch.buffer_dirty = true;
+}
+
+atlasbatch_set_viewport :: proc(batch: ^Atlas_Batch, index: i32, viewport: maf.Rect, mat: ^maf.Mat32, color: maf.Color = maf.COL_WHITE) {
+	quad := maf.quad(viewport.x, viewport.y, viewport.w, viewport.h, batch.texture.width, batch.texture.height);
+	atlasbatch_set(batch, index, &quad, mat, color);
+}
+
+atlasbatch_add :: proc(batch: ^Atlas_Batch, quad: ^maf.Quad, mat: ^maf.Mat32, color: maf.Color = maf.COL_WHITE) -> i32 {
 	if !atlasbatch_ensure_capacity(batch) do return -1;
 
-	// copy the quad positions, uvs and color into vertex array transforming them with the matrix as we do it
-	vert_index := batch.sprite_count * 4;
-	maf.mat32_transform_quad(mat, batch.mesh.verts[vert_index:vert_index + 4], quad, color);
+	atlasbatch_set(batch, batch.sprite_count, quad, mat, color);
 
 	batch.sprite_count += 1;
 	return batch.sprite_count - 1;
+}
+
+atlasbatch_add_viewport :: proc(batch: ^Atlas_Batch, viewport: maf.Rect, mat: ^maf.Mat32, color: maf.Color = maf.COL_WHITE) -> i32 {
+	quad := maf.quad(viewport.x, viewport.y, viewport.w, viewport.h, batch.texture.width, batch.texture.height);
+	return atlasbatch_add(batch, &quad, mat, color);
+}
+
+atlasbatch_draw :: proc(batch: ^Atlas_Batch) {
+	if batch.buffer_dirty {
+		dynamicmesh_append_vert_slice(batch.mesh, 0, batch.sprite_count * 4);
+		batch.buffer_dirty = false;
+	}
+
+	texture_bind(batch.texture);
+	dynamicmesh_draw(batch.mesh, 0, batch.sprite_count * 4);
 }

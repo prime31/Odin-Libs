@@ -9,6 +9,7 @@ import "shared:engine/gfx"
 
 
 tri_batch: ^gfx.Tringle_Batch;
+atlas_batch: ^gfx.Atlas_Batch;
 
 main :: proc() {
 	engine.run({
@@ -20,6 +21,17 @@ main :: proc() {
 
 init :: proc() {
 	tri_batch = gfx.new_tribatch();
+
+	tex := gfx.new_checkerboard_texture();
+	atlas_batch = gfx.new_atlasbatch(tex);
+
+	mat := maf.mat32_make_transform(50, 50, 0, 5, 5);
+	gfx.atlasbatch_add_viewport(atlas_batch, {0, 0, 4, 4}, &mat);
+
+	for i in 1..20 {
+		maf.mat32_set_transform(&mat, cast(f32)i * 20, cast(f32)i * 20, cast(f32)i * maf.PI / 5, 5, 5, 2, 2);
+		gfx.atlasbatch_add_viewport(atlas_batch, {0, 0, 4, 4}, &mat);
+	}
 }
 
 update :: proc() {}
@@ -46,6 +58,8 @@ render :: proc() {
 	poly := [?]maf.Vec2{{400,30}, {420,10}, {430, 80}, {410, 60}, {375, 40}};
 	gfx.tribatch_draw_polygon(tri_batch, poly[:], maf.COL_BLACK);
 	gfx.tribatch_end_frame(tri_batch);
+
+	gfx.atlasbatch_draw(atlas_batch);
 	gfx.end_pass();
 }
 

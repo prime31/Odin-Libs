@@ -43,7 +43,7 @@ mesh_draw :: proc(mesh: ^Mesh, num_vertices: i32) {
 
 
 
-new_dynamic_mesh :: proc($T: typeid, vertex_count: i32, index_count: i32, index_buffer_dynamic: bool = false) -> ^Dynamic_Mesh(T) {
+new_dynamicmesh :: proc($T: typeid, vertex_count: i32, index_count: i32, index_buffer_dynamic: bool = false) -> ^Dynamic_Mesh(T) {
 	mesh := new(Dynamic_Mesh(T));
 
 	// only create the index buffer if it is dynamic
@@ -57,10 +57,8 @@ new_dynamic_mesh :: proc($T: typeid, vertex_count: i32, index_count: i32, index_
 	return mesh;
 }
 
-free_dynamic_mesh :: proc(mesh: ^$T/Dynamic_Mesh) {
-	if mesh.indices != nil {
-		delete(mesh.indices);
-	}
+free_dynamicmesh :: proc(mesh: ^$T/Dynamic_Mesh) {
+	if mesh.indices != nil do delete(mesh.indices);
 	delete(mesh.verts);
 	free_vert_buffer(mesh.vert_buffer_binding.vertex_buffer);
 	free_index_buffer(mesh.index_buffer);
@@ -68,12 +66,12 @@ free_dynamic_mesh :: proc(mesh: ^$T/Dynamic_Mesh) {
 }
 
 // Try not to use .None for dynamic vert buffers
-dynamic_mesh_update_all_verts :: proc(mesh: ^$T/Dynamic_Mesh, options: fna.Set_Data_Options = .None) {
+dynamicmesh_update_all_verts :: proc(mesh: ^$T/Dynamic_Mesh, options: fna.Set_Data_Options = .None) {
 	set_vertex_buffer_data(mesh.vert_buffer, &mesh.verts, 0, options);
 }
 
 // uploads to the GPU the slice from start to end
-dynamic_mesh_append_vert_slice :: proc(mesh: ^$T/Dynamic_Mesh, start_index: i32, num_verts: i32, options: fna.Set_Data_Options = .None) {
+dynamicmesh_append_vert_slice :: proc(mesh: ^$T/Dynamic_Mesh, start_index: i32, num_verts: i32, options: fna.Set_Data_Options = .None) {
 	// cheat a bit here and use the Vertex_Buffer_Binding data to get the element size of our verts
 	offset_in_bytes := start_index * mesh.vert_buffer_binding.vertex_declaration.vertex_stride;
 	verts := mesh.verts[start_index:start_index + num_verts];
@@ -81,12 +79,12 @@ dynamic_mesh_append_vert_slice :: proc(mesh: ^$T/Dynamic_Mesh, start_index: i32,
 	set_vertex_buffer_data(mesh.vert_buffer, &verts, offset_in_bytes, options);
 }
 
-dynamic_mesh_update_indices :: proc(mesh: ^$T/Dynamic_Mesh, offset_in_bytes: i32 = 0) {
+dynamicmesh_update_indices :: proc(mesh: ^$T/Dynamic_Mesh, offset_in_bytes: i32 = 0) {
 	assert(mesh.indices != nil);
 	set_index_buffer_data(mesh.index_buffer, &mesh.indices, offset_in_bytes);
 }
 
-dynamic_mesh_draw :: proc(mesh: ^$T/Dynamic_Mesh, base_vertex: i32 = 0, num_vertices: i32 = 0) {
+dynamicmesh_draw :: proc(mesh: ^$T/Dynamic_Mesh, base_vertex: i32 = 0, num_vertices: i32 = 0) {
 	num_vertices := num_vertices == 0 ? cast(i32)len(mesh.verts) : num_vertices;
 	primitive_count := num_vertices / 2; // assuming Triangle_List
 	fna.apply_vertex_buffer_bindings(fna_device, &mesh.vert_buffer_binding, 1, 0, base_vertex); // last 2 params: bindings_updated: u8, base_vertex: i32

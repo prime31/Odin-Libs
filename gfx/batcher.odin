@@ -25,7 +25,7 @@ Draw_Call :: struct {
 
 new_batcher :: proc(max_sprites: i32 = 1024) -> ^Batcher {
 	batcher := new(Batcher);
-	batcher.mesh = new_dynamic_mesh(Vertex, max_sprites * 4, max_sprites * 6);
+	batcher.mesh = new_dynamicmesh(Vertex, max_sprites * 4, max_sprites * 6);
 	batcher.shader = new_shader("effects/SpriteEffect.fxb");
 	batcher.draw_calls = make([dynamic]Draw_Call, 10);
 
@@ -45,7 +45,7 @@ new_batcher :: proc(max_sprites: i32 = 1024) -> ^Batcher {
 }
 
 free_batcher :: proc(batcher: ^Batcher) {
-	free_dynamic_mesh(batcher.mesh);
+	free_dynamicmesh(batcher.mesh);
 	delete(batcher.draw_calls);
 	free(batcher);
 }
@@ -66,7 +66,7 @@ batcher_flush :: proc(batcher: ^Batcher, discard_buffer: bool = false) {
 	options: fna.Set_Data_Options = discard_buffer || batcher.discard_next || fna.supports_no_overwrite(fna_device) == 0 ? .Discard : .No_Overwrite;
 	batcher.discard_next = false;
 
-	dynamic_mesh_append_vert_slice(batcher.mesh, batcher.buffer_offset, batcher.vert_count, options);
+	dynamicmesh_append_vert_slice(batcher.mesh, batcher.buffer_offset, batcher.vert_count, options);
 
 
 	// TODO: move this out of the batcher
@@ -78,7 +78,7 @@ batcher_flush :: proc(batcher: ^Batcher, discard_buffer: bool = false) {
 	// run through all our accumulated draw calls
 	for i in 0..batcher.draw_call_index {
 		texture_bind(batcher.draw_calls[i].texture);
-		dynamic_mesh_draw(batcher.mesh, batcher.buffer_offset, batcher.draw_calls[i].vert_count);
+		dynamicmesh_draw(batcher.mesh, batcher.buffer_offset, batcher.draw_calls[i].vert_count);
 
 		batcher.buffer_offset += batcher.draw_calls[i].vert_count;
 		batcher.draw_calls[i].texture = nil;
@@ -93,7 +93,7 @@ batcher_flush :: proc(batcher: ^Batcher, discard_buffer: bool = false) {
 batcher_ensure_capacity :: proc(batcher: ^Batcher, texture: ^fna.Texture, count: i32 = 4) {
 	// if we run out of buffer we have to flush the batch and possibly discard the whole buffer
 	if batcher.vert_index + count > cast(i32)len(batcher.mesh.verts) {
-		if batcher.draw_call_index < 0 do dynamic_mesh_append_vert_slice(batcher.mesh, 0, 1, .Discard);
+		if batcher.draw_call_index < 0 do dynamicmesh_append_vert_slice(batcher.mesh, 0, 1, .Discard);
 		else do batcher_flush(batcher, true);
 
 		// we have to discard two frames for metal else we lose draws for some reason...

@@ -81,7 +81,7 @@ mat32_scale :: proc(m: ^Mat32, x, y: f32) {
     m[3] *= y;
 }
 
-mat32_set_transform :: proc(m: ^Mat32, x, y, angle, sx, sy, ox, oy: f32) {
+mat32_set_transform :: proc(m: ^Mat32, x, y, angle, sx, sy: f32, ox: f32 = 0, oy: f32 = 0) {
     c := math.cos(angle);
     s := math.sin(angle);
 

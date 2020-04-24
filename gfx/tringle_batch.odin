@@ -18,7 +18,7 @@ Tringle_Batch :: struct {
 
 new_tribatch :: proc(max_tris: i32 = 150) -> ^Tringle_Batch {
 	batcher := new(Tringle_Batch);
-	batcher.mesh = new_dynamic_mesh(Vertex, max_tris * 3, max_tris * 3);
+	batcher.mesh = new_dynamicmesh(Vertex, max_tris * 3, max_tris * 3);
 	batcher.draw_calls = make([dynamic]i32, 10);
 
 	for i in 0..<len(batcher.mesh.verts) do batcher.mesh.verts[i].uv = {0.5, 0.5};
@@ -36,7 +36,7 @@ new_tribatch :: proc(max_tris: i32 = 150) -> ^Tringle_Batch {
 }
 
 free_tribatch :: proc(batcher: ^Tringle_Batch) {
-	free_dynamic_mesh(batcher.mesh);
+	free_dynamicmesh(batcher.mesh);
 	delete(batcher.draw_calls);
 	free(batcher);
 }
@@ -57,13 +57,13 @@ tribatch_flush :: proc(batcher: ^Tringle_Batch, discard_buffer: bool = false) {
 	options: fna.Set_Data_Options = discard_buffer || batcher.discard_next || fna.supports_no_overwrite(fna_device) == 0 ? .Discard : .No_Overwrite;
 	batcher.discard_next = false;
 
-	dynamic_mesh_append_vert_slice(batcher.mesh, batcher.buffer_offset, batcher.vert_count, options);
+	dynamicmesh_append_vert_slice(batcher.mesh, batcher.buffer_offset, batcher.vert_count, options);
 
 
 	// run through all our accumulated draw calls
 	for i in 0..batcher.draw_call_index {
 		texture_bind(_white_tex);
-		dynamic_mesh_draw(batcher.mesh, batcher.buffer_offset, batcher.draw_calls[i]);
+		dynamicmesh_draw(batcher.mesh, batcher.buffer_offset, batcher.draw_calls[i]);
 		batcher.buffer_offset += batcher.draw_calls[i];
 	}
 
@@ -76,7 +76,7 @@ tribatch_flush :: proc(batcher: ^Tringle_Batch, discard_buffer: bool = false) {
 tribatch_ensure_capacity :: proc(batcher: ^Tringle_Batch, count: i32 = 3) {
 	// if we run out of buffer we have to flush the batch and possibly discard the whole buffer
 	if batcher.vert_index + count > cast(i32)len(batcher.mesh.verts) {
-		if batcher.draw_call_index < 0 do dynamic_mesh_append_vert_slice(batcher.mesh, 0, 1, .Discard);
+		if batcher.draw_call_index < 0 do dynamicmesh_append_vert_slice(batcher.mesh, 0, 1, .Discard);
 		else do tribatch_flush(batcher, true);
 
 		// we have to discard two frames for metal else we lose draws for some reason...
