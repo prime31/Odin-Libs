@@ -1,5 +1,6 @@
 package input
 
+import "shared:engine/maf"
 import "core:fmt"
 import "shared:engine/libs/sdl"
 
@@ -103,6 +104,53 @@ handle_mouse_event :: proc(evt: ^sdl.Mouse_Button_Event) {
 	}
 
 	fmt.println("mouse:", evt);
+}
+
+// only true if down this frame and not down the previous frame
+key_pressed :: proc(scancode: sdl.Scancode) -> bool do return input.keys[scancode] == 3;
+
+// true the entire time the key is down
+key_down :: proc(scancode: sdl.Scancode) -> bool do return input.keys[scancode] > 1;
+
+// true only the frame the key is released
+key_up :: proc(scancode: sdl.Scancode) -> bool do return input.keys[scancode] == 1;
+
+// only true if down this frame and not down the previous frame
+mouse_pressed :: proc(button: Mouse_Button) -> bool do return input.mouse_buttons[button] == 3;
+
+// true the entire time the button is down
+mouse_down :: proc(button: Mouse_Button) -> bool do return input.mouse_buttons[button] > 1;
+
+// true only the frame the button is released
+mouse_up :: proc(button: Mouse_Button) -> bool do return input.mouse_buttons[button] == 1;
+
+mouse_wheel :: proc() -> i32 do return input.mouse_wheel_y;
+
+mouse_pos :: proc() -> (i32, i32) {
+	x: i32;
+	y: i32;
+	sdl.get_mouse_state(&x, &y);
+	return x * input.window_scale, y * input.window_scale;
+}
+
+// gets the scaled mouse position based on the currently bound render texture scale and offset
+// as calcuated in OffscreenPass. scale should be scale and offset_n is the calculated x, y value.
+mouse_pos_scaled :: proc() -> (i32, i32) {
+	x, y := mouse_pos();
+	unimplemented();
+	return 0, 0;
+	// xf := f32(x) - input.res_scaler.x;
+	// yf := f32(y) - input.res_scaler.y;
+	// return i32(xf / input.res_scaler.scale), i32(yf / input.res_scaler.scale);
+}
+
+mouse_pos_scaled_vec :: proc() -> maf.Vec2 {
+	x, y := mouse_pos_scaled();
+	return {cast(f32)x, cast(f32)y};
+}
+
+mouse_rel_motion :: proc() -> (i32, i32) {
+	return input.mouse_rel_x, input.mouse_rel_y;
 }
 
 
