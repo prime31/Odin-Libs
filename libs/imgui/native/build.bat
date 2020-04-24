@@ -1,5 +1,5 @@
 IF EXIST cimgui_git GOTO SKIP_GIT
-git clone --recursive --depth 1 --single-branch --branch docking https://github.com/cimgui/cimgui.git cimgui_git
+git clone --recursive --depth 1 --single-branch --branch docking_inter https://github.com/cimgui/cimgui.git cimgui_git
 :SKIP_GIT
 
 cd cimgui_git
