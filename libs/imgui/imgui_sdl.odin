@@ -8,7 +8,7 @@ import "shared:engine/libs/sdl"
 mouse_cursors: [Mouse_Cursor.Count]^sdl.Cursor;
 
 @(private)
-mouse_button_state: [3]bool;
+mouse_button_state: [4]bool;
 
 
 sdl_init :: proc(window: ^sdl.Window) {

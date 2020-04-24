@@ -55,6 +55,7 @@ run :: proc(config: Engine_Config) {
 	};
 	gfx.init(&params, config.disable_debug_render);
 	time.init(config.update_rate, config.update_multiplicity);
+	input.init(window.scale());
 
 	config.init();
 	imgui.impl_fna_init(gfx.fna_device, window.sdl_window);
@@ -96,6 +97,8 @@ run_loop :: proc(update: proc(), render: proc()) {
 
 // returns true when its time to quit
 poll_events :: proc() -> bool {
+	input.new_frame();
+
 	e: sdl.Event;
 	for sdl.poll_event(&e) != 0 {
 		// ignore events imgui eats
