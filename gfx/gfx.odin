@@ -10,6 +10,8 @@ render_target_bindings: fna.Render_Target_Binding;
 @(private)
 presentation_params: fna.Presentation_Parameters;
 @(private)
+_default_pass: Default_Offscreen_Pass;
+@(private)
 _batcher: ^Batcher;
 @(private)
 default_fontbook: ^Font_Book;
@@ -20,7 +22,7 @@ viewport: fna.Viewport;
 default_sampler_state: fna.Sampler_State = {filter = .Point, max_anisotropy = 4};
 fna_device: ^fna.Device;
 
-init :: proc(params: ^fna.Presentation_Parameters, disable_debug_render: bool) {
+init :: proc(params: ^fna.Presentation_Parameters, disable_debug_render: bool, design_w, design_h: i32, resolution_policy: Resolution_Policy) {
 	presentation_params = params^;
 	fna_device = fna.create_device(&presentation_params, 0);
 	set_presentation_interval(.One);
@@ -36,6 +38,9 @@ init :: proc(params: ^fna.Presentation_Parameters, disable_debug_render: bool) {
 	default_fontbook = new_fontbook(256, 256);
 	fontbook_add_font_mem(default_fontbook, default_font_bytes, false);
 	fontbook_set_size(default_fontbook, 10);
+
+	_default_pass = new_defaultoffscreenpass(design_w, design_h, resolution_policy);
+	fmt.println(_default_pass);
 
 	_debug_render_enabled = !disable_debug_render;
 	debug_init();
@@ -68,13 +73,13 @@ set_viewport :: proc(new_viewport: fna.Viewport) {
 	fna.set_viewport(fna_device, &viewport);
 }
 
-set_default_sampler_state :: proc(sampler_state: fna.Sampler_State) {
-	default_sampler_state = sampler_state;
-}
+set_default_sampler_state :: proc(sampler_state: fna.Sampler_State) do default_sampler_state = sampler_state;
 
 set_presentation_interval :: proc(present_interval: fna.Present_Interval) {
 	fna.set_presentation_interval(fna_device, present_interval);
 }
+
+get_resolution_scaler :: proc() -> Resolution_Scaler do return _default_pass.scaler;
 
 set_render_texture :: proc(render_texture: ^Render_Texture) {
 	// early out if we have nothing to change

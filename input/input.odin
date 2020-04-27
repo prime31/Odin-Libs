@@ -1,5 +1,6 @@
 package input
 
+import "shared:engine/gfx"
 import "shared:engine/maf"
 import "core:fmt"
 import "shared:engine/libs/sdl"
@@ -13,8 +14,8 @@ Input :: struct {
 	mouse_wheel_y: i32,
 	mouse_rel_x: i32,
 	mouse_rel_y: i32,
-	window_scale: i32
-	// res_scaler &graphics.ResolutionScaler
+	window_scale: i32,
+	res_scaler: gfx.Resolution_Scaler
 }
 
 Mouse_Button :: enum {
@@ -39,7 +40,7 @@ init :: proc(win_scale: f32) {
 	input.window_scale = cast(i32)win_scale;
 
 	// TODO: this is a bit of a cheat, but we know that graphics is all set here so we fetch the scaler
-	//input.res_scaler = graphics.get_resolution_scaler()
+	input.res_scaler = gfx.get_resolution_scaler();
 }
 
 // clears any released keys
@@ -138,10 +139,10 @@ mouse_pos :: proc() -> (i32, i32) {
 mouse_pos_scaled :: proc() -> (i32, i32) {
 	x, y := mouse_pos();
 	unimplemented();
-	return 0, 0;
-	// xf := f32(x) - input.res_scaler.x;
-	// yf := f32(y) - input.res_scaler.y;
-	// return i32(xf / input.res_scaler.scale), i32(yf / input.res_scaler.scale);
+
+	xf := cast(f32)x - cast(f32)input.res_scaler.x;
+	yf := cast(f32)y - cast(f32)input.res_scaler.y;
+	return i32(xf / input.res_scaler.scale), i32(yf / input.res_scaler.scale);
 }
 
 mouse_pos_scaled_vec :: proc() -> maf.Vec2 {

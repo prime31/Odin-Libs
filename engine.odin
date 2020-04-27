@@ -17,7 +17,7 @@ Engine_Config :: struct {
 	update_rate: f64, 				// desired fps. Defaults to 60
 	update_multiplicity: int, 		// Makes the game always do a multiple of N updates at a time. Defaults to 1. 2 would be update_rate / multiplicity or 30fps.
 
-	// resolution_policy: gfx.Resolution_Policy,	// defines how the main render texture should be blitted to the backbuffer
+	resolution_policy: gfx.Resolution_Policy,	// defines how the main render texture should be blitted to the backbuffer
 	design_width: i32,				// the width of the main offscreen render texture when the policy is not .Default
 	design_height: i32,				// the height of the main offscreen render texture when the policy is not .Default
 
@@ -53,7 +53,7 @@ run :: proc(config: Engine_Config) {
 		display_orientation = fna.Display_Orientation.Default,
 		render_target_usage = fna.Render_Target_Usage.Platform_Contents
 	};
-	gfx.init(&params, config.disable_debug_render);
+	gfx.init(&params, config.disable_debug_render, config.design_width, config.design_height, config.resolution_policy);
 	time.init(config.update_rate, config.update_multiplicity);
 	input.init(window.scale());
 
