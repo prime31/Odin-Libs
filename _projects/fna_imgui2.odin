@@ -109,11 +109,21 @@ main :: proc() {
 		// imgui
 		sdl.gl_make_current(gl_win, gl_ctx);
 		imgui.impl_new_frame2(window);
+
+		imgui.set_next_window_pos({100, 100}, .First_Use_Ever);
+		imgui.begin("some mother fucking window");
 		imgui.im_text("whatever");
 		imgui.bullet();
 		imgui.im_text("whatever");
 		imgui.bullet();
 		imgui.im_text("whatever");
+		imgui.end();
+
+		// debug window
+		imgui.bullet();
+		imgui.im_text("whatever");
+
+		imgui.set_next_window_pos({150, 150}, .First_Use_Ever);
 		imgui.render();
 		imgui.impl_render2();
 
@@ -129,7 +139,7 @@ main :: proc() {
 }
 
 create_gl_window :: proc() -> (^sdl.Window, sdl.GL_Context) {
-	window := sdl.create_window("Window Dos", i32(sdl.Window_Pos.Undefined), i32(sdl.Window_Pos.Undefined), 150, 150, .Open_GL | .Borderless);
+	window := sdl.create_window("Window Dos", i32(sdl.Window_Pos.Undefined), i32(sdl.Window_Pos.Undefined), 50, 50, .Open_GL | .Hidden);
 
 	// sdl.gl_set_attribute(sdl.GL_Attr.Context_Flags, i32(sdl.GL_Context_Flag.Forward_Compatible));
 	// sdl.gl_set_attribute(sdl.GL_Attr.Context_Profile_Mask, i32(sdl.GL_Context_Profile.Core));
